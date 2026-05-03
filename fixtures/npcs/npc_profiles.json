@@ -1,0 +1,102 @@
+{
+  "actors": [
+    {
+      "id": "user_self",
+      "name": "我",
+      "side": "right",
+      "avatar": "self_mirror.jpg",
+      "role": "judge"
+    },
+    {
+      "id": "bot_xjz",
+      "name": "虾局长",
+      "side": "left",
+      "avatar": "xjz_bot.png",
+      "role": "bot",
+      "badge": "群AI助手"
+    },
+    {
+      "id": "akai",
+      "name": "阿凯",
+      "side": "left",
+      "avatar": "akai.png",
+      "role": "npc",
+      "traits": [
+        "爱吃",
+        "起哄"
+      ]
+    },
+    {
+      "id": "xiaoyu",
+      "name": "小雨",
+      "side": "left",
+      "avatar": "xiaoyu.png",
+      "role": "npc",
+      "traits": [
+        "积极",
+        "随和"
+      ]
+    },
+    {
+      "id": "laozhou",
+      "name": "老周",
+      "side": "left",
+      "avatar": "laozhou.png",
+      "role": "npc",
+      "traits": [
+        "有课",
+        "容易迟到"
+      ]
+    },
+    {
+      "id": "dazhuang",
+      "name": "大壮",
+      "side": "left",
+      "avatar": "dazhuang.png",
+      "role": "npc",
+      "traits": [
+        "都行派"
+      ]
+    },
+    {
+      "id": "naicha",
+      "name": "奶茶不加糖",
+      "side": "left",
+      "avatar": "naicha.png",
+      "role": "npc",
+      "traits": [
+        "关心地点"
+      ]
+    },
+    {
+      "id": "xiaoma",
+      "name": "小马",
+      "side": "left",
+      "avatar": "xiaoma.png",
+      "role": "npc",
+      "traits": [
+        "效率高"
+      ]
+    },
+    {
+      "id": "aze",
+      "name": "阿泽",
+      "side": "left",
+      "avatar": "aze.png",
+      "role": "npc",
+      "traits": [
+        "地点导向"
+      ]
+    },
+    {
+      "id": "ayuan",
+      "name": "阿远",
+      "side": "left",
+      "avatar": "ayuan.png",
+      "role": "npc",
+      "traits": [
+        "局后反馈"
+      ]
+    }
+  ]
+}

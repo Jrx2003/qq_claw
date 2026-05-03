@@ -1,0 +1,15 @@
+{
+  "id": "confirm_card_1",
+  "cardType": "confirm",
+  "title": "周五烤肉局",
+  "status": "已成局",
+  "confirmedTime": "周五 19:00",
+  "confirmedPlace": "木屋烧烤",
+  "participantsCount": 8,
+  "todo": "17:30 前提醒一次｜18:30 发出发提醒",
+  "buttons": [
+    "查看名单",
+    "一键提醒",
+    "补充说明"
+  ]
+}

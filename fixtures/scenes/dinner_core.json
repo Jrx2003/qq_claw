@@ -1,0 +1,330 @@
+{
+  "id": "dinner_core",
+  "title": "宿舍烤肉局",
+  "groupName": "507宿舍干饭群",
+  "onlineText": "8 人在线",
+  "progressLabel": "收口 → 投票 → 成局 → 回忆",
+  "stageLabels": ["收口", "投票", "成局", "回忆"],
+  "modeDefault": "guided",
+  "entryStepId": "scene_a_chat_seed",
+  "steps": [
+    {
+      "id": "scene_a_chat_seed",
+      "description": "自然聊天起势",
+      "autoMessages": [
+        {
+          "id": "m1",
+          "actorId": "akai",
+          "type": "text",
+          "side": "left",
+          "text": "想吃烤肉了🤤"
+        },
+        {
+          "id": "m2",
+          "actorId": "xiaoyu",
+          "type": "text",
+          "side": "left",
+          "text": "+1！上次吃还是上个月呢",
+          "delayMs": 300
+        },
+        {
+          "id": "m3",
+          "actorId": "laozhou",
+          "type": "text",
+          "side": "left",
+          "text": "我周五晚上有课，得看几点下课",
+          "delayMs": 300
+        },
+        {
+          "id": "m4",
+          "actorId": "dazhuang",
+          "type": "text",
+          "side": "left",
+          "text": "可以啊！我都行",
+          "delayMs": 300
+        },
+        {
+          "id": "m5",
+          "actorId": "naicha",
+          "type": "text",
+          "side": "left",
+          "text": "想去！但地点选哪🤔",
+          "delayMs": 300
+        }
+      ],
+      "availableActions": [
+        {
+          "id": "a1",
+          "label": "@虾局长 周五要不要去吃烤肉，帮我收口这局",
+          "kind": "chip",
+          "nextStepId": "scene_b_trigger_bot"
+        },
+        {
+          "id": "a2",
+          "label": "匿名发起一个倡议",
+          "kind": "chip",
+          "nextStepId": "scene_x_expand_tease"
+        },
+        {
+          "id": "a3",
+          "label": "发起时间投票",
+          "kind": "chip",
+          "nextStepId": "scene_b_trigger_bot"
+        }
+      ]
+    },
+    {
+      "id": "scene_b_trigger_bot",
+      "description": "用户触发 bot 收口",
+      "autoMessages": [
+        {
+          "id": "u1",
+          "actorId": "user_self",
+          "type": "text",
+          "side": "right",
+          "text": "@虾局长 周五要不要去吃烤肉，帮我收口这局"
+        },
+        {
+          "id": "t1",
+          "actorId": "bot_xjz",
+          "type": "typing",
+          "side": "left",
+          "text": "虾局长正在收口中...",
+          "delayMs": 400
+        },
+        {
+          "id": "b1",
+          "actorId": "bot_xjz",
+          "type": "card",
+          "side": "left",
+          "cardId": "plan_card_1",
+          "delayMs": 600
+        },
+        {
+          "id": "b2",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "我先帮大家把讨论收口成一张成局卡，点按钮就能继续确认时间和地点。",
+          "delayMs": 300
+        }
+      ],
+      "availableActions": [
+        {
+          "id": "b_action_1",
+          "label": "时间投票",
+          "kind": "keyboard",
+          "nextStepId": "scene_c_vote_progress"
+        },
+        {
+          "id": "b_action_2",
+          "label": "地点投票",
+          "kind": "keyboard",
+          "nextStepId": "scene_c_vote_progress"
+        },
+        {
+          "id": "b_action_3",
+          "label": "我要参加",
+          "kind": "keyboard",
+          "nextStepId": "scene_c_vote_progress"
+        }
+      ]
+    },
+    {
+      "id": "scene_c_vote_progress",
+      "description": "投票与进展更新",
+      "autoMessages": [
+        {
+          "id": "m6",
+          "actorId": "xiaoma",
+          "type": "text",
+          "side": "left",
+          "text": "我投 19:00"
+        },
+        {
+          "id": "m7",
+          "actorId": "aze",
+          "type": "text",
+          "side": "left",
+          "text": "木屋吧离宿舍近",
+          "delayMs": 300
+        },
+        {
+          "id": "b3",
+          "actorId": "bot_xjz",
+          "type": "card",
+          "side": "left",
+          "cardId": "vote_card_1",
+          "delayMs": 500
+        },
+        {
+          "id": "b4",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "目前 19:00 + 木屋烧烤领先，我可以帮你提醒还没回复的人。",
+          "delayMs": 300
+        }
+      ],
+      "availableActions": [
+        {
+          "id": "c_action_1",
+          "label": "提醒未回复",
+          "kind": "keyboard",
+          "nextStepId": "scene_d_confirm"
+        },
+        {
+          "id": "c_action_2",
+          "label": "继续投票",
+          "kind": "keyboard",
+          "nextStepId": "scene_c_vote_progress"
+        },
+        {
+          "id": "c_action_3",
+          "label": "查看详情",
+          "kind": "keyboard",
+          "nextStepId": "scene_d_confirm"
+        }
+      ]
+    },
+    {
+      "id": "scene_d_confirm",
+      "description": "确认成局",
+      "autoMessages": [
+        {
+          "id": "m8",
+          "actorId": "akai",
+          "type": "text",
+          "side": "left",
+          "text": "那就定了🎉"
+        },
+        {
+          "id": "m9",
+          "actorId": "xiaoyu",
+          "type": "text",
+          "side": "left",
+          "text": "周五见🤘",
+          "delayMs": 300
+        },
+        {
+          "id": "m10",
+          "actorId": "dazhuang",
+          "type": "text",
+          "side": "left",
+          "text": "冲啊！期待烤肉🥳",
+          "delayMs": 300
+        },
+        {
+          "id": "b5",
+          "actorId": "bot_xjz",
+          "type": "card",
+          "side": "left",
+          "cardId": "confirm_card_1",
+          "delayMs": 500
+        },
+        {
+          "id": "b6",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "已经帮大家确认成局啦，我会在出发前自动提醒。",
+          "delayMs": 300
+        }
+      ],
+      "availableActions": [
+        {
+          "id": "d_action_1",
+          "label": "继续到局后回忆",
+          "kind": "toolbar",
+          "nextStepId": "scene_e_memory"
+        },
+        {
+          "id": "d_action_2",
+          "label": "一键提醒",
+          "kind": "keyboard",
+          "nextStepId": "scene_e_memory"
+        }
+      ]
+    },
+    {
+      "id": "scene_e_memory",
+      "description": "局后回忆卡",
+      "autoMessages": [
+        {
+          "id": "m11",
+          "actorId": "ayuan",
+          "type": "text",
+          "side": "left",
+          "text": "今天这家还不错👍"
+        },
+        {
+          "id": "m12",
+          "actorId": "naicha",
+          "type": "text",
+          "side": "left",
+          "text": "下次还去吗",
+          "delayMs": 300
+        },
+        {
+          "id": "b7",
+          "actorId": "bot_xjz",
+          "type": "card",
+          "side": "left",
+          "cardId": "memory_card_1",
+          "delayMs": 500
+        },
+        {
+          "id": "b8",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "我把这次聚餐整理成了回忆卡，下次想继续约也可以直接沿用这次偏好。",
+          "delayMs": 300
+        }
+      ],
+      "availableActions": [
+        {
+          "id": "e_action_1",
+          "label": "Replay",
+          "kind": "toolbar",
+          "nextStepId": "scene_a_chat_seed"
+        },
+        {
+          "id": "e_action_2",
+          "label": "切到匿名倡议",
+          "kind": "scene-switch",
+          "nextStepId": "scene_x_expand_tease"
+        }
+      ]
+    },
+    {
+      "id": "scene_x_expand_tease",
+      "description": "展示扩展方向",
+      "autoMessages": [
+        {
+          "id": "x1",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "除了收口组局，我还可以替你匿名发起一个想法，减少‘谁先提谁负责’的压力。"
+        },
+        {
+          "id": "x2",
+          "actorId": "bot_xjz",
+          "type": "card",
+          "side": "left",
+          "cardId": "anonymous_card_1",
+          "delayMs": 400
+        }
+      ],
+      "availableActions": [
+        {
+          "id": "x_action_1",
+          "label": "回主场景",
+          "kind": "toolbar",
+          "nextStepId": "scene_a_chat_seed"
+        }
+      ]
+    }
+  ]
+}

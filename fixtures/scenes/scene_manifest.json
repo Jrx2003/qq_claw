@@ -1,0 +1,29 @@
+{
+  "defaultScene": "dinner_core",
+  "scenes": [
+    {
+      "id": "dinner_core",
+      "title": "宿舍烤肉局",
+      "priority": "P0",
+      "path": "fixtures/scenes/dinner_core.json"
+    },
+    {
+      "id": "anonymous_proposal",
+      "title": "匿名倡议",
+      "priority": "P1",
+      "path": "fixtures/scenes/anonymous_proposal.json"
+    },
+    {
+      "id": "conflict_bridge",
+      "title": "冲突中继",
+      "priority": "P1",
+      "path": "fixtures/scenes/conflict_bridge.json"
+    },
+    {
+      "id": "game_party",
+      "title": "腾讯游戏局",
+      "priority": "P1",
+      "path": "fixtures/scenes/game_party.json"
+    }
+  ]
+}

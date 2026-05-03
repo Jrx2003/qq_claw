@@ -1,0 +1,13 @@
+{
+  "id": "anonymous_card_1",
+  "cardType": "anonymous",
+  "title": "匿名倡议",
+  "status": "已代发",
+  "summary": "收到一个匿名想法：这周想不想来个轻松饭局？",
+  "buttons": [
+    "我有兴趣",
+    "看时间",
+    "看地点",
+    "先围观"
+  ]
+}

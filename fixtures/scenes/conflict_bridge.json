@@ -1,0 +1,57 @@
+{
+  "id": "conflict_bridge",
+  "title": "冲突中继",
+  "entryStepId": "c_scene_1",
+  "steps": [
+    {
+      "id": "c_scene_1",
+      "description": "冲突场景示意",
+      "autoMessages": [
+        {
+          "id": "c_m1",
+          "actorId": "akai",
+          "type": "text",
+          "side": "left",
+          "text": "你每次都临时改时间"
+        },
+        {
+          "id": "c_m2",
+          "actorId": "laozhou",
+          "type": "text",
+          "side": "left",
+          "text": "那你自己又从来不提前说",
+          "delayMs": 300
+        },
+        {
+          "id": "c_m3",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "我先帮大家把分歧拆开说清楚，不急着继续吵。",
+          "delayMs": 500
+        },
+        {
+          "id": "c_m4",
+          "actorId": "bot_xjz",
+          "type": "card",
+          "side": "left",
+          "cardId": "conflict_card_1",
+          "delayMs": 300
+        }
+      ],
+      "availableActions": [
+        {
+          "id": "c_act_1",
+          "label": "回主场景",
+          "kind": "toolbar",
+          "nextStepId": "c_scene_end"
+        }
+      ]
+    },
+    {
+      "id": "c_scene_end",
+      "description": "结束",
+      "availableActions": []
+    }
+  ]
+}

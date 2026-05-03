@@ -1,0 +1,45 @@
+{
+  "id": "vote_card_1",
+  "cardType": "vote",
+  "title": "周五烤肉局",
+  "status": "投票进行中",
+  "replied": "8/10",
+  "timeVotes": [
+    {
+      "label": "18:30",
+      "votes": 2,
+      "percent": 20
+    },
+    {
+      "label": "19:00",
+      "votes": 5,
+      "percent": 50
+    },
+    {
+      "label": "19:30",
+      "votes": 1,
+      "percent": 10
+    }
+  ],
+  "placeVotes": [
+    {
+      "label": "木屋烧烤",
+      "votes": 6,
+      "percent": 60
+    },
+    {
+      "label": "韩宫宴",
+      "votes": 2,
+      "percent": 20
+    }
+  ],
+  "pendingMembers": [
+    "阿凯",
+    "老周"
+  ],
+  "buttons": [
+    "继续投票",
+    "提醒未回复",
+    "查看详情"
+  ]
+}

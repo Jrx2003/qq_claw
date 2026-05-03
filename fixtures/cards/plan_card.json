@@ -1,0 +1,28 @@
+{
+  "id": "plan_card_1",
+  "cardType": "plan",
+  "title": "周五烤肉局",
+  "status": "正在收口中",
+  "summary": "当前意向 6 人｜偏向时间：周五 19:00 后｜待确认：地点二选一",
+  "timeOptions": [
+    "周五 18:30",
+    "周五 19:00",
+    "周五 19:30"
+  ],
+  "featuredTimeOption": "周五 19:00",
+  "placeOptions": [
+    "木屋烧烤",
+    "韩宫宴"
+  ],
+  "featuredPlaceOption": "木屋烧烤",
+  "pendingMembers": [
+    "阿凯",
+    "老周"
+  ],
+  "buttons": [
+    "我要参加",
+    "时间投票",
+    "地点投票",
+    "去单聊补全"
+  ]
+}

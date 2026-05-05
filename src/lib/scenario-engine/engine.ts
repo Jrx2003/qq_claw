@@ -1,34 +1,61 @@
 import { loadCardMap } from "../fixtures/loader";
 import type {
-  AppMode,
   ChatMessage,
   DemoAction,
+  DemoBeat,
   DemoCard,
   DemoState,
-  DemoStep,
+  ExperienceMode,
+  RuntimeMode,
   SceneDefinition,
+  TimelinePausePoint,
+  TriggerPreset,
 } from "../types/demo";
 
-const preferredAutoplayActionIds = ["a1", "b_action_1", "c_action_1", "d_action_1"];
+type InitialStateOptions =
+  | ExperienceMode
+  | {
+      experienceMode?: ExperienceMode;
+      runtimeMode?: RuntimeMode;
+      triggerPreset?: TriggerPreset;
+      autoplay?: boolean;
+    };
+
+export type Timeline = {
+  entryBeatId: string;
+  beats: DemoBeat[];
+  recordingEndBeatId?: string;
+};
 
 export function createInitialDemoState(
   scene: SceneDefinition,
-  mode: AppMode = scene.modeDefault ?? "guided",
+  options: InitialStateOptions = {},
 ): DemoState {
-  const entryStep = findStep(scene, scene.entryStepId);
+  const timeline = getTimeline(scene);
+  const entryBeat = findBeat(scene, timeline.entryBeatId);
+  const normalizedOptions = normalizeInitialOptions(scene, options);
 
-  return applyStep(
+  return applyBeat(
     {
-      mode,
+      experienceMode: normalizedOptions.experienceMode,
+      runtimeMode: normalizedOptions.runtimeMode,
+      triggerPreset: normalizedOptions.triggerPreset,
+      mode: normalizedOptions.experienceMode,
       sceneId: scene.id,
-      currentStepId: entryStep.id,
+      currentBeatId: entryBeat.id,
+      currentStepId: entryBeat.id,
+      playedBeatIds: [],
       playedStepIds: [],
       messages: [],
       activeCards: [],
       availableActions: [],
       flags: {},
+      recording: {
+        running: normalizedOptions.autoplay,
+        paused: false,
+      },
     },
-    entryStep,
+    entryBeat,
   );
 }
 
@@ -37,79 +64,151 @@ export function advanceStep(
   state: DemoState,
   actionId: string,
 ): DemoState {
-  const action = state.availableActions.find((candidate) => candidate.id === actionId);
+  const action = state.availableActions.find(
+    (candidate) => candidate.actionId === actionId || candidate.id === actionId,
+  );
 
   if (!action) {
-    throw new Error(`Action "${actionId}" is not available at step "${state.currentStepId}".`);
+    throw new Error(`Action "${actionId}" is not available at beat "${state.currentBeatId}".`);
   }
 
-  const nextStep = findStep(scene, action.nextStepId);
+  const nextBeat = findBeat(scene, action.nextBeatId);
 
-  if (nextStep.id === scene.entryStepId) {
-    return createInitialDemoState(scene, state.mode);
+  if (nextBeat.id === getTimeline(scene).entryBeatId) {
+    return createInitialDemoState(scene, {
+      experienceMode: state.experienceMode,
+      runtimeMode: state.runtimeMode,
+      triggerPreset: state.triggerPreset,
+      autoplay: state.recording.running,
+    });
   }
 
-  return applyStep(state, nextStep);
+  return applyBeat(state, nextBeat);
 }
 
 export function goToStep(scene: SceneDefinition, state: DemoState, stepId: string): DemoState {
-  const nextStep = findStep(scene, stepId);
+  const nextBeat = findBeat(scene, stepId);
 
-  if (nextStep.id === scene.entryStepId) {
-    return createInitialDemoState(scene, state.mode);
+  if (nextBeat.id === getTimeline(scene).entryBeatId) {
+    return createInitialDemoState(scene, {
+      experienceMode: state.experienceMode,
+      runtimeMode: state.runtimeMode,
+      triggerPreset: state.triggerPreset,
+      autoplay: state.recording.running,
+    });
   }
 
-  return applyStep(state, nextStep);
+  return applyBeat(state, nextBeat);
 }
 
 export function runAutoplayPath(scene: SceneDefinition): DemoState {
-  let state = createInitialDemoState(scene, "autoplay");
+  let state = createRecordingState(scene);
   const visited = new Set<string>();
+  const endBeatId = getTimeline(scene).recordingEndBeatId;
 
-  while (state.currentStepId !== "scene_e_memory") {
-    if (visited.has(state.currentStepId)) {
-      throw new Error(`Autoplay reached a loop at step "${state.currentStepId}".`);
+  while (!endBeatId || state.currentBeatId !== endBeatId) {
+    if (visited.has(state.currentBeatId)) {
+      throw new Error(`Autoplay reached a loop at beat "${state.currentBeatId}".`);
     }
 
-    visited.add(state.currentStepId);
+    visited.add(state.currentBeatId);
 
     const action = selectAutoplayAction(state.availableActions);
 
     if (!action) {
-      throw new Error(`Autoplay has no usable action at step "${state.currentStepId}".`);
+      throw new Error(`Autoplay has no usable action at beat "${state.currentBeatId}".`);
     }
 
-    state = advanceStep(scene, state, action.id);
+    state = applyRecordingFlags(advanceStep(scene, state, action.actionId), {
+      running: true,
+      paused: false,
+      pausePoint: undefined,
+    });
   }
 
   return state;
 }
 
-export function findStep(scene: SceneDefinition, stepId: string): DemoStep {
-  const step = scene.steps.find((candidate) => candidate.id === stepId);
-
-  if (!step) {
-    throw new Error(`Scene "${scene.id}" does not define step "${stepId}".`);
-  }
-
-  return step;
+export function createRecordingState(scene: SceneDefinition): DemoState {
+  return createInitialDemoState(scene, {
+    experienceMode: "recording",
+    runtimeMode: scene.runtimeDefault ?? "snapshot",
+    triggerPreset: scene.triggerPreset ?? "balanced",
+    autoplay: true,
+  });
 }
 
-function applyStep(state: DemoState, step: DemoStep): DemoState {
-  const messages = appendUniqueMessages(state.messages, step.autoMessages ?? []);
+export function playNextTimelineBeat(scene: SceneDefinition, state: DemoState): DemoState {
+  const action = selectAutoplayAction(state.availableActions);
+
+  if (!action) {
+    return applyRecordingFlags(state, {
+      running: false,
+      paused: true,
+      pausePoint: {
+        id: "pause.no_action",
+        title: "没有可自动推进的动作",
+      },
+    });
+  }
+
+  const nextState = advanceStep(scene, state, action.actionId);
+  const pausePoint = nextState.recording.pausePoint;
+
+  return applyRecordingFlags(nextState, {
+    running: !pausePoint,
+    paused: Boolean(pausePoint),
+    pausePoint,
+  });
+}
+
+export function getTimeline(scene: SceneDefinition): Timeline {
+  return {
+    entryBeatId: scene.entryBeatId,
+    beats: scene.beats,
+    recordingEndBeatId: scene.recordingEndBeatId,
+  };
+}
+
+export function findStep(scene: SceneDefinition, stepId: string): DemoBeat {
+  return findBeat(scene, stepId);
+}
+
+export function findBeat(scene: SceneDefinition, beatId: string): DemoBeat {
+  const beat = getTimeline(scene).beats.find((candidate) => candidate.id === beatId);
+
+  if (!beat) {
+    throw new Error(`Scene "${scene.id}" does not define beat "${beatId}".`);
+  }
+
+  return beat;
+}
+
+function applyBeat(state: DemoState, beat: DemoBeat): DemoState {
+  const messages = appendUniqueMessages(state.messages, beat.messages ?? []);
   const activeCards = resolveActiveCards(messages);
+  const pausePoint = beat.pausePoint;
 
   return {
     ...state,
-    currentStepId: step.id,
-    playedStepIds: Array.from(new Set([...state.playedStepIds, step.id])),
+    currentBeatId: beat.id,
+    currentStepId: beat.id,
+    playedBeatIds: Array.from(new Set([...state.playedBeatIds, beat.id])),
+    playedStepIds: Array.from(new Set([...state.playedStepIds, beat.id])),
     messages,
     activeCards,
-    availableActions: step.availableActions ?? [],
+    availableActions: beat.availableActions ?? [],
     flags: {
       ...state.flags,
-      ...(step.setFlags ?? {}),
+      ...(beat.setFlags ?? {}),
     },
+    recording: {
+      ...state.recording,
+      pausePoint,
+      paused: state.experienceMode === "recording" && Boolean(pausePoint),
+      running: state.experienceMode === "recording" ? !pausePoint : state.recording.running,
+    },
+    lastLlmTask: beat.llmTask ?? state.lastLlmTask,
   };
 }
 
@@ -140,13 +239,44 @@ function resolveActiveCards(messages: ChatMessage[]): DemoCard[] {
 }
 
 export function selectAutoplayAction(actions: DemoAction[]): DemoAction | undefined {
-  for (const id of preferredAutoplayActionIds) {
-    const action = actions.find((candidate) => candidate.id === id);
+  return [...actions]
+    .filter((action) => action.kind !== "scene-switch")
+    .sort((left, right) => (left.autoplayPriority ?? 100) - (right.autoplayPriority ?? 100))[0];
+}
 
-    if (action) {
-      return action;
-    }
+function normalizeInitialOptions(
+  scene: SceneDefinition,
+  options: InitialStateOptions,
+): Required<Exclude<InitialStateOptions, ExperienceMode>> {
+  if (typeof options === "string") {
+    return {
+      experienceMode: options,
+      runtimeMode: scene.runtimeDefault ?? "snapshot",
+      triggerPreset: scene.triggerPreset ?? "balanced",
+      autoplay: options === "recording",
+    };
   }
 
-  return actions.find((action) => action.kind !== "scene-switch");
+  const experienceMode = options.experienceMode ?? scene.modeDefault ?? "judge";
+
+  return {
+    experienceMode,
+    runtimeMode: options.runtimeMode ?? scene.runtimeDefault ?? "snapshot",
+    triggerPreset: options.triggerPreset ?? scene.triggerPreset ?? "balanced",
+    autoplay: options.autoplay ?? experienceMode === "recording",
+  };
+}
+
+function applyRecordingFlags(
+  state: DemoState,
+  recording: {
+    running: boolean;
+    paused: boolean;
+    pausePoint?: TimelinePausePoint;
+  },
+): DemoState {
+  return {
+    ...state,
+    recording,
+  };
 }

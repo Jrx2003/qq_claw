@@ -5,7 +5,7 @@ import { ChatDemoPage } from "@/components/demo/ChatDemoPage";
 export default function DemoPage() {
   return (
     <Suspense>
-      <ChatDemoPage />
+      <ChatDemoPage defaultMode="judge" defaultRuntimeMode="snapshot" />
     </Suspense>
   );
 }

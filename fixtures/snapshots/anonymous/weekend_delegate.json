@@ -1,0 +1,12 @@
+{
+  "taskName": "anonymous",
+  "snapshotKey": "anonymous/weekend_delegate",
+  "data": {
+    "title": "匿名倡议：周五烤肉局",
+    "group_message": "有人好像对周五一起吃烤肉有点心动，要不要我先替大家把这个想法收口一下？如果感兴趣，我可以顺手发个投票。",
+    "tone": "light",
+    "attach_vote": true,
+    "vote_options": ["支持，约起来", "先看看时间", "这次先不了"],
+    "follow_up_chips": ["发起时间投票", "看看谁感兴趣", "换个活动"]
+  }
+}

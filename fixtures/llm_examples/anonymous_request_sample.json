@@ -1,0 +1,15 @@
+{
+  "scene": "anonymous_delegate",
+  "privateIntent": "其实我想周五去吃烤肉，但不想显得像我在组织大家",
+  "chatContext": [
+    {
+      "name": "阿凯",
+      "text": "最近是不是该聚一下"
+    },
+    {
+      "name": "小雨",
+      "text": "也不是不行"
+    }
+  ],
+  "tone": "light"
+}

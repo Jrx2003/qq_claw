@@ -1,0 +1,23 @@
+{
+  "id": "game_memory_card_1",
+  "cardType": "game-memory",
+  "title": "五排局 · 高光回顾",
+  "status": "已生成",
+  "summary": "MVP：小雨｜高光：最后一波反打翻盘｜下次建议沿用 21:30 娱乐局节奏",
+  "keywords": [
+    "五排",
+    "翻盘",
+    "补位",
+    "下次再约"
+  ],
+  "buttons": [
+    {
+      "label": "下次继续五排",
+      "actionId": "game_hok.replay"
+    },
+    {
+      "label": "保存高光",
+      "actionId": "game_hok.replay"
+    }
+  ]
+}

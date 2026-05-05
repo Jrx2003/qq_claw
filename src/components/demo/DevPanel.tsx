@@ -12,7 +12,7 @@ export function DevPanel({
   scene: SceneDefinition;
   state: DemoState;
   cards: Map<string, DemoCard>;
-  onJump: (stepId: string) => void;
+  onJump: (beatId: string) => void;
 }) {
   return (
     <section className="w-full max-w-[390px] rounded-3xl border border-amber-200 bg-amber-50/95 p-4 shadow-soft">
@@ -22,22 +22,22 @@ export function DevPanel({
           <h3 className="mt-1 text-lg font-black text-slate-950">{sceneText(scene, "groupName", scene.title)}</h3>
         </div>
         <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold text-amber-700">
-          {state.currentStepId}
+          {state.currentBeatId}
         </span>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2">
-        {scene.steps.map((step) => (
+        {scene.beats.map((beat) => (
           <button
             className={`rounded-xl border px-3 py-2 text-left text-xs font-semibold ${
-              state.currentStepId === step.id
+              state.currentBeatId === beat.id
                 ? "border-amber-500 bg-white text-amber-700"
                 : "border-amber-100 bg-white/70 text-slate-600"
             }`}
-            key={step.id}
-            onClick={() => onJump(step.id)}
+            key={beat.id}
+            onClick={() => onJump(beat.id)}
             type="button"
           >
-            {step.description}
+            {beat.description}
           </button>
         ))}
       </div>
@@ -45,12 +45,17 @@ export function DevPanel({
         {JSON.stringify(
           {
             mode: state.mode,
+            experienceMode: state.experienceMode,
+            runtimeMode: state.runtimeMode,
+            triggerPreset: state.triggerPreset,
             sceneId: state.sceneId,
-            currentStepId: state.currentStepId,
-            playedStepIds: state.playedStepIds,
+            currentBeatId: state.currentBeatId,
+            playedBeatIds: state.playedBeatIds,
             messages: state.messages.length,
             activeCards: state.activeCards.map((card) => cards.get(card.id)?.cardType ?? card.cardType),
-            availableActions: state.availableActions.map((action) => action.label),
+            availableActions: state.availableActions.map((action) => action.actionId),
+            recording: state.recording,
+            lastLlmTask: state.lastLlmTask,
             flags: state.flags,
           },
           null,

@@ -1,0 +1,12 @@
+{
+  "taskName": "conflict",
+  "snapshotKey": "conflict/bridge_seed",
+  "data": {
+    "intensity": "medium",
+    "side_a_need": "希望活动安排更确定，不想临时反复。",
+    "side_b_need": "希望自己的时间不被误解，也不想被公开指责。",
+    "common_ground": "两个人都希望活动能顺利推进，只是表达方式已经升级。",
+    "public_bridge_message": "我先帮大家把分歧翻译一下：一边更在意活动是否能尽快确定，另一边更在意自己的时间不被误解。要不要先别继续对着吵，我可以帮你们把问题收回到“谁何时有空、活动怎么定”这个层面。",
+    "actions": ["冷静 10 分钟", "由虾局长继续转述", "改为私聊继续", "回到活动安排"]
+  }
+}

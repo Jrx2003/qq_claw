@@ -1,0 +1,21 @@
+{
+  "scene": "conflict_bridge",
+  "chatHistory": [
+    {
+      "name": "A",
+      "text": "每次都你拖时间，群活动都被你搅黄了"
+    },
+    {
+      "name": "B",
+      "text": "你有病吧？我只是说我不一定有空"
+    },
+    {
+      "name": "A",
+      "text": "那你不会早点说？"
+    },
+    {
+      "name": "B",
+      "text": "你凭什么这么说话"
+    }
+  ]
+}

@@ -38,8 +38,17 @@
     "老周"
   ],
   "buttons": [
-    "继续投票",
-    "提醒未回复",
-    "查看详情"
+    {
+      "label": "继续投票",
+      "actionId": "dinner.keep_voting"
+    },
+    {
+      "label": "提醒未回复",
+      "actionId": "dinner.remind_pending"
+    },
+    {
+      "label": "查看详情",
+      "actionId": "dinner.confirm_detail"
+    }
   ]
 }

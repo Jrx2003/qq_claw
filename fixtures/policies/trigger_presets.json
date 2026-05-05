@@ -1,0 +1,30 @@
+{
+  "default": "balanced",
+  "presets": {
+    "conservative": {
+      "autoSuggest": false,
+      "directAutoPost": false,
+      "requireAtForPlan": true,
+      "allowConflictAutoNudge": false
+    },
+    "balanced": {
+      "autoSuggest": true,
+      "directAutoPost": false,
+      "requireAtForPlan": false,
+      "allowConflictAutoNudge": true
+    },
+    "active_host": {
+      "autoSuggest": true,
+      "directAutoPost": true,
+      "requireAtForPlan": false,
+      "allowConflictAutoNudge": true
+    },
+    "conflict_safe": {
+      "autoSuggest": true,
+      "directAutoPost": false,
+      "requireAtForPlan": false,
+      "allowConflictAutoNudge": true,
+      "requireConfirmBeforePublicBridge": true
+    }
+  }
+}

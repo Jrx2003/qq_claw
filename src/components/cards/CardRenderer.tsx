@@ -1,4 +1,8 @@
+import { AnonymousProposalCard } from "@/components/cards/AnonymousProposalCard";
 import { ConfirmCard } from "@/components/cards/ConfirmCard";
+import { ConflictBridgeCard } from "@/components/cards/ConflictBridgeCard";
+import { GameMemoryCard } from "@/components/cards/GameMemoryCard";
+import { GamePartyCard } from "@/components/cards/GamePartyCard";
 import { GenericCard } from "@/components/cards/GenericCard";
 import { MemoryCard } from "@/components/cards/MemoryCard";
 import { PlanCard } from "@/components/cards/PlanCard";
@@ -32,6 +36,22 @@ export function CardRenderer({
 
   if (card.cardType === "memory") {
     return <MemoryCard actions={actions} card={card} contextLabel={contextLabel} onAction={onAction} />;
+  }
+
+  if (card.cardType === "anonymous") {
+    return <AnonymousProposalCard actions={actions} card={card} contextLabel={contextLabel} onAction={onAction} />;
+  }
+
+  if (card.cardType === "conflict") {
+    return <ConflictBridgeCard actions={actions} card={card} contextLabel={contextLabel} onAction={onAction} />;
+  }
+
+  if (card.cardType === "game-party") {
+    return <GamePartyCard actions={actions} card={card} contextLabel={contextLabel} onAction={onAction} />;
+  }
+
+  if (card.cardType === "game-memory") {
+    return <GameMemoryCard actions={actions} card={card} contextLabel={contextLabel} onAction={onAction} />;
   }
 
   return <GenericCard actions={actions} card={card} contextLabel={contextLabel} onAction={onAction} />;

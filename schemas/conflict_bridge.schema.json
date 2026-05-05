@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ConflictBridge",
+  "type": "object",
+  "required": [
+    "intensity",
+    "side_a_need",
+    "side_b_need",
+    "common_ground",
+    "public_bridge_message",
+    "actions"
+  ],
+  "properties": {
+    "intensity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "side_a_need": {
+      "type": "string"
+    },
+    "side_b_need": {
+      "type": "string"
+    },
+    "common_ground": {
+      "type": "string"
+    },
+    "public_bridge_message": {
+      "type": "string"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GameRecap",
+  "type": "object",
+  "required": [
+    "game",
+    "title",
+    "mvp",
+    "highlight",
+    "keywords",
+    "next_invite_copy"
+  ],
+  "properties": {
+    "game": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "mvp": {
+      "type": "string"
+    },
+    "highlight": {
+      "type": "string"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "next_invite_copy": {
+      "type": "string"
+    }
+  }
+}

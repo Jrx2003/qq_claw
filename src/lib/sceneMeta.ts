@@ -1,12 +1,12 @@
 import type { SceneDefinition } from "@/lib/types/demo";
 
 export function sceneText(scene: SceneDefinition, key: string, fallback = "") {
-  const value = scene[key];
+  const value = (scene as Record<string, unknown>)[key];
   return typeof value === "string" ? value : fallback;
 }
 
 export function sceneTextArray(scene: SceneDefinition, key: string, fallback: string[] = []) {
-  const value = scene[key];
+  const value = (scene as Record<string, unknown>)[key];
   return Array.isArray(value)
     ? value.filter((item): item is string => typeof item === "string")
     : fallback;

@@ -11,8 +11,17 @@
     "宿舍局"
   ],
   "buttons": [
-    "下次再约",
-    "保存回忆",
-    "生成群总结"
+    {
+      "label": "下次再约",
+      "actionId": "dinner.reuse_preference"
+    },
+    {
+      "label": "保存回忆",
+      "actionId": "dinner.replay"
+    },
+    {
+      "label": "生成群总结",
+      "actionId": "dinner.flash_anonymous"
+    }
   ]
 }

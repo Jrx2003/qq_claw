@@ -4,7 +4,7 @@ import { OptionChip } from "@/components/common/OptionChip";
 import type { DemoAction, DemoCard } from "@/lib/types/demo";
 
 import { CardFrame } from "./CardFrame";
-import { buildCardButtonModels, cardString, cardStringArray } from "./cardUtils";
+import { buildCardButtonModels, cardButtons, cardString, cardStringArray } from "./cardUtils";
 
 export function MemoryCard({
   card,
@@ -34,8 +34,8 @@ export function MemoryCard({
         </div>
       </section>
       <div className="grid grid-cols-3 gap-2">
-        {buildCardButtonModels(cardStringArray(card, "buttons"), actions).map((button) => {
-          const actionId = button.action?.id;
+        {buildCardButtonModels(cardButtons(card), actions).map((button) => {
+          const actionId = button.action?.actionId;
 
           return (
             <KeyboardButton

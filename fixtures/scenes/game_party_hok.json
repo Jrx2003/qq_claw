@@ -1,0 +1,102 @@
+{
+  "id": "game_party_hok",
+  "title": "王者荣耀五排局",
+  "groupName": "507宿舍开黑群",
+  "onlineText": "5 人在线",
+  "progressLabel": "开黑意图 → 补位收口 → 对局回顾 → 下次再约",
+  "stageLabels": ["识别", "组队", "回顾", "再约"],
+  "modeDefault": "judge",
+  "runtimeDefault": "snapshot",
+  "triggerPreset": "active_host",
+  "entryBeatId": "game_hok.seed",
+  "recordingEndBeatId": "game_hok.recap",
+  "beats": [
+    {
+      "id": "game_hok.seed",
+      "description": "王者荣耀开黑意图",
+      "llmTask": {
+        "taskName": "intent",
+        "schemaKey": "intent_extraction",
+        "promptKey": "intent_extractor",
+        "snapshotKey": "game/hok_intent",
+        "required": true
+      },
+      "messages": [
+        {
+          "id": "g_m1",
+          "actorId": "akai",
+          "type": "text",
+          "side": "left",
+          "text": "今晚有人王者五排吗"
+        },
+        {
+          "id": "g_m2",
+          "actorId": "xiaoyu",
+          "type": "text",
+          "side": "left",
+          "text": "我辅助，可以娱乐局",
+          "delayMs": 300
+        },
+        {
+          "id": "g_m3",
+          "actorId": "bot_xjz",
+          "type": "card",
+          "side": "left",
+          "cardId": "game_party_card_1",
+          "delayMs": 500
+        }
+      ],
+      "availableActions": [
+        {
+          "actionId": "game_hok.join",
+          "label": "我来补位",
+          "kind": "keyboard",
+          "nextBeatId": "game_hok.recap",
+          "autoplayPriority": 1
+        },
+        {
+          "actionId": "game_hok.recap",
+          "label": "导入战绩回顾",
+          "kind": "keyboard",
+          "nextBeatId": "game_hok.recap",
+          "autoplayPriority": 2
+        }
+      ]
+    },
+    {
+      "id": "game_hok.recap",
+      "description": "王者荣耀局后回顾",
+      "llmTask": {
+        "taskName": "game-recap",
+        "schemaKey": "game_recap",
+        "promptKey": "game_party_recap",
+        "snapshotKey": "game/hok_recap",
+        "required": true
+      },
+      "messages": [
+        {
+          "id": "g_m4",
+          "actorId": "bot_xjz",
+          "type": "card",
+          "side": "left",
+          "cardId": "game_memory_card_1"
+        },
+        {
+          "id": "g_m5",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "这次五排我已经沉淀了时间偏好和补位习惯，下次可以直接发起同款开黑局。"
+        }
+      ],
+      "availableActions": [
+        {
+          "actionId": "game_hok.replay",
+          "label": "Replay",
+          "kind": "toolbar",
+          "nextBeatId": "game_hok.seed"
+        }
+      ]
+    }
+  ]
+}

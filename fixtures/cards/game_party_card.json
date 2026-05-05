@@ -1,0 +1,23 @@
+{
+  "id": "game_party_card_1",
+  "cardType": "game-party",
+  "title": "王者荣耀五排局",
+  "status": "组队中",
+  "summary": "今晚 21:30 五排｜已有 4 人｜缺 1 个能补位的队友｜接受娱乐局",
+  "game": "王者荣耀",
+  "slots": "4/5",
+  "buttons": [
+    {
+      "label": "我来补位",
+      "actionId": "game_hok.join"
+    },
+    {
+      "label": "发起开黑提醒",
+      "actionId": "game_hok.recap"
+    },
+    {
+      "label": "导入战绩回顾",
+      "actionId": "game_hok.recap"
+    }
+  ]
+}

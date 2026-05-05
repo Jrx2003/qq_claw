@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RecapCard",
+  "type": "object",
+  "required": [
+    "title",
+    "subtitle",
+    "highlight_quote",
+    "keywords",
+    "next_invite_copy"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "highlight_quote": {
+      "type": "string"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "next_invite_copy": {
+      "type": "string"
+    }
+  }
+}

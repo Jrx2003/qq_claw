@@ -4,15 +4,24 @@ import { buildCardButtonModels } from "./cardUtils";
 import type { DemoAction } from "@/lib/types/demo";
 
 const replayAction: DemoAction = {
-  id: "e_action_1",
+  actionId: "dinner.replay",
+  id: "dinner.replay",
   label: "Replay",
   kind: "toolbar",
-  nextStepId: "scene_a_chat_seed",
+  nextBeatId: "dinner.seed",
+  nextStepId: "dinner.seed",
 };
 
 describe("buildCardButtonModels", () => {
-  it("marks fixture card buttons without matching actions as disabled", () => {
-    const models = buildCardButtonModels(["下次再约", "保存回忆", "Replay"], [replayAction]);
+  it("uses explicit actionId bindings and does not infer actions from labels", () => {
+    const models = buildCardButtonModels(
+      [
+        { label: "下次再约", actionId: "missing.next_time" },
+        { label: "保存回忆" },
+        { label: "Replay", actionId: "dinner.replay" },
+      ],
+      [replayAction],
+    );
 
     expect(models).toEqual([
       { label: "下次再约", action: undefined, disabled: true },

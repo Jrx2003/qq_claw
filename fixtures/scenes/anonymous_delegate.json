@@ -1,0 +1,107 @@
+{
+  "id": "anonymous_delegate",
+  "title": "匿名倡议",
+  "groupName": "507宿舍干饭群",
+  "onlineText": "8 人在线",
+  "progressLabel": "私下委托 → 官方代发 → 群内响应 → 可升级投票",
+  "stageLabels": ["委托", "代发", "响应", "投票"],
+  "modeDefault": "judge",
+  "runtimeDefault": "snapshot",
+  "triggerPreset": "balanced",
+  "entryBeatId": "anonymous.seed",
+  "recordingEndBeatId": "anonymous.vote",
+  "beats": [
+    {
+      "id": "anonymous.seed",
+      "description": "用户不想暴露身份，但想让群里周末轻松聚一下",
+      "llmTask": {
+        "taskName": "anonymous",
+        "schemaKey": "anonymous_proposal",
+        "promptKey": "anonymous_advocate",
+        "snapshotKey": "anonymous/weekend_delegate",
+        "required": true
+      },
+      "messages": [
+        {
+          "id": "a_m1",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "有人把一个想法匿名委托给我：这周想不想来个轻松饭局？我会用虾局长身份代发，不暴露发起人。"
+        },
+        {
+          "id": "a_m2",
+          "actorId": "bot_xjz",
+          "type": "card",
+          "side": "left",
+          "cardId": "anonymous_card_1",
+          "delayMs": 300
+        }
+      ],
+      "availableActions": [
+        {
+          "actionId": "anonymous.vote",
+          "label": "升级成小投票",
+          "kind": "keyboard",
+          "nextBeatId": "anonymous.vote",
+          "autoplayPriority": 1
+        },
+        {
+          "actionId": "anonymous.end",
+          "label": "先围观",
+          "kind": "toolbar",
+          "nextBeatId": "anonymous.end"
+        }
+      ]
+    },
+    {
+      "id": "anonymous.vote",
+      "description": "群成员在不知道发起人的前提下响应倡议",
+      "messages": [
+        {
+          "id": "a_m3",
+          "actorId": "xiaoyu",
+          "type": "text",
+          "side": "left",
+          "text": "这个可以！不一定要谁来当组织者"
+        },
+        {
+          "id": "a_m4",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "我已把匿名倡议升级成轻量投票：想参加、看时间、看地点、先围观。发起人身份不会在群里展示。"
+        }
+      ],
+      "availableActions": [
+        {
+          "actionId": "anonymous.replay",
+          "label": "Replay",
+          "kind": "toolbar",
+          "nextBeatId": "anonymous.seed"
+        }
+      ]
+    },
+    {
+      "id": "anonymous.end",
+      "description": "匿名倡议结束",
+      "messages": [
+        {
+          "id": "a_m5",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "我先帮你保留这个想法，等群里兴趣更明确时再发起也可以。"
+        }
+      ],
+      "availableActions": [
+        {
+          "actionId": "anonymous.replay",
+          "label": "Replay",
+          "kind": "toolbar",
+          "nextBeatId": "anonymous.seed"
+        }
+      ]
+    }
+  ]
+}

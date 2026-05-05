@@ -1,0 +1,11 @@
+{
+  "taskName": "recap",
+  "snapshotKey": "dinner_core/recap_card",
+  "data": {
+    "title": "周五烤肉局 · 回忆卡",
+    "subtitle": "本次参加 8 人，最受欢迎：木屋招牌肥牛",
+    "highlight_quote": "群聊高光：“老周终于没鸽”",
+    "keywords": ["烤肉", "肥牛", "爆笑", "宿舍局"],
+    "next_invite_copy": "下次如果还想沿用这次的时间和口味偏好，我可以直接帮你们再约一局。"
+  }
+}

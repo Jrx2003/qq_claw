@@ -1,12 +1,27 @@
 {
   "id": "conflict_bridge",
-  "title": "冲突中继",
-  "entryStepId": "c_scene_1",
-  "steps": [
+  "title": "冲突桥梁",
+  "groupName": "507宿舍干饭群",
+  "onlineText": "8 人在线",
+  "progressLabel": "识别冲突 → 总结诉求 → 中性转述 → 后续选择",
+  "stageLabels": ["识别", "总结", "转述", "降温"],
+  "modeDefault": "judge",
+  "runtimeDefault": "snapshot",
+  "triggerPreset": "conflict_safe",
+  "entryBeatId": "conflict.seed",
+  "recordingEndBeatId": "conflict.bridge",
+  "beats": [
     {
-      "id": "c_scene_1",
-      "description": "冲突场景示意",
-      "autoMessages": [
+      "id": "conflict.seed",
+      "description": "冲突样例",
+      "llmTask": {
+        "taskName": "conflict",
+        "schemaKey": "conflict_bridge",
+        "promptKey": "conflict_bridge",
+        "snapshotKey": "conflict/bridge_seed",
+        "required": true
+      },
+      "messages": [
         {
           "id": "c_m1",
           "actorId": "akai",
@@ -27,7 +42,7 @@
           "actorId": "bot_xjz",
           "type": "text",
           "side": "left",
-          "text": "我先帮大家把分歧拆开说清楚，不急着继续吵。",
+          "text": "我看到讨论有点升温，要不要我先把双方在意的点拆开说清楚？",
           "delayMs": 500
         },
         {
@@ -41,17 +56,67 @@
       ],
       "availableActions": [
         {
-          "id": "c_act_1",
-          "label": "回主场景",
-          "kind": "toolbar",
-          "nextStepId": "c_scene_end"
+          "actionId": "conflict.bridge",
+          "label": "让虾局长来转述",
+          "kind": "keyboard",
+          "nextBeatId": "conflict.bridge",
+          "autoplayPriority": 1
+        },
+        {
+          "actionId": "conflict.cooldown",
+          "label": "先冷静10分钟",
+          "kind": "keyboard",
+          "nextBeatId": "conflict.cooldown"
+        },
+        {
+          "actionId": "conflict.dm",
+          "label": "继续私聊沟通",
+          "kind": "keyboard",
+          "nextBeatId": "conflict.cooldown"
         }
       ]
     },
     {
-      "id": "c_scene_end",
-      "description": "结束",
-      "availableActions": []
+      "id": "conflict.bridge",
+      "description": "中性转述",
+      "messages": [
+        {
+          "id": "c_m5",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "我先中性转述一下：阿凯在意的是时间变动影响安排，老周在意的是大家提前同步不够。我们先回到这次要解决的时间确认，好吗？"
+        }
+      ],
+      "availableActions": [
+        {
+          "actionId": "conflict.replay",
+          "label": "Replay",
+          "kind": "toolbar",
+          "nextBeatId": "conflict.seed"
+        }
+      ]
+    },
+    {
+      "id": "conflict.cooldown",
+      "description": "降温选项",
+      "messages": [
+        {
+          "id": "c_m6",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "我先把这个话题静置 10 分钟，之后再提醒大家回到要确认的问题上。"
+        }
+      ],
+      "availableActions": [
+        {
+          "actionId": "conflict.replay",
+          "label": "Replay",
+          "kind": "toolbar",
+          "nextBeatId": "conflict.seed"
+        }
+      ]
     }
   ]
 }

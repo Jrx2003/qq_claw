@@ -1,0 +1,23 @@
+{
+  "id": "game_luoke_memory_card_1",
+  "cardType": "game-memory",
+  "title": "洛克王国活动 · 回忆卡",
+  "status": "已沉淀",
+  "summary": "本次补完 4 个活动任务｜关键词：回坑、刷材料、互相带路｜下次可复用周末下午档",
+  "keywords": [
+    "洛克王国",
+    "活动",
+    "回坑",
+    "偏好复用"
+  ],
+  "buttons": [
+    {
+      "label": "下次活动再约",
+      "actionId": "game_luoke.replay"
+    },
+    {
+      "label": "保存回忆",
+      "actionId": "game_luoke.replay"
+    }
+  ]
+}

@@ -3,15 +3,26 @@
   "title": "宿舍烤肉局",
   "groupName": "507宿舍干饭群",
   "onlineText": "8 人在线",
-  "progressLabel": "收口 → 投票 → 成局 → 回忆",
-  "stageLabels": ["收口", "投票", "成局", "回忆"],
-  "modeDefault": "guided",
-  "entryStepId": "scene_a_chat_seed",
-  "steps": [
+  "progressLabel": "收口 → 投票 → 成局 → 回忆 → 下次再约",
+  "stageLabels": ["收口", "投票", "成局", "回忆", "复用"],
+  "modeDefault": "judge",
+  "runtimeDefault": "snapshot",
+  "triggerPreset": "balanced",
+  "entryBeatId": "dinner.seed",
+  "recordingEndBeatId": "dinner.recap",
+  "beats": [
     {
-      "id": "scene_a_chat_seed",
+      "id": "dinner.seed",
+      "act": "群聊自然起势",
       "description": "自然聊天起势",
-      "autoMessages": [
+      "llmTask": {
+        "taskName": "intent",
+        "schemaKey": "intent_extraction",
+        "promptKey": "intent_extractor",
+        "snapshotKey": "dinner_core/intent_seed",
+        "required": true
+      },
+      "messages": [
         {
           "id": "m1",
           "actorId": "akai",
@@ -54,29 +65,38 @@
       ],
       "availableActions": [
         {
-          "id": "a1",
+          "actionId": "dinner.ask_close",
           "label": "@虾局长 周五要不要去吃烤肉，帮我收口这局",
           "kind": "chip",
-          "nextStepId": "scene_b_trigger_bot"
+          "nextBeatId": "dinner.plan",
+          "autoplayPriority": 1
         },
         {
-          "id": "a2",
+          "actionId": "dinner.to_anonymous",
           "label": "匿名发起一个倡议",
-          "kind": "chip",
-          "nextStepId": "scene_x_expand_tease"
+          "kind": "scene-switch",
+          "nextBeatId": "dinner.flash_anonymous"
         },
         {
-          "id": "a3",
+          "actionId": "dinner.quick_vote",
           "label": "发起时间投票",
           "kind": "chip",
-          "nextStepId": "scene_b_trigger_bot"
+          "nextBeatId": "dinner.plan",
+          "autoplayPriority": 2
         }
       ]
     },
     {
-      "id": "scene_b_trigger_bot",
+      "id": "dinner.plan",
+      "act": "虾局长介入",
       "description": "用户触发 bot 收口",
-      "autoMessages": [
+      "pausePoint": {
+        "id": "pause.plan_card",
+        "title": "成局卡出现",
+        "durationMs": 3000,
+        "narrationHint": "虾局长把模糊聊天收口为可推进的成局卡。"
+      },
+      "messages": [
         {
           "id": "u1",
           "actorId": "user_self",
@@ -111,29 +131,39 @@
       ],
       "availableActions": [
         {
-          "id": "b_action_1",
+          "actionId": "dinner.vote_time",
           "label": "时间投票",
           "kind": "keyboard",
-          "nextStepId": "scene_c_vote_progress"
+          "nextBeatId": "dinner.vote_progress",
+          "autoplayPriority": 1
         },
         {
-          "id": "b_action_2",
+          "actionId": "dinner.vote_place",
           "label": "地点投票",
           "kind": "keyboard",
-          "nextStepId": "scene_c_vote_progress"
+          "nextBeatId": "dinner.vote_progress",
+          "autoplayPriority": 2
         },
         {
-          "id": "b_action_3",
+          "actionId": "dinner.vote_join",
           "label": "我要参加",
           "kind": "keyboard",
-          "nextStepId": "scene_c_vote_progress"
+          "nextBeatId": "dinner.vote_progress",
+          "autoplayPriority": 3
         }
       ]
     },
     {
-      "id": "scene_c_vote_progress",
+      "id": "dinner.vote_progress",
+      "act": "投票推进",
       "description": "投票与进展更新",
-      "autoMessages": [
+      "pausePoint": {
+        "id": "pause.vote_progress",
+        "title": "投票进展卡出现",
+        "durationMs": 3000,
+        "narrationHint": "把我都可以、未回复、地点倾向结构化。"
+      },
+      "messages": [
         {
           "id": "m6",
           "actorId": "xiaoma",
@@ -168,29 +198,39 @@
       ],
       "availableActions": [
         {
-          "id": "c_action_1",
+          "actionId": "dinner.remind_pending",
           "label": "提醒未回复",
           "kind": "keyboard",
-          "nextStepId": "scene_d_confirm"
+          "nextBeatId": "dinner.confirm",
+          "autoplayPriority": 1
         },
         {
-          "id": "c_action_2",
+          "actionId": "dinner.keep_voting",
           "label": "继续投票",
           "kind": "keyboard",
-          "nextStepId": "scene_c_vote_progress"
+          "nextBeatId": "dinner.vote_progress",
+          "autoplayPriority": 3
         },
         {
-          "id": "c_action_3",
+          "actionId": "dinner.confirm_detail",
           "label": "查看详情",
           "kind": "keyboard",
-          "nextStepId": "scene_d_confirm"
+          "nextBeatId": "dinner.confirm",
+          "autoplayPriority": 2
         }
       ]
     },
     {
-      "id": "scene_d_confirm",
+      "id": "dinner.confirm",
+      "act": "确认成局",
       "description": "确认成局",
-      "autoMessages": [
+      "pausePoint": {
+        "id": "pause.confirm_card",
+        "title": "确认成局卡出现",
+        "durationMs": 3000,
+        "narrationHint": "虾局长承担组织动作，给出时间、地点、提醒待办。"
+      },
+      "messages": [
         {
           "id": "m8",
           "actorId": "akai",
@@ -233,23 +273,32 @@
       ],
       "availableActions": [
         {
-          "id": "d_action_1",
+          "actionId": "dinner.show_recap",
           "label": "继续到局后回忆",
           "kind": "toolbar",
-          "nextStepId": "scene_e_memory"
-        },
-        {
-          "id": "d_action_2",
-          "label": "一键提醒",
-          "kind": "keyboard",
-          "nextStepId": "scene_e_memory"
+          "nextBeatId": "dinner.recap",
+          "autoplayPriority": 1
         }
       ]
     },
     {
-      "id": "scene_e_memory",
+      "id": "dinner.recap",
+      "act": "局后回忆",
       "description": "局后回忆卡",
-      "autoMessages": [
+      "pausePoint": {
+        "id": "pause.memory_card",
+        "title": "回忆卡出现",
+        "durationMs": 3000,
+        "narrationHint": "活动结束后沉淀关系资产和下次再约入口。"
+      },
+      "llmTask": {
+        "taskName": "recap",
+        "schemaKey": "recap_card",
+        "promptKey": "recap_generator",
+        "snapshotKey": "dinner_core/recap_card",
+        "required": true
+      },
+      "messages": [
         {
           "id": "m11",
           "actorId": "ayuan",
@@ -284,29 +333,66 @@
       ],
       "availableActions": [
         {
-          "id": "e_action_1",
-          "label": "Replay",
-          "kind": "toolbar",
-          "nextStepId": "scene_a_chat_seed"
+          "actionId": "dinner.reuse_preference",
+          "label": "下次再约",
+          "kind": "keyboard",
+          "nextBeatId": "dinner.preference",
+          "autoplayPriority": 2
         },
         {
-          "id": "e_action_2",
-          "label": "切到匿名倡议",
+          "actionId": "dinner.flash_anonymous",
+          "label": "闪示匿名倡议",
           "kind": "scene-switch",
-          "nextStepId": "scene_x_expand_tease"
+          "nextBeatId": "dinner.flash_anonymous"
+        },
+        {
+          "actionId": "dinner.replay",
+          "label": "Replay",
+          "kind": "toolbar",
+          "nextBeatId": "dinner.seed",
+          "autoplayPriority": 3
         }
       ]
     },
     {
-      "id": "scene_x_expand_tease",
-      "description": "展示扩展方向",
-      "autoMessages": [
+      "id": "dinner.preference",
+      "act": "轻量偏好复用",
+      "description": "复用上次偏好",
+      "messages": [
+        {
+          "id": "p1",
+          "actorId": "bot_xjz",
+          "type": "text",
+          "side": "left",
+          "text": "已记住：周五 19:00、宿舍附近、烤肉优先。下次有人说想聚，我会优先给这个低打扰建议。"
+        }
+      ],
+      "availableActions": [
+        {
+          "actionId": "dinner.replay",
+          "label": "Replay",
+          "kind": "toolbar",
+          "nextBeatId": "dinner.seed"
+        }
+      ]
+    },
+    {
+      "id": "dinner.flash_anonymous",
+      "act": "支线闪示",
+      "description": "匿名倡议闪示",
+      "pausePoint": {
+        "id": "pause.flash_sidecars",
+        "title": "支线能力闪示",
+        "durationMs": 2000,
+        "narrationHint": "匿名、冲突、游戏局都不是 teaser，而是可单独进入的闭环。"
+      },
+      "messages": [
         {
           "id": "x1",
           "actorId": "bot_xjz",
           "type": "text",
           "side": "left",
-          "text": "除了收口组局，我还可以替你匿名发起一个想法，减少‘谁先提谁负责’的压力。"
+          "text": "除了收口组局，我还可以替你匿名发起想法、桥接冲突，也能服务腾讯游戏局。"
         },
         {
           "id": "x2",
@@ -319,10 +405,10 @@
       ],
       "availableActions": [
         {
-          "id": "x_action_1",
-          "label": "回主场景",
+          "actionId": "dinner.replay",
+          "label": "Replay",
           "kind": "toolbar",
-          "nextStepId": "scene_a_chat_seed"
+          "nextBeatId": "dinner.seed"
         }
       ]
     }

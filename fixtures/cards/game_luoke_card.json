@@ -1,0 +1,19 @@
+{
+  "id": "game_luoke_card_1",
+  "cardType": "game-party",
+  "title": "洛克王国活动局",
+  "status": "活动组队",
+  "summary": "周末刷材料｜已有 3 人｜优先帮新回坑同学补活动任务",
+  "game": "洛克王国",
+  "slots": "3/6",
+  "buttons": [
+    {
+      "label": "我也参加",
+      "actionId": "game_luoke.join"
+    },
+    {
+      "label": "生成活动回忆",
+      "actionId": "game_luoke.recap"
+    }
+  ]
+}

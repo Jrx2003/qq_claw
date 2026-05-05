@@ -1,0 +1,12 @@
+{
+  "taskName": "game-recap",
+  "snapshotKey": "game/hok_recap",
+  "data": {
+    "game": "王者荣耀",
+    "title": "王者荣耀五排回忆",
+    "mvp": "小雨",
+    "highlight": "最后一波反打翻盘，群里气氛直接拉满。",
+    "keywords": ["五排", "翻盘", "MVP", "补位"],
+    "next_invite_copy": "下次如果还想原班人马开黑，我可以按这次的时间偏好直接帮你们拉一局。"
+  }
+}

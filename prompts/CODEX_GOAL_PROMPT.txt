@@ -1,0 +1,33 @@
+读取项目根目录中的 `README_INDEX.md`，并将其中列出的 docs/、prompts/live_llm/、schemas/、fixtures/ 作为最高优先级真相源。你的任务不是继续做一个简单的 P0 演示壳子，而是把当前仓库升级成 **腾讯 PCG 命题赛道题目 3「用 AI 玩转 QQ 养虾，解锁社交新玩法」** 的完整参赛原型：一个 **Demo-first 但功能完整、带真实 LLM、可公开部署、可稳定录屏讲解** 的 Web 产品。
+
+最终产品必须是 **虾局长**：QQ 群聊里的官方社交推进 Agent。你必须同时实现并打通以下能力，不允许删减成“后续再做”：
+1. 智能收口组局主线：从群聊意图识别、成局建议、投票、提醒、确认成局，到局后回忆卡。
+2. 匿名倡议：用户不想承担组织责任时，可由虾局长匿名代发想法、倡议或局建议。
+3. 冲突桥梁：群里出现争执时，虾局长可以总结双方诉求、温和转述、提供冷静与后续处理选项。
+4. 腾讯游戏局：支持王者荣耀、洛克王国等腾讯游戏相关的组队、战绩/活动回顾与下次再约入口。
+5. 轻量偏好记忆：在 demo 里可见、可讲解、可被下次场景复用，但不需要做重后端长期记忆系统。
+
+产品形态必须保持 **评审导向**：评委只控制一个用户，其他群成员由脚本与系统驱动；交互以按钮、chips、预置选项、轻量输入为主，而不是开放式自由探索。与此同时，你必须接入 **真实 LLM**，但只能用于被约束的、可验证的结构化节点，不允许把主流程交给自由聊天：
+- 意图识别 / 收口建议
+- 匿名倡议改写
+- 冲突桥梁总结与劝导
+- 回忆卡生成
+- 游戏局回顾生成
+
+LLM 接入必须走 server-side route + JSON schema + Zod 校验 + fallback 快照缓存。支持三种运行模式：
+- mock：纯 fixtures，保证稳定
+- live：真实调用 LLM
+- snapshot：基于曾经 live 生成并落盘的结果，保证录屏稳定
+
+继续沿用当前仓库的前端栈，优先使用 Next.js + TypeScript + Tailwind + Framer Motion + Zustand/XState + Zod，并在此基础上完成系统化重构，而不是推倒重来。必须新增或重构：
+- 场景脚本引擎：从 step 模型升级为 beat/timeline 模型
+- Trigger Policy：区分自动建议、显式 @ 触发、匿名代发、无需用户操作的自动后续动作
+- Judge Mode：给评委看的正式模式
+- Recording Mode：给录屏的自动演示模式，关键讲解点自动暂停
+- Studio Mode：开发与现场备用模式，可看 state、切 mock/live、保存 snapshot
+- LLM Adapter 与 schema 文件
+- 可部署的 server route 与环境变量管理
+- 提交材料目录：PDF 大纲、视频脚本、截图清单、评委说明页
+
+操作顺序：
+先阅读并落实 `docs/17_REPO_REFACTOR_BLUEPRINT.md`，按文件级别重构仓库；然后完成 `docs/16_LLM_HYBRID_SYSTEM_SPEC.md` 中的 live LLM 架构；再实现 `docs/22_RECORDING_AND_DEMO_MODE_SPEC.md` 中的三种模式；最后根据 `docs/19_SUBMISSION_MATERIALS_AND_REPO_CONTENT.md` 补齐提交材料目录，并对照 `docs/21_FINAL_ACCEPTANCE_CHECKLIST.md` 自检，直到项目达到：**功能完整、引导清晰、真实 LLM 可用、录屏稳定、外网可访问、材料齐备**。

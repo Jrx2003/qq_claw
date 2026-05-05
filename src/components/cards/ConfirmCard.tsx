@@ -3,7 +3,7 @@ import { KeyboardButton } from "@/components/common/KeyboardButton";
 import type { Actor, DemoAction, DemoCard } from "@/lib/types/demo";
 
 import { CardFrame } from "./CardFrame";
-import { buildCardButtonModels, cardNumber, cardString, cardStringArray } from "./cardUtils";
+import { buildCardButtonModels, cardButtons, cardNumber, cardString } from "./cardUtils";
 
 export function ConfirmCard({
   card,
@@ -18,7 +18,7 @@ export function ConfirmCard({
   contextLabel?: string;
   onAction: (actionId: string) => void;
 }) {
-  const buttons = cardStringArray(card, "buttons");
+  const buttons = cardButtons(card);
   const participantActors = actors.filter((actor) => actor.role !== "bot").slice(0, cardNumber(card, "participantsCount", 8));
 
   return (
@@ -47,7 +47,7 @@ export function ConfirmCard({
       </p>
       <div className="grid grid-cols-3 gap-2">
         {buildCardButtonModels(buttons, actions).map((button) => {
-          const actionId = button.action?.id;
+          const actionId = button.action?.actionId;
 
           return (
             <KeyboardButton

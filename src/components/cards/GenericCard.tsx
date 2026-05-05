@@ -2,7 +2,7 @@ import { KeyboardButton } from "@/components/common/KeyboardButton";
 import type { DemoAction, DemoCard } from "@/lib/types/demo";
 
 import { CardFrame } from "./CardFrame";
-import { buildCardButtonModels, cardString, cardStringArray } from "./cardUtils";
+import { buildCardButtonModels, cardButtons, cardString } from "./cardUtils";
 
 export function GenericCard({
   card,
@@ -21,8 +21,8 @@ export function GenericCard({
         {cardString(card, "summary")}
       </p>
       <div className="grid grid-cols-2 gap-2">
-        {buildCardButtonModels(cardStringArray(card, "buttons"), actions).map((button) => {
-          const actionId = button.action?.id;
+        {buildCardButtonModels(cardButtons(card), actions).map((button) => {
+          const actionId = button.action?.actionId;
 
           return (
             <KeyboardButton

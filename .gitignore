@@ -11,3 +11,4 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 xjz_codex_bundle_v1/
+.vercel

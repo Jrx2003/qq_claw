@@ -5,9 +5,21 @@
   "status": "已代发",
   "summary": "收到一个匿名想法：这周想不想来个轻松饭局？",
   "buttons": [
-    "我有兴趣",
-    "看时间",
-    "看地点",
-    "先围观"
+    {
+      "label": "我有兴趣",
+      "actionId": "anonymous.vote"
+    },
+    {
+      "label": "看时间",
+      "actionId": "anonymous.vote"
+    },
+    {
+      "label": "看地点",
+      "actionId": "anonymous.vote"
+    },
+    {
+      "label": "先围观",
+      "actionId": "anonymous.end"
+    }
   ]
 }

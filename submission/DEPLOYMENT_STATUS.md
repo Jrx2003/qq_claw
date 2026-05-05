@@ -1,0 +1,34 @@
+# Deployment Status
+
+## Durable Public URL
+
+Vercel production:
+
+- Home: `https://qqclaw.vercel.app/`
+- Judge Mode: `https://qqclaw.vercel.app/judge`
+- Recording Mode: `https://qqclaw.vercel.app/recording`
+- Studio Mode: `https://qqclaw.vercel.app/studio?key=local-studio`
+- Health check: `https://qqclaw.vercel.app/api/health`
+
+Latest verified production deployment on 2026-05-05:
+
+- Deployment id: `dpl_ByuxDbQCeZKQsPHWMhQg5ePEzdu6`
+- Alias: `https://qqclaw.vercel.app`
+- `/judge` returns HTTP 200.
+- `/recording` returns HTTP 200.
+- `/studio` returns HTTP 200 with access-key guard.
+- `/studio?key=local-studio` returns HTTP 200 with Studio Mode and Live LLM controls.
+- `/api/health` returns `{ "ok": true, "defaultMode": "judge", "llmRuntimeMode": "snapshot" }`.
+- `/api/llm/anonymous` with `mode: "snapshot"` returns schema-validated snapshot JSON.
+- `/api/llm/intent`, `/api/llm/anonymous`, `/api/llm/conflict`, `/api/llm/recap`, and `/api/llm/game-recap` with `mode: "live"` return schema-validated DeepSeek JSON with `fallbackUsed: false`.
+
+## Runtime Policy
+
+- Judge Mode and Recording Mode default to `snapshot` runtime for stable judging and recording.
+- Studio Mode can switch to `live` runtime for real model proof and snapshot capture.
+- Live LLM secrets are only configured in Vercel server-side environment variables.
+- The included `vercel.json` traces `prompts/live_llm/**/*` and `fixtures/snapshots/**/*` into API route bundles so serverless LLM routes can read prompt and fallback assets.
+
+## Temporary Tunnel Note
+
+A Cloudflare quick tunnel was used during local smoke testing, but it is no longer the primary submission URL. Use the Vercel production URL above for judging.

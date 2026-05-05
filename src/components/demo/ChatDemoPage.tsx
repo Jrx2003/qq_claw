@@ -5,15 +5,34 @@ import { useSearchParams } from "next/navigation";
 
 import { ChatShell } from "@/components/chat/ChatShell";
 import { DemoToolbar } from "@/components/demo/DemoToolbar";
-import { DevPanel } from "@/components/demo/DevPanel";
+import { StateInspector } from "@/components/demo/StateInspector";
+import { StudioPanel } from "@/components/demo/StudioPanel";
 import { sceneTextArray } from "@/lib/sceneMeta";
 import { useDemoStore } from "@/lib/state/demoStore";
-import { appModeSchema, sceneIdSchema, type AppMode } from "@/lib/types/demo";
+import {
+  appModeSchema,
+  runtimeModeSchema,
+  sceneIdSchema,
+  type AppMode,
+  type RuntimeMode,
+} from "@/lib/types/demo";
 
-export function ChatDemoPage() {
+export function ChatDemoPage({
+  defaultMode = "judge",
+  defaultRuntimeMode = "snapshot",
+  showStudioTools = false,
+  recordingControls = false,
+}: {
+  defaultMode?: AppMode;
+  defaultRuntimeMode?: RuntimeMode;
+  showStudioTools?: boolean;
+  recordingControls?: boolean;
+}) {
   const searchParams = useSearchParams();
   const {
     mode,
+    experienceMode,
+    runtimeMode,
     sceneId,
     currentScene,
     sceneManifest,
@@ -25,35 +44,55 @@ export function ChatDemoPage() {
     debugOpen,
     autoplayRunning,
     switchMode,
+    switchRuntimeMode,
     switchScene,
     triggerAction,
     replay,
     jumpToStep,
     setDebugOpen,
     setAutoplayRunning,
+    resumeRecording,
     autoplayTick,
   } = useDemoStore();
 
   useEffect(() => {
     const modeParam = searchParams.get("mode");
+    const runtimeParam = searchParams.get("runtime");
     const sceneParam = searchParams.get("scene");
     const debugParam = searchParams.get("debug");
-    const parsedMode = modeParam ? appModeSchema.safeParse(modeParam) : null;
+    const parsedMode = modeParam ? appModeSchema.safeParse(modeParam) : appModeSchema.safeParse(defaultMode);
+    const parsedRuntime = runtimeParam
+      ? runtimeModeSchema.safeParse(runtimeParam)
+      : runtimeModeSchema.safeParse(defaultRuntimeMode);
     const parsedScene = sceneParam ? sceneIdSchema.safeParse(sceneParam) : null;
+
+    if (parsedRuntime.success) {
+      switchRuntimeMode(parsedRuntime.data);
+    }
 
     if (parsedScene?.success) {
       switchScene(parsedScene.data, parsedMode?.success ? parsedMode.data : undefined);
     } else if (parsedMode?.success) {
       switchMode(parsedMode.data);
-      if (parsedMode.data === "autoplay") {
+      if (parsedMode.data === "recording") {
         setAutoplayRunning(true);
       }
     }
 
-    if (debugParam === "1") {
+    if (showStudioTools || debugParam === "1") {
       setDebugOpen(true);
     }
-  }, [searchParams, setAutoplayRunning, setDebugOpen, switchMode, switchScene]);
+  }, [
+    defaultMode,
+    defaultRuntimeMode,
+    searchParams,
+    setAutoplayRunning,
+    setDebugOpen,
+    showStudioTools,
+    switchMode,
+    switchRuntimeMode,
+    switchScene,
+  ]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -80,8 +119,8 @@ export function ChatDemoPage() {
 
   const handleMode = (nextMode: AppMode) => {
     switchMode(nextMode);
-    setAutoplayRunning(nextMode === "autoplay");
-    if (nextMode === "dev") {
+    setAutoplayRunning(nextMode === "recording");
+    if (nextMode === "studio") {
       setDebugOpen(true);
     }
   };
@@ -109,10 +148,11 @@ export function ChatDemoPage() {
           <DemoToolbar
             autoplayRunning={autoplayRunning}
             debugOpen={debugOpen}
+            experienceMode={experienceMode}
             mode={mode}
             onAutoplay={() => {
               if (currentScene.id !== "dinner_core") {
-                switchScene("dinner_core", "autoplay");
+                switchScene("dinner_core", "recording");
               }
               setAutoplayRunning(true);
             }}
@@ -120,9 +160,14 @@ export function ChatDemoPage() {
             onMode={handleMode}
             onNext={handleNext}
             onReplay={replay}
+            onResume={resumeRecording}
+            onRuntimeMode={switchRuntimeMode}
             onScene={(nextSceneId) => switchScene(nextSceneId)}
             scene={currentScene}
             sceneManifest={sceneManifest}
+            recordingControls={recordingControls}
+            runtimeMode={runtimeMode}
+            showStudioTools={showStudioTools}
           />
           <div className="grid grid-cols-4 gap-2">
             {sceneTextArray(currentScene, "stageLabels", ["收口", "投票", "成局", "回忆"]).map((label, index) => (
@@ -138,8 +183,11 @@ export function ChatDemoPage() {
               </div>
             ))}
           </div>
-          {debugOpen ? (
-            <DevPanel cards={cards} onJump={jumpToStep} scene={currentScene} state={useDemoStore.getState()} />
+          {showStudioTools ? (
+            <StudioPanel runtimeMode={runtimeMode} sceneId={sceneId} />
+          ) : null}
+          {debugOpen && showStudioTools ? (
+            <StateInspector cards={cards} onJump={jumpToStep} scene={currentScene} state={useDemoStore.getState()} />
           ) : null}
         </div>
       </div>

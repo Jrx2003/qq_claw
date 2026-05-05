@@ -5,9 +5,21 @@
   "status": "劝导中",
   "summary": "目前双方主要在意的是：时间临时变动、信息同步不及时",
   "buttons": [
-    "我来温和转述",
-    "先冷静10分钟",
-    "继续私聊沟通",
-    "让我总结历史记录"
+    {
+      "label": "我来温和转述",
+      "actionId": "conflict.bridge"
+    },
+    {
+      "label": "先冷静10分钟",
+      "actionId": "conflict.cooldown"
+    },
+    {
+      "label": "继续私聊沟通",
+      "actionId": "conflict.dm"
+    },
+    {
+      "label": "让我总结历史记录",
+      "actionId": "conflict.bridge"
+    }
   ]
 }

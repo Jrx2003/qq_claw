@@ -20,9 +20,21 @@
     "老周"
   ],
   "buttons": [
-    "我要参加",
-    "时间投票",
-    "地点投票",
-    "去单聊补全"
+    {
+      "label": "我要参加",
+      "actionId": "dinner.vote_join"
+    },
+    {
+      "label": "时间投票",
+      "actionId": "dinner.vote_time"
+    },
+    {
+      "label": "地点投票",
+      "actionId": "dinner.vote_place"
+    },
+    {
+      "label": "去单聊补全",
+      "actionId": "dinner.vote_time"
+    }
   ]
 }

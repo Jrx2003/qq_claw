@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AnonymousProposal",
+  "type": "object",
+  "required": [
+    "title",
+    "group_message",
+    "tone",
+    "attach_vote",
+    "vote_options",
+    "follow_up_chips"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "group_message": {
+      "type": "string"
+    },
+    "tone": {
+      "type": "string",
+      "enum": [
+        "light",
+        "warm",
+        "neutral",
+        "gamey"
+      ]
+    },
+    "attach_vote": {
+      "type": "boolean"
+    },
+    "vote_options": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "follow_up_chips": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

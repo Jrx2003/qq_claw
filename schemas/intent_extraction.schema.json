@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IntentExtraction",
+  "type": "object",
+  "required": [
+    "should_intervene",
+    "intent_type",
+    "confidence",
+    "title",
+    "suggested_trigger",
+    "summary",
+    "time_candidates",
+    "location_candidates",
+    "participants",
+    "missing_info",
+    "suggested_bot_copy",
+    "chips"
+  ],
+  "properties": {
+    "should_intervene": {
+      "type": "boolean"
+    },
+    "intent_type": {
+      "type": "string",
+      "enum": [
+        "plan",
+        "anonymous",
+        "conflict",
+        "game_party",
+        "none"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "suggested_trigger": {
+      "type": "string",
+      "enum": [
+        "suggestion_chip",
+        "explicit_at",
+        "anonymous_delegate",
+        "auto_host",
+        "conflict_bridge",
+        "none"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "time_candidates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "location_candidates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "status"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "neutral",
+              "uncertain",
+              "silent",
+              "conflict_a",
+              "conflict_b"
+            ]
+          }
+        }
+      }
+    },
+    "missing_info": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "suggested_bot_copy": {
+      "type": "string"
+    },
+    "chips": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

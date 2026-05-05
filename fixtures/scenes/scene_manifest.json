@@ -8,22 +8,28 @@
       "path": "fixtures/scenes/dinner_core.json"
     },
     {
-      "id": "anonymous_proposal",
+      "id": "anonymous_delegate",
       "title": "匿名倡议",
       "priority": "P1",
-      "path": "fixtures/scenes/anonymous_proposal.json"
+      "path": "fixtures/scenes/anonymous_delegate.json"
     },
     {
       "id": "conflict_bridge",
-      "title": "冲突中继",
+      "title": "冲突桥梁",
       "priority": "P1",
       "path": "fixtures/scenes/conflict_bridge.json"
     },
     {
-      "id": "game_party",
-      "title": "腾讯游戏局",
+      "id": "game_party_hok",
+      "title": "王者荣耀五排局",
       "priority": "P1",
-      "path": "fixtures/scenes/game_party.json"
+      "path": "fixtures/scenes/game_party_hok.json"
+    },
+    {
+      "id": "game_party_luoke",
+      "title": "洛克王国活动局",
+      "priority": "P1",
+      "path": "fixtures/scenes/game_party_luoke.json"
     }
   ]
 }

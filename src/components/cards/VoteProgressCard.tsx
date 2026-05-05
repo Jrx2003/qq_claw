@@ -3,7 +3,7 @@ import { PollBar } from "@/components/common/PollBar";
 import type { DemoAction, DemoCard } from "@/lib/types/demo";
 
 import { CardFrame } from "./CardFrame";
-import { buildCardButtonModels, cardString, cardStringArray, cardVoteRows } from "./cardUtils";
+import { buildCardButtonModels, cardButtons, cardString, cardStringArray, cardVoteRows } from "./cardUtils";
 
 export function VoteProgressCard({
   card,
@@ -18,7 +18,7 @@ export function VoteProgressCard({
 }) {
   const timeVotes = cardVoteRows(card, "timeVotes");
   const placeVotes = cardVoteRows(card, "placeVotes");
-  const buttons = cardStringArray(card, "buttons");
+  const buttons = cardButtons(card);
 
   return (
     <CardFrame card={card} contextLabel={contextLabel}>
@@ -43,7 +43,7 @@ export function VoteProgressCard({
       </p>
       <div className="grid grid-cols-3 gap-2">
         {buildCardButtonModels(buttons, actions).map((button) => {
-          const actionId = button.action?.id;
+          const actionId = button.action?.actionId;
 
           return (
             <KeyboardButton

@@ -4,10 +4,11 @@ import { create } from "zustand";
 
 import {
   advanceStep,
+  createRecordingState,
   createInitialDemoState,
   findStep,
   goToStep,
-  selectAutoplayAction,
+  playNextTimelineBeat,
 } from "@/lib/scenario-engine/engine";
 import {
   loadActorMap,
@@ -20,9 +21,11 @@ import type {
   AppMode,
   DemoCard,
   DemoState,
+  RuntimeMode,
   SceneDefinition,
   SceneId,
   SceneManifest,
+  TriggerPreset,
 } from "@/lib/types/demo";
 
 type DemoStore = DemoState & {
@@ -33,17 +36,23 @@ type DemoStore = DemoState & {
   debugOpen: boolean;
   autoplayRunning: boolean;
   switchMode: (mode: AppMode) => void;
+  switchRuntimeMode: (mode: RuntimeMode) => void;
+  switchTriggerPreset: (preset: TriggerPreset) => void;
   switchScene: (sceneId: SceneId, mode?: AppMode) => void;
   triggerAction: (actionId: string) => void;
   replay: () => void;
   jumpToStep: (stepId: string) => void;
   setDebugOpen: (open: boolean) => void;
   setAutoplayRunning: (running: boolean) => void;
+  resumeRecording: () => void;
   autoplayTick: () => boolean;
 };
 
 const initialScene = loadScene("dinner_core");
-const initialState = createInitialDemoState(initialScene, "guided");
+const initialState = createInitialDemoState(initialScene, {
+  experienceMode: "judge",
+  runtimeMode: "snapshot",
+});
 
 export const useDemoStore = create<DemoStore>((set, get) => ({
   ...initialState,
@@ -54,16 +63,41 @@ export const useDemoStore = create<DemoStore>((set, get) => ({
   debugOpen: false,
   autoplayRunning: false,
   switchMode: (mode) => {
-    set({ mode, autoplayRunning: mode === "autoplay" });
+    set((state) => ({
+      experienceMode: mode,
+      mode,
+      debugOpen: mode === "studio" ? true : state.debugOpen,
+      autoplayRunning: mode === "recording",
+      recording: {
+        ...state.recording,
+        running: mode === "recording",
+        paused: false,
+        pausePoint: undefined,
+      },
+    }));
+  },
+  switchRuntimeMode: (runtimeMode) => {
+    set({ runtimeMode });
+  },
+  switchTriggerPreset: (triggerPreset) => {
+    set({ triggerPreset });
   },
   switchScene: (sceneId, mode) => {
     const scene = loadScene(sceneId);
-    const nextState = createInitialDemoState(scene, mode ?? get().mode);
+    const experienceMode = mode ?? get().experienceMode;
+    const nextState =
+      experienceMode === "recording"
+        ? createRecordingState(scene)
+        : createInitialDemoState(scene, {
+            experienceMode,
+            runtimeMode: get().runtimeMode,
+            triggerPreset: scene.triggerPreset ?? get().triggerPreset,
+          });
 
     set({
       ...nextState,
       currentScene: scene,
-      autoplayRunning: (mode ?? get().mode) === "autoplay",
+      autoplayRunning: experienceMode === "recording",
     });
   },
   triggerAction: (actionId) => {
@@ -74,16 +108,28 @@ export const useDemoStore = create<DemoStore>((set, get) => ({
     set({
       ...nextState,
       autoplayRunning: false,
+      recording: {
+        ...nextState.recording,
+        running: false,
+        paused: false,
+      },
     });
   },
   replay: () => {
     const state = get();
     const scene = loadScene(state.sceneId);
-    const nextState = createInitialDemoState(scene, state.mode);
+    const nextState =
+      state.experienceMode === "recording"
+        ? createRecordingState(scene)
+        : createInitialDemoState(scene, {
+            experienceMode: state.experienceMode,
+            runtimeMode: state.runtimeMode,
+            triggerPreset: state.triggerPreset,
+          });
 
     set({
       ...nextState,
-      autoplayRunning: state.mode === "autoplay",
+      autoplayRunning: state.experienceMode === "recording",
     });
   },
   jumpToStep: (stepId) => {
@@ -98,37 +144,54 @@ export const useDemoStore = create<DemoStore>((set, get) => ({
     set({
       ...nextState,
       autoplayRunning: false,
+      recording: {
+        ...nextState.recording,
+        running: false,
+        paused: false,
+      },
     });
   },
   setDebugOpen: (open) => set({ debugOpen: open }),
   setAutoplayRunning: (running) => {
-    set({
+    set((state) => ({
       autoplayRunning: running,
-      mode: running ? "autoplay" : get().mode,
-    });
+      experienceMode: running ? "recording" : state.experienceMode,
+      mode: running ? "recording" : state.mode,
+      recording: {
+        ...state.recording,
+        running,
+        paused: false,
+        pausePoint: undefined,
+      },
+    }));
+  },
+  resumeRecording: () => {
+    set((state) => ({
+      autoplayRunning: true,
+      recording: {
+        ...state.recording,
+        running: true,
+        paused: false,
+        pausePoint: undefined,
+      },
+    }));
   },
   autoplayTick: () => {
     const state = get();
 
-    if (state.currentStepId === "scene_e_memory") {
-      set({ autoplayRunning: false });
-      return false;
-    }
-
-    const action = selectAutoplayAction(state.availableActions);
-
-    if (!action) {
+    if (state.recording.paused) {
       set({ autoplayRunning: false });
       return false;
     }
 
     const scene = loadScene(state.sceneId);
-    const nextState = advanceStep(scene, state, action.id);
-    const shouldContinue = nextState.currentStepId !== "scene_e_memory";
+    const nextState = playNextTimelineBeat(scene, state);
+    const shouldContinue = nextState.recording.running;
 
     set({
       ...nextState,
-      mode: "autoplay",
+      mode: "recording",
+      experienceMode: "recording",
       autoplayRunning: shouldContinue,
     });
 

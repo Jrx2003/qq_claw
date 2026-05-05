@@ -1,0 +1,12 @@
+{
+  "taskName": "game-recap",
+  "snapshotKey": "game/luoke_recap",
+  "data": {
+    "game": "洛克王国",
+    "title": "洛克王国活动回忆",
+    "mvp": "奶茶不加糖",
+    "highlight": "回坑同学被一路带完活动任务，周末下午档被验证为最舒服的节奏。",
+    "keywords": ["洛克王国", "回坑", "刷材料", "周末下午"],
+    "next_invite_copy": "下次活动可以继续沿用周末下午和互相带路的组合。"
+  }
+}

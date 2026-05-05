@@ -1,4 +1,4 @@
-import type { DemoAction, DemoCard } from "@/lib/types/demo";
+import type { CardActionBinding, DemoAction, DemoCard } from "@/lib/types/demo";
 
 export function cardString(card: DemoCard, key: string, fallback = ""): string {
   const value = card[key];
@@ -13,6 +13,10 @@ export function cardNumber(card: DemoCard, key: string, fallback = 0): number {
 export function cardStringArray(card: DemoCard, key: string): string[] {
   const value = card[key];
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+export function cardButtons(card: DemoCard): CardActionBinding[] {
+  return card.buttons ?? [];
 }
 
 export type VoteRow = {
@@ -46,6 +50,14 @@ export function actionForLabel(actions: DemoAction[], label: string) {
   return actions.find((action) => action.label === label);
 }
 
+export function actionForBinding(actions: DemoAction[], binding: CardActionBinding) {
+  if (!binding.actionId) {
+    return undefined;
+  }
+
+  return actions.find((action) => action.actionId === binding.actionId || action.id === binding.actionId);
+}
+
 export type CardButtonModel = {
   label: string;
   action: DemoAction | undefined;
@@ -53,14 +65,14 @@ export type CardButtonModel = {
 };
 
 export function buildCardButtonModels(
-  labels: string[],
+  buttons: CardActionBinding[],
   actions: DemoAction[],
 ): CardButtonModel[] {
-  return labels.map((label) => {
-    const action = actionForLabel(actions, label);
+  return buttons.map((binding) => {
+    const action = actionForBinding(actions, binding);
 
     return {
-      label,
+      label: binding.label,
       action,
       disabled: !action,
     };

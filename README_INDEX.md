@@ -1,90 +1,168 @@
-# 虾局长 Codex 启动包 v1
+# 虾局长最终目标包 v2
 
-更新时间：2026-05-02
+更新时间：2026-05-05
 
-这个目录是给 **Codex / 代码代理** 直接阅读的启动包。目标不是做一个完整接入 QQ 的生产机器人，而是先做一个 **演示优先、路径受控、能快速让评委理解价值** 的产品原型。
+这个包不是给“先做一个能跑的 P0”用的，而是给 **Codex 直接对齐最终交付目标** 用的。
+它明确回答三件事：
 
-## 1. 这个包的核心判断
+1. 这个比赛里，虾局长最终要做成什么样。
+2. 当前仓库与最终目标之间差在哪里。
+3. Codex 接下来应该按什么路径把项目改到可评审、可录屏、可上线的状态。
 
-- 当前阶段优先做 **Demo-first**，不是 Real-bot-first。
-- 评委最需要看到的是：**问题定义 → AI 原生解法 → 主闭环 → 产品形态 → 演示完成度**。
-- 因此 P0 不做自由探索式聊天，不把系统能力交给评委碰运气。
-- 评委在原型里只控制 **一个用户**；其他群成员由系统脚本自动驱动。
-- 用户主要通过 **按钮 / 选项 / 引导 chips** 触发剧情，快速走通“收口—投票—成局—回忆”闭环。
-- 真实 QQ 机器人接口与 LLM 接口保留为 **后续扩展层**，不进入 P0 演示主路径。
+## 一、这版文档的核心立场
 
-## 2. 建议 Codex 的阅读顺序
+- **不放弃功能。**
+  之前讨论过的能力全部保留，并且都要进入最终产品蓝图：
+  - 智能收口组局
+  - 匿名倡议 / 匿名想法代发
+  - 冲突桥梁 / AI 中继劝导
+  - 活动回忆卡
+  - 腾讯游戏局（王者荣耀、洛克王国等）组队与回忆
+  - 轻量偏好沉淀与下次再约
+
+- **仍然坚持 Demo-first。**
+  Demo-first 不是“把功能砍掉”，而是：
+  - 功能必须存在
+  - 评委体验必须被导演
+  - 引导优先于自由探索
+  - 真实 LLM 必须嵌入在可控链路里，而不是把整个体验交给开放式输入
+
+- **真实 LLM 必须使用，但必须被约束。**
+  本项目不是纯 mock。需要接入真实 LLM，用在：
+  - 意图提取
+  - 组局建议生成
+  - 匿名倡议改写
+  - 冲突桥梁转述
+  - 回忆卡生成
+  - 腾讯游戏局回顾生成
+
+  但这些能力必须通过：
+  - 结构化 schema
+  - server-side route
+  - fixture 快照缓存
+  - 失败回退
+  来保证演示稳定。
+
+- **部署不是加分小尾巴，而是必须纳入设计。**
+  项目需要云端可访问地址，供评委外部访问和后续录屏使用。
+
+## 二、建议 Codex 的阅读顺序
 
 1. `prompts/CODEX_GOAL_PROMPT.txt`
-2. `docs/01_project_north_star.md`
-3. `docs/02_demo_first_strategy.md`
-4. `docs/03_scope_and_non_goals.md`
-5. `docs/04_user_problem_and_evidence.md`
-6. `docs/05_interaction_storyboard.md`
-7. `docs/06_demo_engine_spec.md`
-8. `docs/07_component_inventory.md`
-9. `docs/08_visual_spec_qq_style.md`
-10. `docs/09_conversation_script_library.md`
-11. `docs/10_tech_stack_demo_first.md`
-12. `docs/11_real_platform_notes_qq_bot.md`
-13. `docs/12_repo_blueprint.md`
-14. `docs/13_acceptance_checklist.md`
+2. `docs/14_FINAL_TARGET_MASTER_SPEC.md`
+3. `docs/15_FEATURE_MATRIX_AND_TRIGGER_RULES.md`
+4. `docs/16_LLM_HYBRID_SYSTEM_SPEC.md`
+5. `docs/17_REPO_REFACTOR_BLUEPRINT.md`
+6. `docs/18_DEPLOYMENT_AND_LIVE_LLM_RUNBOOK.md`
+7. `docs/19_SUBMISSION_MATERIALS_AND_REPO_CONTENT.md`
+8. `docs/20_SOURCE_NOTES.md`
+9. `docs/21_FINAL_ACCEPTANCE_CHECKLIST.md`
+10. `docs/22_RECORDING_AND_DEMO_MODE_SPEC.md`
+11. `docs/23_COMPETITION_ALIGNMENT_NOTES.md`
 
-## 3. 当前推荐的产品版本
+然后再阅读：
 
-### P0 主路径（必须完成）
-- 宿舍群吃饭局
-- 触发：群里已有聊天，用户点选 `@虾局长 帮我收口这局`
-- 虾局长生成 **成局卡**
-- 群成员通过按钮完成 **时间/地点投票**
-- 虾局长更新 **投票进展卡**
-- 虾局长发布 **确认成局卡**
-- 局后生成 **回忆卡**
+- `prompts/live_llm/`
+- `schemas/`
+- `fixtures/llm_examples/`
+- `assets/`
 
-### P0.5 可选增强
-- 演示模式切换：`互动模式 / 自动播放模式 / 开发者调试模式`
-- 进度控制器：用于录屏和现场演示
-- 卡片动画、typing、延迟播放
+## 三、最终产品是什么
 
-### P1 备选扩展（不阻塞主线）
-- 匿名倡议
-- 冲突缓和 / AI 中继劝导
-- 腾讯游戏局模板（王者荣耀、洛克王国等）
+最终不是“一个吃饭局小 demo”，而是 **QQ 养虾官方 Agent 的产品原型**：
 
-## 4. 本包内容说明
+### 产品名
+虾局长
 
-### docs/
-文档说明、产品逻辑、技术栈、状态机、API 契约、组件清单、视觉规范。
+### 产品定位
+QQ 群聊里的官方社交推进 Agent
 
-### fixtures/
-给 Codex 直接消费的结构化数据，包括：
-- 场景脚本
-- 卡片数据
-- NPC 人设与偏好
-- 建议按钮文案
+### 解决的问题
+- 群里有意图，但没人愿意承担组织责任
+- “我都可以”让活动决策耗散
+- 有些想法想说，但不想暴露自己当发起人
+- 吵架时不是只有禁言一个选择
+- 一次活动结束后，关系和偏好没有被沉淀
+- 游戏局和群活动也缺少结构化回顾与再次发起入口
 
-### assets/
-- `prototypes/`：用于产品形态参考的高保真原型图
-- `reference/`：线框、流程、架构参考图
+### 最终必须可演示的 4 条能力线
+1. **收口组局主线**：周五烤肉局
+2. **匿名倡议支线**：不想背组织责任，也能安全发起想法
+3. **冲突桥梁支线**：吵架时由 AI 中继、转述、降温
+4. **游戏局支线**：王者荣耀 / 洛克王国等腾讯游戏的组队和回忆
 
-### legacy/
-之前生成的比赛文档包，供补充参考，不作为 P0 编码的唯一真相源。
+## 四、最终体验模式
 
-## 5. 最重要的开发原则
+### 1）Judge Mode
+给评委访问的正式模式。要点：
+- 默认进入移动端 QQ 群聊式界面
+- 首屏只突出最易理解的主线
+- 其他能力可通过“能力入口卡”进入
+- 不暴露开发调试工具
+- 引导强、干扰少、可稳定讲解
 
-- **先把评委带对路，再考虑自由度。**
-- **先把“像产品”做出来，再考虑“像系统”。**
-- **先做可控演示，再做真实接入。**
-- **先有完整闭环，再谈多场景。**
+### 2）Recording Mode
+给你录 3 分钟视频用的模式。要点：
+- 自动跑主线，但在关键讲解点暂停
+- 可一键从头重播
+- 可关掉多余 UI
+- 节奏稳定，方便配口播
 
-## 6. Codex 的落地目标
+### 3）Studio Mode
+给你自己调试和现场备用用的模式。要点：
+- 可切场景
+- 可看 state / fixtures / LLM 原始输出
+- 可切换 mock / live / snapshot
+- 可强制推进剧情
+- 可保存 live LLM 输出为快照
 
-产出一个可运行的、可录屏的、视觉完成度较高的 Web 原型：
-- QQ 群聊式移动界面
-- 只有少量引导式交互
-- 场景驱动
-- 演示稳定
-- 代码结构清晰
-- 后续可插入真实 QQ 适配层和 LLM 适配层
+## 五、当前仓库要被纠正的方向
 
-详细目标见：`prompts/CODEX_GOAL_PROMPT.txt`
+当前仓库已经有：
+- Next.js + TypeScript + Tailwind 风格前端底座
+- dinner_core 主线
+- 基础卡片和场景脚本
+- autoplay / guided / dev 的雏形
+
+但新的最终目标要求它必须升级成：
+
+- **完整功能矩阵**
+- **真实 LLM + 可控 fallback**
+- **更清楚的触发规则**
+- **录屏级自动播放**
+- **云端可部署**
+- **提交材料内生化到仓库结构**
+
+## 六、这个包会直接帮 Codex 做什么
+
+### 文档层
+把“最终做什么”写清楚。
+
+### 工程层
+把“哪些文件要改、为什么改、改成什么”写清楚。
+
+### LLM 层
+把可直接接入的 prompt、schema、示例输入输出写清楚。
+
+### 部署层
+把外部可访问站点怎么发出去写清楚。
+
+### 参赛层
+把仓库里应该补齐哪些材料写清楚。
+
+## 七、不要再回到旧目标
+
+旧目标里把匿名倡议、冲突桥梁、游戏局放到后面再说，这一版已经废止。
+从现在开始，Codex 应该以 **完整参赛项目** 为目标，而不是只做一个最小化前端样片。
+
+## 八、当前仓库运行入口
+
+- 公网 Demo：`https://qqclaw.vercel.app`
+- `/`：能力总入口
+- `/judge`：评委正式体验，默认 snapshot runtime
+- `/recording`：录屏模式，自动推进并在关键卡片暂停
+- `/studio`：调试模式，可切 mock / snapshot / live，可运行 LLM 任务并保存快照
+- `/api/llm/intent`、`/api/llm/anonymous`、`/api/llm/conflict`、`/api/llm/recap`、`/api/llm/game-recap`：服务端结构化 LLM route
+
+环境变量模板见 `.env.example`，部署建议见 `docs/18_DEPLOYMENT_AND_LIVE_LLM_RUNBOOK.md`。
+生产部署验证记录见 `submission/DEPLOYMENT_STATUS.md`。

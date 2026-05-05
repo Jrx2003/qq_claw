@@ -3,7 +3,7 @@ import { OptionChip } from "@/components/common/OptionChip";
 import type { DemoAction, DemoCard } from "@/lib/types/demo";
 
 import { CardFrame } from "./CardFrame";
-import { buildCardButtonModels, cardString, cardStringArray } from "./cardUtils";
+import { buildCardButtonModels, cardButtons, cardString, cardStringArray } from "./cardUtils";
 
 export function PlanCard({
   card,
@@ -16,7 +16,7 @@ export function PlanCard({
   contextLabel?: string;
   onAction: (actionId: string) => void;
 }) {
-  const buttons = cardStringArray(card, "buttons");
+  const buttons = cardButtons(card);
   const featuredTime = cardString(card, "featuredTimeOption");
   const featuredPlace = cardString(card, "featuredPlaceOption");
 
@@ -51,7 +51,7 @@ export function PlanCard({
       </section>
       <div className="grid grid-cols-2 gap-2">
         {buildCardButtonModels(buttons, actions).map((button) => {
-          const actionId = button.action?.id;
+          const actionId = button.action?.actionId;
 
           return (
             <KeyboardButton

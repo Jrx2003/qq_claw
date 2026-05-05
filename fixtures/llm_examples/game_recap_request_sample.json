@@ -1,0 +1,23 @@
+{
+  "scene": "game_party_hok",
+  "game": "王者荣耀",
+  "chatHistory": [
+    {
+      "name": "小马",
+      "text": "今晚有人五排吗"
+    },
+    {
+      "name": "阿泽",
+      "text": "我补位也行"
+    },
+    {
+      "name": "阿凯",
+      "text": "10点后能打"
+    }
+  ],
+  "matchSummary": {
+    "result": "win",
+    "kda": "12/3/8",
+    "mvp": "小马"
+  }
+}

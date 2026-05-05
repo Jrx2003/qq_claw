@@ -9,11 +9,13 @@
   "runtimeDefault": "snapshot",
   "triggerPreset": "conflict_safe",
   "entryBeatId": "conflict.seed",
-  "recordingEndBeatId": "conflict.bridge",
   "beats": [
     {
       "id": "conflict.seed",
       "description": "冲突样例",
+      "designIntent": "先展示群聊里的轻微升温，再让虾局长作为中性桥梁介入。",
+      "painPoint": "群主面对争执常只有禁言或放任两种粗糙选择。",
+      "expectedEffect": "评委能看到冲突桥梁是降温和转述，不是替某一方站队。",
       "llmTask": {
         "taskName": "conflict",
         "schemaKey": "conflict_bridge",
@@ -22,100 +24,68 @@
         "required": true
       },
       "messages": [
-        {
-          "id": "c_m1",
-          "actorId": "akai",
-          "type": "text",
-          "side": "left",
-          "text": "你每次都临时改时间"
-        },
-        {
-          "id": "c_m2",
-          "actorId": "laozhou",
-          "type": "text",
-          "side": "left",
-          "text": "那你自己又从来不提前说",
-          "delayMs": 300
-        },
-        {
-          "id": "c_m3",
-          "actorId": "bot_xjz",
-          "type": "text",
-          "side": "left",
-          "text": "我看到讨论有点升温，要不要我先把双方在意的点拆开说清楚？",
-          "delayMs": 500
-        },
-        {
-          "id": "c_m4",
-          "actorId": "bot_xjz",
-          "type": "card",
-          "side": "left",
-          "cardId": "conflict_card_1",
-          "delayMs": 300
-        }
+        { "id": "c_m1", "actorId": "akai", "type": "text", "side": "left", "text": "你每次都临时改时间" },
+        { "id": "c_m2", "actorId": "laozhou", "type": "text", "side": "left", "text": "那你自己又从来不提前说", "delayMs": 420 },
+        { "id": "c_m3", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我看到讨论有点升温，要不要我先把双方在意的点拆开说清楚？", "delayMs": 860 },
+        { "id": "c_m4", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "conflict_card_1", "delayMs": 1280 }
       ],
       "availableActions": [
-        {
-          "actionId": "conflict.bridge",
-          "label": "让虾局长来转述",
-          "kind": "keyboard",
-          "nextBeatId": "conflict.bridge",
-          "autoplayPriority": 1
-        },
-        {
-          "actionId": "conflict.cooldown",
-          "label": "先冷静10分钟",
-          "kind": "keyboard",
-          "nextBeatId": "conflict.cooldown"
-        },
-        {
-          "actionId": "conflict.dm",
-          "label": "继续私聊沟通",
-          "kind": "keyboard",
-          "nextBeatId": "conflict.cooldown"
-        }
+        { "actionId": "conflict.bridge", "label": "我来温和转述", "kind": "keyboard", "nextBeatId": "conflict.bridge", "autoplayPriority": 1 },
+        { "actionId": "conflict.cooldown", "label": "先冷静10分钟", "kind": "keyboard", "nextBeatId": "conflict.cooldown", "autoplayPriority": 3 },
+        { "actionId": "conflict.dm", "label": "继续私聊沟通", "kind": "keyboard", "nextBeatId": "conflict.dm", "autoplayPriority": 4 },
+        { "actionId": "conflict.summarize_history", "label": "让我总结历史记录", "kind": "keyboard", "nextBeatId": "conflict.history", "autoplayPriority": 2 }
       ]
     },
     {
       "id": "conflict.bridge",
       "description": "中性转述",
+      "designIntent": "用中性语言把双方诉求转成可解决的问题。",
+      "painPoint": "争执时双方都觉得自己被误解，继续辩论只会升温。",
+      "expectedEffect": "评委能看到虾局长把攻击性话语转成行动建议。",
       "messages": [
-        {
-          "id": "c_m5",
-          "actorId": "bot_xjz",
-          "type": "text",
-          "side": "left",
-          "text": "我先中性转述一下：阿凯在意的是时间变动影响安排，老周在意的是大家提前同步不够。我们先回到这次要解决的时间确认，好吗？"
-        }
+        { "id": "c_m5", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先中性转述一下：阿凯在意的是时间变动影响安排，老周在意的是大家提前同步不够。我们先回到这次要解决的时间确认，好吗？", "delayMs": 420 }
       ],
       "availableActions": [
-        {
-          "actionId": "conflict.replay",
-          "label": "Replay",
-          "kind": "toolbar",
-          "nextBeatId": "conflict.seed"
-        }
+        { "actionId": "conflict.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "conflict.seed" }
       ]
     },
     {
       "id": "conflict.cooldown",
       "description": "降温选项",
+      "designIntent": "冷静按钮给群聊一个低冲突暂停，不需要群主公开处罚任何人。",
+      "painPoint": "继续聊会吵，直接禁言又显得过度管理。",
+      "expectedEffect": "评委看到群主多了一个柔性治理动作。",
       "messages": [
-        {
-          "id": "c_m6",
-          "actorId": "bot_xjz",
-          "type": "text",
-          "side": "left",
-          "text": "我先把这个话题静置 10 分钟，之后再提醒大家回到要确认的问题上。"
-        }
+        { "id": "c_m6", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先把这个话题静置 10 分钟，之后再提醒大家回到要确认的问题上。", "delayMs": 420 }
       ],
       "availableActions": [
-        {
-          "actionId": "conflict.replay",
-          "label": "Replay",
-          "kind": "toolbar",
-          "nextBeatId": "conflict.seed"
-        }
+        { "actionId": "conflict.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "conflict.seed" }
+      ]
+    },
+    {
+      "id": "conflict.dm",
+      "description": "私聊沟通",
+      "designIntent": "把可能继续升级的内容转到私聊，保护公共群氛围。",
+      "painPoint": "公开群聊里继续解释容易让旁观者加入，冲突扩大。",
+      "expectedEffect": "评委看到虾局长能从群治理切到低打扰沟通。",
+      "messages": [
+        { "id": "c_dm1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我建议把细节转到私聊确认，群里只保留最终时间结论。", "delayMs": 420 }
+      ],
+      "availableActions": [
+        { "actionId": "conflict.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "conflict.seed" }
+      ]
+    },
+    {
+      "id": "conflict.history",
+      "description": "总结历史记录",
+      "designIntent": "历史总结按钮让 AI 只整理事实，不制造新的立场冲突。",
+      "painPoint": "争执中大家常只记得对自己有利的片段。",
+      "expectedEffect": "评委看到真实 LLM 能在结构化边界内辅助群治理。",
+      "messages": [
+        { "id": "c_h1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我只总结事实：这周改过两次时间，第一次是课程冲突，第二次是地点没定。先解决本次确认，不追溯责任。", "delayMs": 420 }
+      ],
+      "availableActions": [
+        { "actionId": "conflict.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "conflict.seed" }
       ]
     }
   ]

@@ -6,7 +6,6 @@
   "env": {
     "NEXT_PUBLIC_APP_ENV": "production",
     "NEXT_PUBLIC_DEFAULT_EXPERIENCE_MODE": "judge",
-    "NEXT_PUBLIC_ENABLE_RECORDING": "true",
     "LLM_RUNTIME_MODE": "snapshot"
   }
 }

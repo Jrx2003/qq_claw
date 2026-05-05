@@ -59,7 +59,7 @@
 - 落地与商业扩展
 
 ### 对齐“FAQ”
-由 `Judge Mode / Recording Mode / Studio Mode` 承接：
+由 `无 LLM 评审模式 / 真实 LLM 工作台` 承接：
 - 让评委不迷路
 - 让现场讲解不翻车
 - 让产品逻辑可被快速理解

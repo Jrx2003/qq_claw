@@ -16,10 +16,10 @@ export default async function StudioPage({
     return (
       <main className="grid min-h-screen place-items-center bg-qq-bg px-4">
         <section className="w-full max-w-md rounded-2xl border border-white/80 bg-white p-6 text-center shadow-soft">
-          <p className="text-sm font-bold uppercase text-blue-600">Studio Mode</p>
+          <p className="text-sm font-bold uppercase text-blue-600">真实 LLM 工作台</p>
           <h1 className="mt-2 text-2xl font-black text-slate-950">需要访问密钥</h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Judge Mode 和 Recording Mode 可直接访问。Studio Mode 用于 live LLM 调试和快照保存，需要在 URL 中带上 key。
+            无 LLM 评审模式可直接访问。真实 LLM 工作台用于 live route 调试和快照保存，需要在 URL 中带上 key。
           </p>
         </section>
       </main>

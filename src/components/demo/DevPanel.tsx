@@ -54,7 +54,6 @@ export function DevPanel({
             messages: state.messages.length,
             activeCards: state.activeCards.map((card) => cards.get(card.id)?.cardType ?? card.cardType),
             availableActions: state.availableActions.map((action) => action.actionId),
-            recording: state.recording,
             lastLlmTask: state.lastLlmTask,
             flags: state.flags,
           },

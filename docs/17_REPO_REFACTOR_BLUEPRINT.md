@@ -47,7 +47,6 @@ fixtures/
     anonymous_delegate.json
     conflict_bridge.json
     game_party_hok.json
-    game_party_luoke.json
   policies/
     trigger_presets.json
   llm_examples/
@@ -81,7 +80,7 @@ fixtures/
 
 ### 新类型必须包含
 ```ts
-type ExperienceMode = "judge" | "recording" | "studio";
+type ExperienceMode = "judge" | "studio";
 type RuntimeMode = "mock" | "live" | "snapshot";
 type TriggerPreset = "conservative" | "balanced" | "active_host" | "conflict_safe";
 
@@ -124,7 +123,7 @@ src/lib/scenario-engine/
 - auto-advance
 - live LLM 插入结果
 - replay
-- deterministic recording
+- judge route progressive playback
 
 ### 必须去掉的旧问题
 - 基于固定 actionId 列表的 autoplay 硬编码
@@ -168,11 +167,9 @@ app/api/llm/snapshot/save/route.ts
 ```text
 src/components/demo/
   JudgeShell.tsx
-  RecordingShell.tsx
   StudioShell.tsx
   GroupChatFrame.tsx
   SuggestionChips.tsx
-  FloatingRecordingControls.tsx
   StudioPanel.tsx
   StateInspector.tsx
   SceneLauncher.tsx
@@ -193,7 +190,7 @@ src/components/cards/
 
 ### 关键原则
 - 评委模式和 studio 模式不能再共屏
-- 录屏模式必须默认隐藏 debug
+- 无 LLM 评审模式必须默认隐藏 debug
 - 扩展场景入口要整合成能力入口卡，而不是在同一层堆 chips
 
 ## 2.7 路由层
@@ -203,14 +200,12 @@ src/components/cards/
 app/
   page.tsx                # landing / ability launcher
   judge/page.tsx
-  recording/page.tsx
   studio/page.tsx
 ```
 
 ### 路由目标
-- `/judge`：正式评委体验
-- `/recording`：视频录制
-- `/studio`：开发调试
+- `/judge`：无 LLM 评审体验
+- `/studio`：真实 LLM 工作台
 - `/`：能力总入口，解释虾局长能做什么
 
 ## 2.8 录屏素材层
@@ -240,7 +235,7 @@ submission/
 
 1. 先重写类型与 fixtures 结构
 2. 再重写 scenario engine
-3. 再补 judge / recording / studio 三种壳子
+3. 再补 judge / studio 两种壳子
 4. 再接 live LLM adapter
 5. 再补匿名 / 冲突 / 游戏三条支线
 6. 再补 landing 与 submission 目录

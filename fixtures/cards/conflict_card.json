@@ -19,7 +19,7 @@
     },
     {
       "label": "让我总结历史记录",
-      "actionId": "conflict.bridge"
+      "actionId": "conflict.summarize_history"
     }
   ]
 }

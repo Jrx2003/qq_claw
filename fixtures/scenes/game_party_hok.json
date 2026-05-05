@@ -4,16 +4,18 @@
   "groupName": "507宿舍开黑群",
   "onlineText": "5 人在线",
   "progressLabel": "开黑意图 → 补位收口 → 对局回顾 → 下次再约",
-  "stageLabels": ["识别", "组队", "回顾", "再约"],
+  "stageLabels": ["识别", "组队", "提醒", "回顾"],
   "modeDefault": "judge",
   "runtimeDefault": "snapshot",
   "triggerPreset": "active_host",
   "entryBeatId": "game_hok.seed",
-  "recordingEndBeatId": "game_hok.recap",
   "beats": [
     {
       "id": "game_hok.seed",
       "description": "王者荣耀开黑意图",
+      "designIntent": "保留腾讯游戏局，但只留下王者荣耀这一条更容易理解的代表线。",
+      "painPoint": "游戏群里经常缺最后一个补位队友，喊人和确认时间都很耗散。",
+      "expectedEffect": "评委看到虾局长可以承接 QQ 内高频游戏社交，而不是只做吃饭局。",
       "llmTask": {
         "taskName": "intent",
         "schemaKey": "intent_extraction",
@@ -22,50 +24,49 @@
         "required": true
       },
       "messages": [
-        {
-          "id": "g_m1",
-          "actorId": "akai",
-          "type": "text",
-          "side": "left",
-          "text": "今晚有人王者五排吗"
-        },
-        {
-          "id": "g_m2",
-          "actorId": "xiaoyu",
-          "type": "text",
-          "side": "left",
-          "text": "我辅助，可以娱乐局",
-          "delayMs": 300
-        },
-        {
-          "id": "g_m3",
-          "actorId": "bot_xjz",
-          "type": "card",
-          "side": "left",
-          "cardId": "game_party_card_1",
-          "delayMs": 500
-        }
+        { "id": "g_m1", "actorId": "akai", "type": "text", "side": "left", "text": "今晚有人王者五排吗" },
+        { "id": "g_m2", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "我辅助，可以娱乐局", "delayMs": 420 },
+        { "id": "g_m3", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "game_party_card_1", "delayMs": 860 }
       ],
       "availableActions": [
-        {
-          "actionId": "game_hok.join",
-          "label": "我来补位",
-          "kind": "keyboard",
-          "nextBeatId": "game_hok.recap",
-          "autoplayPriority": 1
-        },
-        {
-          "actionId": "game_hok.recap",
-          "label": "导入战绩回顾",
-          "kind": "keyboard",
-          "nextBeatId": "game_hok.recap",
-          "autoplayPriority": 2
-        }
+        { "actionId": "game_hok.join", "label": "我来补位", "kind": "keyboard", "nextBeatId": "game_hok.join", "autoplayPriority": 1 },
+        { "actionId": "game_hok.remind", "label": "发起开黑提醒", "kind": "keyboard", "nextBeatId": "game_hok.remind", "autoplayPriority": 2 },
+        { "actionId": "game_hok.import_recap", "label": "导入战绩回顾", "kind": "keyboard", "nextBeatId": "game_hok.recap", "autoplayPriority": 3 }
+      ]
+    },
+    {
+      "id": "game_hok.join",
+      "description": "用户补位",
+      "designIntent": "补位按钮进入人数闭环，让开黑局从喊人变成确定队伍。",
+      "painPoint": "游戏局最常卡在缺一人、没人补位、位置不清楚。",
+      "expectedEffect": "评委看到按钮会改变队伍状态，而不是直接跳到回顾。",
+      "messages": [
+        { "id": "g_j1", "actorId": "user_self", "type": "text", "side": "right", "text": "我来补位，可以打射手" },
+        { "id": "g_j2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "五排已满：阿凯打野、小雨辅助、你补射手。21:30 开始，我提前 10 分钟提醒。", "delayMs": 520 }
+      ],
+      "availableActions": [
+        { "actionId": "game_hok.import_recap", "label": "导入战绩回顾", "kind": "keyboard", "nextBeatId": "game_hok.recap", "autoplayPriority": 1 }
+      ]
+    },
+    {
+      "id": "game_hok.remind",
+      "description": "开黑提醒",
+      "designIntent": "提醒按钮处理游戏局里最常见的迟到和忘记上线问题。",
+      "painPoint": "开黑局约好了也可能因为有人没上线而散掉。",
+      "expectedEffect": "评委看到虾局长能继续承担执行提醒。",
+      "messages": [
+        { "id": "g_r1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已设置 21:20 上线提醒，并提示大家先更新游戏。", "delayMs": 420 }
+      ],
+      "availableActions": [
+        { "actionId": "game_hok.import_recap", "label": "导入战绩回顾", "kind": "keyboard", "nextBeatId": "game_hok.recap", "autoplayPriority": 1 }
       ]
     },
     {
       "id": "game_hok.recap",
       "description": "王者荣耀局后回顾",
+      "designIntent": "把游戏结果转成高光回忆和下次再约入口，承接 QQ 游戏社交。",
+      "painPoint": "游戏结束后只剩几句“再来”，战绩和补位偏好没有沉淀。",
+      "expectedEffect": "评委能看到游戏局也能形成回忆卡和下一次活动资产。",
       "llmTask": {
         "taskName": "game-recap",
         "schemaKey": "game_recap",
@@ -74,28 +75,38 @@
         "required": true
       },
       "messages": [
-        {
-          "id": "g_m4",
-          "actorId": "bot_xjz",
-          "type": "card",
-          "side": "left",
-          "cardId": "game_memory_card_1"
-        },
-        {
-          "id": "g_m5",
-          "actorId": "bot_xjz",
-          "type": "text",
-          "side": "left",
-          "text": "这次五排我已经沉淀了时间偏好和补位习惯，下次可以直接发起同款开黑局。"
-        }
+        { "id": "g_m4", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "game_memory_card_1", "delayMs": 420 },
+        { "id": "g_m5", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "这次五排我已经沉淀了时间偏好和补位习惯，下次可以直接发起同款开黑局。", "delayMs": 860 }
       ],
       "availableActions": [
-        {
-          "actionId": "game_hok.replay",
-          "label": "Replay",
-          "kind": "toolbar",
-          "nextBeatId": "game_hok.seed"
-        }
+        { "actionId": "game_hok.next_party", "label": "下次继续五排", "kind": "keyboard", "nextBeatId": "game_hok.next_party", "autoplayPriority": 1 },
+        { "actionId": "game_hok.save_highlight", "label": "保存高光", "kind": "keyboard", "nextBeatId": "game_hok.save_highlight", "autoplayPriority": 2 }
+      ]
+    },
+    {
+      "id": "game_hok.next_party",
+      "description": "下次再约",
+      "designIntent": "让游戏回忆卡有明确的下一次组队入口。",
+      "painPoint": "游戏局热度消散很快，第二次再约需要重新喊人。",
+      "expectedEffect": "评委看到回忆卡可以直接复用时间和位置偏好。",
+      "messages": [
+        { "id": "g_n1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已生成下次五排草稿：周末 21:30 娱乐局，优先保留补位和辅助偏好。", "delayMs": 420 }
+      ],
+      "availableActions": [
+        { "actionId": "game_hok.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "game_hok.seed" }
+      ]
+    },
+    {
+      "id": "game_hok.save_highlight",
+      "description": "保存高光",
+      "designIntent": "保存按钮给游戏高光一个可回看结果。",
+      "painPoint": "精彩翻盘经常只停留在口头夸奖里。",
+      "expectedEffect": "评委看到游戏回忆也可以成为群关系资产。",
+      "messages": [
+        { "id": "g_s1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已保存高光：最后一波反打翻盘，小雨 MVP，下次可直接沿用五排配置。", "delayMs": 420 }
+      ],
+      "availableActions": [
+        { "actionId": "game_hok.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "game_hok.seed" }
       ]
     }
   ]

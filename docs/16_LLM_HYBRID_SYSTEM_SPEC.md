@@ -14,7 +14,7 @@
 ## 2. 总体架构
 
 ```text
-UI (Judge / Recording / Studio)
+UI (无 LLM 评审模式 / 真实 LLM 工作台)
   ↓
 Scenario Engine
   ↓

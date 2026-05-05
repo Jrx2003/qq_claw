@@ -17,11 +17,11 @@
     },
     {
       "label": "保存回忆",
-      "actionId": "dinner.replay"
+      "actionId": "dinner.save_memory"
     },
     {
       "label": "生成群总结",
-      "actionId": "dinner.flash_anonymous"
+      "actionId": "dinner.generate_summary"
     }
   ]
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ChevronLeft, MoreHorizontal, Phone, Users } from "lucide-react";
 
 import { sceneText } from "@/lib/sceneMeta";
@@ -12,11 +13,13 @@ export function ChatHeader({
   scene: SceneDefinition;
   mode: AppMode;
 }) {
+  const modeLabel = mode === "studio" ? "真实 LLM" : "无 LLM 评审";
+
   return (
     <header className="flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/95 px-3">
-      <button aria-label="返回" className="grid h-10 w-10 place-items-center rounded-full text-slate-600 hover:bg-slate-100">
+      <Link aria-label="返回主界面" className="grid h-10 w-10 place-items-center rounded-full text-slate-600 hover:bg-slate-100" href="/">
         <ChevronLeft size={23} />
-      </button>
+      </Link>
       <div className="min-w-0 text-center">
         <h1 className="truncate text-lg font-bold leading-tight text-slate-950">
           {sceneText(scene, "groupName", "群聊")}
@@ -25,7 +28,7 @@ export function ChatHeader({
           <Users size={12} />
           <span>{sceneText(scene, "onlineText", "8 人在线")}</span>
           <span className="mx-1 h-1 w-1 rounded-full bg-slate-300" />
-          <span>{mode}</span>
+          <span>{modeLabel}</span>
         </div>
       </div>
       <div className="flex items-center gap-1">

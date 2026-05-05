@@ -7,7 +7,7 @@
 
 1. 这个比赛里，虾局长最终要做成什么样。
 2. 当前仓库与最终目标之间差在哪里。
-3. Codex 接下来应该按什么路径把项目改到可评审、可录屏、可上线的状态。
+3. Codex 接下来应该按什么路径把项目改到可评审、可上线、可讲清楚的状态。
 
 ## 一、这版文档的核心立场
 
@@ -17,7 +17,7 @@
   - 匿名倡议 / 匿名想法代发
   - 冲突桥梁 / AI 中继劝导
   - 活动回忆卡
-  - 腾讯游戏局（王者荣耀、洛克王国等）组队与回忆
+  - 腾讯游戏局（王者荣耀五排）组队与回忆
   - 轻量偏好沉淀与下次再约
 
 - **仍然坚持 Demo-first。**
@@ -44,7 +44,7 @@
   来保证演示稳定。
 
 - **部署不是加分小尾巴，而是必须纳入设计。**
-  项目需要云端可访问地址，供评委外部访问和后续录屏使用。
+  项目需要云端可访问地址，供评委外部访问和后续讲解使用。
 
 ## 二、建议 Codex 的阅读顺序
 
@@ -57,8 +57,7 @@
 7. `docs/19_SUBMISSION_MATERIALS_AND_REPO_CONTENT.md`
 8. `docs/20_SOURCE_NOTES.md`
 9. `docs/21_FINAL_ACCEPTANCE_CHECKLIST.md`
-10. `docs/22_RECORDING_AND_DEMO_MODE_SPEC.md`
-11. `docs/23_COMPETITION_ALIGNMENT_NOTES.md`
+10. `docs/23_COMPETITION_ALIGNMENT_NOTES.md`
 
 然后再阅读：
 
@@ -89,27 +88,21 @@ QQ 群聊里的官方社交推进 Agent
 1. **收口组局主线**：周五烤肉局
 2. **匿名倡议支线**：不想背组织责任，也能安全发起想法
 3. **冲突桥梁支线**：吵架时由 AI 中继、转述、降温
-4. **游戏局支线**：王者荣耀 / 洛克王国等腾讯游戏的组队和回忆
+4. **游戏局支线**：王者荣耀五排的组队和回忆
 
 ## 四、最终体验模式
 
-### 1）Judge Mode
-给评委访问的正式模式。要点：
+### 1）无 LLM 评审模式
+给评委访问的正式模式，路由仍是 `/judge`。要点：
 - 默认进入移动端 QQ 群聊式界面
 - 首屏只突出最易理解的主线
 - 其他能力可通过“能力入口卡”进入
 - 不暴露开发调试工具
 - 引导强、干扰少、可稳定讲解
+- 默认使用 snapshot，不依赖实时模型波动
 
-### 2）Recording Mode
-给你录 3 分钟视频用的模式。要点：
-- 自动跑主线，但在关键讲解点暂停
-- 可一键从头重播
-- 可关掉多余 UI
-- 节奏稳定，方便配口播
-
-### 3）Studio Mode
-给你自己调试和现场备用用的模式。要点：
+### 2）真实 LLM 工作台
+给你自己调试和现场证明真实 AI 链路用的模式，路由仍是 `/studio`。要点：
 - 可切场景
 - 可看 state / fixtures / LLM 原始输出
 - 可切换 mock / live / snapshot
@@ -129,7 +122,7 @@ QQ 群聊里的官方社交推进 Agent
 - **完整功能矩阵**
 - **真实 LLM + 可控 fallback**
 - **更清楚的触发规则**
-- **录屏级自动播放**
+- **评审级逐条消息演示**
 - **云端可部署**
 - **提交材料内生化到仓库结构**
 
@@ -159,9 +152,8 @@ QQ 群聊里的官方社交推进 Agent
 
 - 公网 Demo：`https://qqclaw.vercel.app`
 - `/`：能力总入口
-- `/judge`：评委正式体验，默认 snapshot runtime
-- `/recording`：录屏模式，自动推进并在关键卡片暂停
-- `/studio`：调试模式，可切 mock / snapshot / live，可运行 LLM 任务并保存快照
+- `/judge`：无 LLM 评审模式，默认 snapshot runtime
+- `/studio`：真实 LLM 工作台，可切 mock / snapshot / live，可运行 LLM 任务并保存快照
 - `/api/llm/intent`、`/api/llm/anonymous`、`/api/llm/conflict`、`/api/llm/recap`、`/api/llm/game-recap`：服务端结构化 LLM route
 
 环境变量模板见 `.env.example`，部署建议见 `docs/18_DEPLOYMENT_AND_LIVE_LLM_RUNBOOK.md`。

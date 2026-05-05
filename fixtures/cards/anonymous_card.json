@@ -7,19 +7,19 @@
   "buttons": [
     {
       "label": "我有兴趣",
-      "actionId": "anonymous.vote"
+      "actionId": "anonymous.interest"
     },
     {
       "label": "看时间",
-      "actionId": "anonymous.vote"
+      "actionId": "anonymous.time"
     },
     {
       "label": "看地点",
-      "actionId": "anonymous.vote"
+      "actionId": "anonymous.place"
     },
     {
       "label": "先围观",
-      "actionId": "anonymous.end"
+      "actionId": "anonymous.watch"
     }
   ]
 }

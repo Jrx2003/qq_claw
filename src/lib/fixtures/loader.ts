@@ -1,8 +1,6 @@
 import anonymousCardJson from "../../../fixtures/cards/anonymous_card.json";
 import confirmCardJson from "../../../fixtures/cards/confirm_card.json";
 import conflictCardJson from "../../../fixtures/cards/conflict_card.json";
-import gameLuokeCardJson from "../../../fixtures/cards/game_luoke_card.json";
-import gameLuokeMemoryCardJson from "../../../fixtures/cards/game_luoke_memory_card.json";
 import gameMemoryCardJson from "../../../fixtures/cards/game_memory_card.json";
 import gamePartyCardJson from "../../../fixtures/cards/game_party_card.json";
 import memoryCardJson from "../../../fixtures/cards/memory_card.json";
@@ -13,7 +11,6 @@ import anonymousSceneJson from "../../../fixtures/scenes/anonymous_delegate.json
 import conflictSceneJson from "../../../fixtures/scenes/conflict_bridge.json";
 import dinnerSceneJson from "../../../fixtures/scenes/dinner_core.json";
 import gameHokSceneJson from "../../../fixtures/scenes/game_party_hok.json";
-import gameLuokeSceneJson from "../../../fixtures/scenes/game_party_luoke.json";
 import sceneManifestJson from "../../../fixtures/scenes/scene_manifest.json";
 import {
   actorSchema,
@@ -33,7 +30,6 @@ const sceneRegistry = {
   anonymous_delegate: anonymousSceneJson,
   conflict_bridge: conflictSceneJson,
   game_party_hok: gameHokSceneJson,
-  game_party_luoke: gameLuokeSceneJson,
 } satisfies Record<SceneId, unknown>;
 
 const cardRegistry = [
@@ -45,8 +41,6 @@ const cardRegistry = [
   conflictCardJson,
   gamePartyCardJson,
   gameMemoryCardJson,
-  gameLuokeCardJson,
-  gameLuokeMemoryCardJson,
 ] satisfies unknown[];
 
 export function loadSceneManifest(): SceneManifest {

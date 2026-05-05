@@ -9,14 +9,14 @@ export function MessageList({
   messages,
   actors,
   cards,
-  actions,
+  cardActions,
   contextLabel,
   onAction,
 }: {
   messages: ChatMessage[];
   actors: Map<string, Actor>;
   cards: Map<string, DemoCard>;
-  actions: DemoAction[];
+  cardActions: DemoAction[];
   contextLabel?: string;
   onAction: (actionId: string) => void;
 }) {
@@ -31,10 +31,10 @@ export function MessageList({
     <div className="phone-scrollbar flex-1 space-y-4 overflow-y-auto px-4 py-4">
       {messages.map((message) => (
         <MessageBubble
-          actions={actions}
           actor={actors.get(message.actorId)}
           actors={actorList}
           card={message.cardId ? cards.get(message.cardId) : undefined}
+          cardActions={cardActions}
           contextLabel={contextLabel}
           key={message.id}
           message={message}

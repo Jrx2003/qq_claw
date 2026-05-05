@@ -20,6 +20,7 @@ export function ChatShell({
   actors,
   cards,
   actions,
+  cardActions,
   onAction,
 }: {
   scene: SceneDefinition;
@@ -28,14 +29,15 @@ export function ChatShell({
   actors: Map<string, Actor>;
   cards: Map<string, DemoCard>;
   actions: DemoAction[];
+  cardActions?: DemoAction[];
   onAction: (actionId: string) => void;
 }) {
   return (
     <main className="flex h-[780px] max-h-[calc(100vh-32px)] w-full max-w-[430px] flex-col overflow-hidden rounded-[32px] border border-white/70 bg-qq-bg shadow-soft">
       <ChatHeader mode={mode} scene={scene} />
       <MessageList
-        actions={actions}
         actors={actors}
+        cardActions={cardActions ?? actions}
         cards={cards}
         contextLabel={sceneContextLabel(scene)}
         messages={messages}

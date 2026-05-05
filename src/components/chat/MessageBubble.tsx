@@ -13,7 +13,7 @@ export function MessageBubble({
   actor,
   card,
   actors,
-  actions,
+  cardActions,
   contextLabel,
   onAction,
 }: {
@@ -21,11 +21,12 @@ export function MessageBubble({
   actor?: Actor;
   card?: DemoCard;
   actors: Actor[];
-  actions: DemoAction[];
+  cardActions: DemoAction[];
   contextLabel?: string;
   onAction: (actionId: string) => void;
 }) {
   const isRight = message.side === "right";
+  const revealDelaySeconds = (message.delayMs ?? 0) / 1000;
 
   if (message.side === "system") {
     return (
@@ -33,6 +34,7 @@ export function MessageBubble({
         animate={{ opacity: 1, y: 0 }}
         className="flex justify-center"
         initial={{ opacity: 0, y: 8 }}
+        transition={{ delay: revealDelaySeconds, duration: 0.22 }}
       >
         <span className="rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-500">{message.text}</span>
       </motion.div>
@@ -44,7 +46,7 @@ export function MessageBubble({
       animate={{ opacity: 1, y: 0 }}
       className={cn("flex gap-2", isRight ? "justify-end" : "justify-start")}
       initial={{ opacity: 0, y: 8 }}
-      transition={{ duration: 0.22 }}
+      transition={{ delay: revealDelaySeconds, duration: 0.22 }}
     >
       {!isRight ? <Avatar actor={actor} /> : null}
       <div className={cn("max-w-[82%] space-y-1", isRight ? "items-end" : "items-start")}>
@@ -76,7 +78,7 @@ export function MessageBubble({
         {message.type === "card" && card ? (
           <div className="w-[min(330px,82vw)]">
             <CardRenderer
-              actions={actions}
+              actions={cardActions}
               actors={actors}
               card={card}
               contextLabel={contextLabel}

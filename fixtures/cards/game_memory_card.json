@@ -13,11 +13,11 @@
   "buttons": [
     {
       "label": "下次继续五排",
-      "actionId": "game_hok.replay"
+      "actionId": "game_hok.next_party"
     },
     {
       "label": "保存高光",
-      "actionId": "game_hok.replay"
+      "actionId": "game_hok.save_highlight"
     }
   ]
 }

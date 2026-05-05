@@ -2,23 +2,16 @@ import { describe, expect, it } from "vitest";
 
 import {
   advanceStep,
-  createRecordingState,
   createInitialDemoState,
   getTimeline,
-  playNextTimelineBeat,
   runAutoplayPath,
 } from "./engine";
-import { loadActorMap, loadCardMap, loadScene } from "../fixtures/loader";
+import { loadActorMap, loadCardMap, loadScene, loadScenes } from "../fixtures/loader";
+import { appModeSchema, sceneIdSchema } from "../types/demo";
 
 describe("fixture contract", () => {
   it("resolves every actor, card, entry beat, and branch used by every scene", () => {
-    const scenes = [
-      loadScene("dinner_core"),
-      loadScene("anonymous_delegate"),
-      loadScene("conflict_bridge"),
-      loadScene("game_party_hok"),
-      loadScene("game_party_luoke"),
-    ];
+    const scenes = loadScenes();
     const actors = loadActorMap();
     const cards = loadCardMap();
 
@@ -50,9 +43,67 @@ describe("fixture contract", () => {
     const cards = loadCardMap();
 
     for (const card of cards.values()) {
+      const actionIds = new Set<string>();
+
       for (const button of card.buttons ?? []) {
         expect(typeof button).toBe("object");
         expect(button.actionId).toBeTruthy();
+        expect(actionIds.has(button.actionId ?? "")).toBe(false);
+        actionIds.add(button.actionId ?? "");
+      }
+    }
+  });
+
+  it("removes recording mode and the duplicate Luoke game scene from the judge surface", () => {
+    expect(appModeSchema.safeParse("recording").success).toBe(false);
+    expect(appModeSchema.parse("autoplay")).toBe("judge");
+    expect(sceneIdSchema.safeParse("game_party_luoke").success).toBe(false);
+  });
+
+  it("keeps every visible card button actionable in the beat where the card appears", () => {
+    const cards = loadCardMap();
+
+    for (const scene of loadScenes()) {
+      for (const beat of getTimeline(scene).beats) {
+        const availableActionIds = new Set((beat.availableActions ?? []).map((action) => action.actionId));
+        const visibleCards = (beat.messages ?? [])
+          .filter((message) => message.type === "card" && message.cardId)
+          .map((message) => cards.get(message.cardId ?? ""))
+          .filter(Boolean);
+
+        for (const card of visibleCards) {
+          for (const button of card?.buttons ?? []) {
+            expect(
+              availableActionIds.has(button.actionId ?? ""),
+              `${scene.id}/${beat.id} card ${card?.id} button ${button.label} must resolve to an available action`,
+            ).toBe(true);
+          }
+        }
+      }
+    }
+  });
+
+  it("does not use no-op self-loop actions except replaying the scene entry", () => {
+    for (const scene of loadScenes()) {
+      for (const beat of getTimeline(scene).beats) {
+        for (const action of beat.availableActions ?? []) {
+          const isReplayToEntry = action.actionId.includes("replay") && action.nextBeatId === scene.entryBeatId;
+
+          expect(
+            action.nextBeatId !== beat.id || isReplayToEntry,
+            `${scene.id}/${beat.id} action ${action.actionId} must not point back to the same beat`,
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("adds judge-facing design explanation to every beat", () => {
+    for (const scene of loadScenes()) {
+      for (const beat of getTimeline(scene).beats) {
+        expect(beat.designIntent, `${scene.id}/${beat.id} needs designIntent`).toBeTruthy();
+        expect(beat.painPoint, `${scene.id}/${beat.id} needs painPoint`).toBeTruthy();
+        expect(beat.expectedEffect, `${scene.id}/${beat.id} needs expectedEffect`).toBeTruthy();
       }
     }
   });
@@ -76,9 +127,7 @@ describe("demo engine", () => {
       "m4",
       "m5",
     ]);
-    expect(state.availableActions.map((action) => action.label)).toContain(
-      "@虾局长 周五要不要去吃烤肉，帮我收口这局",
-    );
+    expect(state.availableActions.map((action) => action.label)).toContain("@虾局长 帮我收口这局");
   });
 
   it("advances the guided main path through plan, vote, confirm, and memory cards", () => {
@@ -86,12 +135,7 @@ describe("demo engine", () => {
     const cards = loadCardMap();
     let state = createInitialDemoState(scene, "guided");
 
-    for (const actionId of [
-      "dinner.ask_close",
-      "dinner.vote_time",
-      "dinner.remind_pending",
-      "dinner.show_recap",
-    ]) {
+    for (const actionId of ["dinner.ask_close", "dinner.vote_time", "dinner.remind_pending", "dinner.confirm_after_reminder", "dinner.send_reminder", "dinner.show_recap"]) {
       state = advanceStep(scene, state, actionId);
     }
 
@@ -106,26 +150,14 @@ describe("demo engine", () => {
     );
   });
 
-  it("recording mode pauses at director pause points instead of running through everything", () => {
-    const scene = loadScene("dinner_core");
-    let state = createRecordingState(scene);
-
-    state = playNextTimelineBeat(scene, state);
-
-    expect(state.experienceMode).toBe("recording");
-    expect(state.recording.paused).toBe(true);
-    expect(state.recording.pausePoint?.id).toBe("pause.plan_card");
-    expect(state.currentBeatId).toBe("dinner.plan");
-  });
-
   it("autoplay follows timeline policy to the memory card without hardcoded action ids or free text input", () => {
     const scene = loadScene("dinner_core");
     const cards = loadCardMap();
 
     const state = runAutoplayPath(scene);
 
-    expect(state.experienceMode).toBe("recording");
-    expect(state.currentBeatId).toBe("dinner.recap");
+    expect(state.experienceMode).toBe("judge");
+    expect(state.currentBeatId).toBe("dinner.preference");
     expect(
       state.messages.some(
         (message) =>
@@ -133,8 +165,9 @@ describe("demo engine", () => {
           cards.get(message.cardId ?? "")?.cardType === "memory",
       ),
     ).toBe(true);
-    expect(state.messages.filter((message) => message.side === "right")).toHaveLength(
-      1,
-    );
+    expect(state.messages.filter((message) => message.side === "right").map((message) => message.id)).toEqual([
+      "u1",
+      "u_time",
+    ]);
   });
 });

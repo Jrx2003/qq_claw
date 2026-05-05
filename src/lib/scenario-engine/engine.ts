@@ -8,7 +8,6 @@ import type {
   ExperienceMode,
   RuntimeMode,
   SceneDefinition,
-  TimelinePausePoint,
   TriggerPreset,
 } from "../types/demo";
 
@@ -24,7 +23,6 @@ type InitialStateOptions =
 export type Timeline = {
   entryBeatId: string;
   beats: DemoBeat[];
-  recordingEndBeatId?: string;
 };
 
 export function createInitialDemoState(
@@ -50,10 +48,6 @@ export function createInitialDemoState(
       activeCards: [],
       availableActions: [],
       flags: {},
-      recording: {
-        running: normalizedOptions.autoplay,
-        paused: false,
-      },
     },
     entryBeat,
   );
@@ -65,6 +59,8 @@ export function advanceStep(
   actionId: string,
 ): DemoState {
   const action = state.availableActions.find(
+    (candidate) => candidate.actionId === actionId || candidate.id === actionId,
+  ) ?? collectSceneActions(scene).find(
     (candidate) => candidate.actionId === actionId || candidate.id === actionId,
   );
 
@@ -79,7 +75,6 @@ export function advanceStep(
       experienceMode: state.experienceMode,
       runtimeMode: state.runtimeMode,
       triggerPreset: state.triggerPreset,
-      autoplay: state.recording.running,
     });
   }
 
@@ -94,7 +89,6 @@ export function goToStep(scene: SceneDefinition, state: DemoState, stepId: strin
       experienceMode: state.experienceMode,
       runtimeMode: state.runtimeMode,
       triggerPreset: state.triggerPreset,
-      autoplay: state.recording.running,
     });
   }
 
@@ -102,11 +96,14 @@ export function goToStep(scene: SceneDefinition, state: DemoState, stepId: strin
 }
 
 export function runAutoplayPath(scene: SceneDefinition): DemoState {
-  let state = createRecordingState(scene);
+  let state = createInitialDemoState(scene, {
+    experienceMode: "judge",
+    runtimeMode: scene.runtimeDefault ?? "snapshot",
+    triggerPreset: scene.triggerPreset ?? "balanced",
+  });
   const visited = new Set<string>();
-  const endBeatId = getTimeline(scene).recordingEndBeatId;
 
-  while (!endBeatId || state.currentBeatId !== endBeatId) {
+  while (state.availableActions.length > 0) {
     if (visited.has(state.currentBeatId)) {
       throw new Error(`Autoplay reached a loop at beat "${state.currentBeatId}".`);
     }
@@ -116,58 +113,40 @@ export function runAutoplayPath(scene: SceneDefinition): DemoState {
     const action = selectAutoplayAction(state.availableActions);
 
     if (!action) {
-      throw new Error(`Autoplay has no usable action at beat "${state.currentBeatId}".`);
+      break;
     }
 
-    state = applyRecordingFlags(advanceStep(scene, state, action.actionId), {
-      running: true,
-      paused: false,
-      pausePoint: undefined,
-    });
+    state = advanceStep(scene, state, action.actionId);
   }
 
   return state;
 }
 
-export function createRecordingState(scene: SceneDefinition): DemoState {
-  return createInitialDemoState(scene, {
-    experienceMode: "recording",
-    runtimeMode: scene.runtimeDefault ?? "snapshot",
-    triggerPreset: scene.triggerPreset ?? "balanced",
-    autoplay: true,
-  });
-}
-
-export function playNextTimelineBeat(scene: SceneDefinition, state: DemoState): DemoState {
+export function playNextAutoplayBeat(scene: SceneDefinition, state: DemoState): DemoState {
   const action = selectAutoplayAction(state.availableActions);
 
-  if (!action) {
-    return applyRecordingFlags(state, {
-      running: false,
-      paused: true,
-      pausePoint: {
-        id: "pause.no_action",
-        title: "没有可自动推进的动作",
-      },
-    });
-  }
-
-  const nextState = advanceStep(scene, state, action.actionId);
-  const pausePoint = nextState.recording.pausePoint;
-
-  return applyRecordingFlags(nextState, {
-    running: !pausePoint,
-    paused: Boolean(pausePoint),
-    pausePoint,
-  });
+  return action ? advanceStep(scene, state, action.actionId) : state;
 }
 
 export function getTimeline(scene: SceneDefinition): Timeline {
   return {
     entryBeatId: scene.entryBeatId,
     beats: scene.beats,
-    recordingEndBeatId: scene.recordingEndBeatId,
   };
+}
+
+export function collectSceneActions(scene: SceneDefinition): DemoAction[] {
+  const actions = new Map<string, DemoAction>();
+
+  for (const beat of getTimeline(scene).beats) {
+    for (const action of beat.availableActions ?? []) {
+      if (!actions.has(action.actionId)) {
+        actions.set(action.actionId, action);
+      }
+    }
+  }
+
+  return Array.from(actions.values());
 }
 
 export function findStep(scene: SceneDefinition, stepId: string): DemoBeat {
@@ -187,8 +166,6 @@ export function findBeat(scene: SceneDefinition, beatId: string): DemoBeat {
 function applyBeat(state: DemoState, beat: DemoBeat): DemoState {
   const messages = appendUniqueMessages(state.messages, beat.messages ?? []);
   const activeCards = resolveActiveCards(messages);
-  const pausePoint = beat.pausePoint;
-
   return {
     ...state,
     currentBeatId: beat.id,
@@ -201,12 +178,6 @@ function applyBeat(state: DemoState, beat: DemoBeat): DemoState {
     flags: {
       ...state.flags,
       ...(beat.setFlags ?? {}),
-    },
-    recording: {
-      ...state.recording,
-      pausePoint,
-      paused: state.experienceMode === "recording" && Boolean(pausePoint),
-      running: state.experienceMode === "recording" ? !pausePoint : state.recording.running,
     },
     lastLlmTask: beat.llmTask ?? state.lastLlmTask,
   };
@@ -240,7 +211,7 @@ function resolveActiveCards(messages: ChatMessage[]): DemoCard[] {
 
 export function selectAutoplayAction(actions: DemoAction[]): DemoAction | undefined {
   return [...actions]
-    .filter((action) => action.kind !== "scene-switch")
+    .filter((action) => action.kind !== "scene-switch" && !action.actionId.includes("replay"))
     .sort((left, right) => (left.autoplayPriority ?? 100) - (right.autoplayPriority ?? 100))[0];
 }
 
@@ -253,7 +224,7 @@ function normalizeInitialOptions(
       experienceMode: options,
       runtimeMode: scene.runtimeDefault ?? "snapshot",
       triggerPreset: scene.triggerPreset ?? "balanced",
-      autoplay: options === "recording",
+      autoplay: false,
     };
   }
 
@@ -263,20 +234,6 @@ function normalizeInitialOptions(
     experienceMode,
     runtimeMode: options.runtimeMode ?? scene.runtimeDefault ?? "snapshot",
     triggerPreset: options.triggerPreset ?? scene.triggerPreset ?? "balanced",
-    autoplay: options.autoplay ?? experienceMode === "recording",
-  };
-}
-
-function applyRecordingFlags(
-  state: DemoState,
-  recording: {
-    running: boolean;
-    paused: boolean;
-    pausePoint?: TimelinePausePoint;
-  },
-): DemoState {
-  return {
-    ...state,
-    recording,
+    autoplay: options.autoplay ?? false,
   };
 }

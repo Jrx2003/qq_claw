@@ -24,12 +24,6 @@
       "title": "王者荣耀五排局",
       "priority": "P1",
       "path": "fixtures/scenes/game_party_hok.json"
-    },
-    {
-      "id": "game_party_luoke",
-      "title": "洛克王国活动局",
-      "priority": "P1",
-      "path": "fixtures/scenes/game_party_luoke.json"
     }
   ]
 }

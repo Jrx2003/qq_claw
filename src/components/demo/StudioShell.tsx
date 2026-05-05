@@ -6,7 +6,7 @@ export function StudioShell() {
   return (
     <ChatDemoPage
       defaultMode="studio"
-      defaultRuntimeMode="snapshot"
+      defaultRuntimeMode="live"
       showStudioTools
     />
   );

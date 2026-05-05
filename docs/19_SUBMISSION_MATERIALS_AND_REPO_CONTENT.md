@@ -15,9 +15,8 @@
 
 ### A. 在线 Demo
 放到可公开访问 URL：
-- Judge Mode
-- Recording Mode
-- 如有需要，再有 Studio Mode
+- 无 LLM 评审模式
+- 如有需要，再有真实 LLM 工作台
 
 ### B. 产品方案 PDF 素材
 仓库里要有一个 `submission/PDF_OUTLINE.md`

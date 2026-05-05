@@ -34,7 +34,7 @@
     },
     {
       "label": "去单聊补全",
-      "actionId": "dinner.vote_time"
+      "actionId": "dinner.dm_pending"
     }
   ]
 }

@@ -7,7 +7,7 @@
 2. 一条你自己可调试的 studio 链接
 3. 真实 LLM 的服务端接入
 4. 稳定 fallback
-5. 演示模式与线上模式都能跑
+5. 无 LLM 评审模式与真实 LLM 工作台都能跑
 
 ## 2. 推荐部署方案
 
@@ -36,8 +36,6 @@
 NEXT_PUBLIC_APP_ENV=production
 NEXT_PUBLIC_DEFAULT_EXPERIENCE_MODE=judge
 NEXT_PUBLIC_ENABLE_STUDIO=false
-NEXT_PUBLIC_ENABLE_RECORDING=true
-
 LLM_RUNTIME_MODE=snapshot
 LLM_PROVIDER=openai-compatible
 OPENAI_API_KEY=
@@ -64,7 +62,6 @@ STUDIO_ACCESS_KEY=
 5. 首次发布到 preview
 6. 自己检查：
    - `/judge`
-   - `/recording`
    - `/studio`
    - `/api/llm/*`
 7. 没问题后再发 production
@@ -82,7 +79,7 @@ STUDIO_ACCESS_KEY=
 
 ## 6. 最稳的线上结构
 
-### Judge / Recording
+### 无 LLM 评审模式
 默认走：
 - snapshot 模式
 
@@ -91,14 +88,14 @@ STUDIO_ACCESS_KEY=
 - 不受模型波动影响
 - 不怕 API 抖动
 
-### Studio
+### 真实 LLM 工作台
 支持：
 - mock
 - snapshot
 - live
 
 原因：
-- 只有 studio 才需要真正调 live
+- 只有真实 LLM 工作台才需要真正调 live
 - 正式评委访问不需要承担 live 风险
 
 ## 7. 真实 LLM 的线上安全约束
@@ -123,12 +120,6 @@ STUDIO_ACCESS_KEY=
 - 只允许受控交互
 - URL 干净
 
-### `/recording`
-- 默认自动播放
-- 关键点暂停
-- 允许 replay
-- 隐藏调试信息
-
 ### `/studio`
 - 允许 query 或 access key 进入
 - 支持 live 调用
@@ -141,7 +132,7 @@ STUDIO_ACCESS_KEY=
 
 ### 错误显示
 如果 live 请求失败：
-- judge/recording 不要红色报错大弹窗
+- judge 不要红色报错大弹窗
 - 直接无感回退到 snapshot
 - studio 再显示详细错误
 
@@ -165,9 +156,9 @@ STUDIO_ACCESS_KEY=
 
 1. production 链接可打开
 2. judge route 正常
-3. recording route 正常
+3. studio route 正常且有访问控制
 4. snapshot 数据齐全
-5. 录屏主线无需 live 即可完整跑通
+5. 评审主线无需 live 即可完整跑通
 6. studio route 可临时演示一次 live
 7. 所有原型图、截图和文档已同步到仓库
 
@@ -180,11 +171,11 @@ STUDIO_ACCESS_KEY=
 
 ### 联调中
 - Vercel preview 检查
-- judge/recording 只走 snapshot
+- judge 只走 snapshot
 
 ### 正式提交前
 - 锁定一个稳定 production URL
-- 录制视频时使用 recording route
+- 录制视频时使用 judge route 的逐条演示能力
 - 把视频中出现的界面与线上 judge route 保持一致
 
 ## 12. 不能忽略的备用方案

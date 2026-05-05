@@ -13,11 +13,11 @@
     },
     {
       "label": "发起开黑提醒",
-      "actionId": "game_hok.recap"
+      "actionId": "game_hok.remind"
     },
     {
       "label": "导入战绩回顾",
-      "actionId": "game_hok.recap"
+      "actionId": "game_hok.import_recap"
     }
   ]
 }

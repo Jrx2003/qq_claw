@@ -3,9 +3,8 @@
 ## 对外提交前检查
 - [x] 在线 Demo URL：`https://qqclaw.vercel.app`
 - [x] Vercel production URL 已验证：见 `submission/DEPLOYMENT_STATUS.md`
-- [x] Judge Mode 可访问：`/judge`
-- [x] Recording Mode 可访问：`/recording`
-- [x] Studio Mode 可访问且有访问控制：`/studio?key=...`
+- [x] 无 LLM 评审模式可访问：`/judge`
+- [x] 真实 LLM 工作台可访问且有访问控制：`/studio?key=...`
 - [x] API health 可访问：`/api/health`
 - [x] LLM routes 可通过 snapshot/mock fallback 返回结构化 JSON
 - [x] Live LLM 已验证：intent / anonymous / conflict / recap / game-recap 均可返回结构化 DeepSeek JSON

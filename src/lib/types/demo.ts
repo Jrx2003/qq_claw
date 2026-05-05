@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const experienceModeSchema = z.enum(["judge", "recording", "studio"]);
+export const experienceModeSchema = z.enum(["judge", "studio"]);
 export type ExperienceMode = z.infer<typeof experienceModeSchema>;
 
 export const runtimeModeSchema = z.enum(["mock", "live", "snapshot"]);
@@ -24,7 +24,7 @@ export const appModeSchema = z
     }
 
     if (mode === "autoplay") {
-      return "recording";
+      return "judge";
     }
 
     if (mode === "dev") {
@@ -40,7 +40,6 @@ export const sceneIdSchema = z.enum([
   "anonymous_delegate",
   "conflict_bridge",
   "game_party_hok",
-  "game_party_luoke",
 ]);
 export type SceneId = z.infer<typeof sceneIdSchema>;
 
@@ -138,6 +137,9 @@ export const demoBeatSchema = z
     nextAutoStepId: z.string().optional(),
     autoAdvanceAfterMs: z.number().optional(),
     minStayMs: z.number().optional(),
+    designIntent: z.string(),
+    painPoint: z.string(),
+    expectedEffect: z.string(),
     pausePoint: timelinePausePointSchema.optional(),
     llmTask: llmTaskSpecSchema.optional(),
     setFlags: z.record(z.boolean()).optional(),
@@ -182,7 +184,6 @@ export const sceneDefinitionSchema = z
     entryStepId: z.string().optional(),
     beats: z.array(demoBeatSchema),
     steps: z.array(demoBeatSchema).optional(),
-    recordingEndBeatId: z.string().optional(),
   })
   .passthrough()
   .transform((scene) => ({
@@ -227,10 +228,5 @@ export type DemoState = {
   activeCards: DemoCard[];
   availableActions: DemoAction[];
   flags: Record<string, boolean>;
-  recording: {
-    running: boolean;
-    paused: boolean;
-    pausePoint?: TimelinePausePoint;
-  };
   lastLlmTask?: LlmTaskSpec;
 };

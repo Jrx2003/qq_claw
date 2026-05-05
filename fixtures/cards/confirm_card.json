@@ -10,15 +10,15 @@
   "buttons": [
     {
       "label": "查看名单",
-      "actionId": "dinner.show_recap"
+      "actionId": "dinner.show_roster"
     },
     {
       "label": "一键提醒",
-      "actionId": "dinner.show_recap"
+      "actionId": "dinner.send_reminder"
     },
     {
       "label": "补充说明",
-      "actionId": "dinner.show_recap"
+      "actionId": "dinner.add_note"
     }
   ]
 }

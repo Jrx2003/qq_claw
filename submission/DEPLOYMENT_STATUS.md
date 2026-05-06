@@ -10,7 +10,7 @@ Vercel production:
 - 真实 LLM 工作台访问密钥: `local-studio`
 - Health check: `https://qqclaw.vercel.app/api/health`
 
-Latest verified production deployment on 2026-05-05:
+Latest verified production deployment on 2026-05-06:
 
 - Deployment id: `dpl_AeFLuusycRSUXexv4dBL2kXe6oXe`
 - Alias: `https://qqclaw.vercel.app`

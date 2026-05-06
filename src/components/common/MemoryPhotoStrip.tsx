@@ -1,6 +1,6 @@
 const images = [
+  "/generated/qq-bbq-memory.png",
   "/prototypes/01_group_chat_planning_friday_bbq_event.png",
-  "/prototypes/03_weekend_bbq_confirmation_in_group_chat.png",
   "/prototypes/04_group_chat_memory_card_summary.png",
 ];
 

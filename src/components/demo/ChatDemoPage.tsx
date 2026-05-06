@@ -225,11 +225,11 @@ export function ChatDemoPage({
             stage: "follow_up",
             bot_message: "这句我暂时没接稳。你可以换一种说法，或者直接说想组局、匿名发起、处理争执、开黑补位。",
             npc_messages: [{ actorId: "xiaoyu", text: "可以再说具体一点，我跟得上。" }],
-            chips: ["帮我收口成投票", "匿名问问大家", "先帮他们降温"],
+            chips: ["先确认去不去", "匿名问问大家", "先帮他们降温"],
           },
         }),
       ]);
-      setStudioActions(buildStudioSuggestionActions(["帮我收口成投票", "匿名问问大家", "先帮他们降温"]));
+      setStudioActions(buildStudioSuggestionActions(["先确认去不去", "匿名问问大家", "先帮他们降温"]));
     } finally {
       setStudioPending(false);
     }

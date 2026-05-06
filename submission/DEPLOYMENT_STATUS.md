@@ -12,10 +12,11 @@ Vercel production:
 
 Latest verified production deployment on 2026-05-06:
 
-- Deployment id: `dpl_4gvo6tbGyJK32i3rAhNZfeeKkQmG`
+- Deployment id: `dpl_8jYioyBr1qpxKu2rCNhLwAqJAqiD`
 - Alias: `https://qqclaw.vercel.app`
 - `/` returns HTTP 200 and includes the looping product showcase.
 - `/judge` returns HTTP 200.
+- `/generated/qq-bbq-memory.png` returns HTTP 200 and serves the generated BBQ memory asset.
 - `/recording` returns HTTP 404 because Recording Mode has been removed.
 - `/studio` returns HTTP 200 with access-key guard.
 - `/studio?key=local-studio` returns HTTP 200 with free-input live LLM chat controls.

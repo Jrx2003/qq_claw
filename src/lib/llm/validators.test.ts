@@ -10,7 +10,7 @@ describe("LLM validators and fallback", () => {
 
     expect(parsed.should_intervene).toBe(true);
     expect(parsed.intent_type).toBe("plan");
-    expect(parsed.chips).toContain("@虾局长 周五要不要去吃烤肉，帮我收口这局");
+    expect(parsed.chips).toContain("可以，先确认去不去");
   });
 
   it("rejects malformed live output before it can reach the UI", () => {

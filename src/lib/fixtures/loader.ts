@@ -5,6 +5,7 @@ import gameMemoryCardJson from "../../../fixtures/cards/game_memory_card.json";
 import gamePartyCardJson from "../../../fixtures/cards/game_party_card.json";
 import memoryCardJson from "../../../fixtures/cards/memory_card.json";
 import planCardJson from "../../../fixtures/cards/plan_card.json";
+import placeVoteCardJson from "../../../fixtures/cards/place_vote_card.json";
 import voteCardJson from "../../../fixtures/cards/vote_card.json";
 import npcProfilesJson from "../../../fixtures/npcs/npc_profiles.json";
 import anonymousSceneJson from "../../../fixtures/scenes/anonymous_delegate.json";
@@ -35,6 +36,7 @@ const sceneRegistry = {
 const cardRegistry = [
   planCardJson,
   voteCardJson,
+  placeVoteCardJson,
   confirmCardJson,
   memoryCardJson,
   anonymousCardJson,

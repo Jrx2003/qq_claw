@@ -1,43 +1,29 @@
 {
   "id": "plan_card_1",
   "cardType": "plan",
-  "title": "周五烤肉局",
-  "status": "正在收口中",
-  "summary": "当前意向 6 人｜偏向时间：周五 19:00 后｜待确认：地点二选一",
-  "timeOptions": [
-    "周五 18:30",
-    "周五 19:00",
-    "周五 19:30"
+  "title": "周五烤肉局 · 先确认去不去",
+  "status": "参加意向投票中",
+  "summary": "先确认能不能来，人数稳定后再开时间和地点投票",
+  "attendanceOptions": [
+    "我可以去",
+    "看情况",
+    "这次不去"
   ],
-  "featuredTimeOption": "周五 19:00",
-  "placeOptions": [
-    "木屋烧烤",
-    "韩宫宴"
-  ],
-  "featuredPlaceOption": "木屋烧烤",
   "pendingMembers": [
     "阿凯",
     "老周"
   ],
   "buttons": [
     {
-      "label": "我要参加",
+      "label": "我可以去",
       "actionId": "dinner.vote_join"
     },
     {
-      "label": "时间投票",
-      "actionId": "dinner.vote_time"
+      "label": "看情况",
+      "actionId": "dinner.maybe_join"
     },
     {
-      "label": "地点投票",
-      "actionId": "dinner.vote_place"
-    },
-    {
-      "label": "私下提醒",
-      "actionId": "dinner.dm_pending"
-    },
-    {
-      "label": "这次不参加",
+      "label": "这次不去",
       "actionId": "dinner.decline_from_plan"
     }
   ]

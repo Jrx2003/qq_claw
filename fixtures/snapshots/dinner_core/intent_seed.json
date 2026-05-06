@@ -7,7 +7,7 @@
     "confidence": 0.93,
     "title": "周五烤肉局",
     "suggested_trigger": "suggestion_chip",
-    "summary": "群里对吃烤肉有明确兴趣，但时间与地点仍未收口，且出现了“我都行”式模糊响应。",
+    "summary": "群里对吃烤肉有明确兴趣，已有多人表示可以去，适合先确认参加意向。",
     "time_candidates": ["周五 18:30", "周五 19:00", "周五 19:30"],
     "location_candidates": ["木屋烧烤", "韩宫宴"],
     "participants": [
@@ -16,8 +16,8 @@
       { "name": "老周", "status": "uncertain" },
       { "name": "大壮", "status": "neutral" }
     ],
-    "missing_info": ["最终时间", "最终地点", "老周是否来得及"],
-    "suggested_bot_copy": "看起来大家都挺想去的，要不要我帮你们把这局先收口成一个可投票的成局卡？",
-    "chips": ["@虾局长 周五要不要去吃烤肉，帮我收口这局", "发起时间投票", "先看看地点"]
+    "missing_info": ["谁能参加", "最终时间", "最终地点"],
+    "suggested_bot_copy": "看起来已经有人可以去。我先帮大家确认去不去，人数稳定后再开时间和地点投票。",
+    "chips": ["可以，先确认去不去", "再等一轮大家表态"]
   }
 }

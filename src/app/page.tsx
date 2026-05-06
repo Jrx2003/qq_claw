@@ -35,8 +35,8 @@ const showcaseImages = [
     label: "投票推进",
   },
   {
-    src: "/prototypes/03_weekend_bbq_confirmation_in_group_chat.png",
-    label: "确认成局",
+    src: "/generated/qq-bbq-memory.png",
+    label: "烤肉回忆",
   },
   {
     src: "/prototypes/04_group_chat_memory_card_summary.png",

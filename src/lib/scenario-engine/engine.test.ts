@@ -142,9 +142,9 @@ describe("fixture contract", () => {
   });
 
   it("continues side-branch flows instead of ending after one reply", () => {
-    for (const sceneId of ["anonymous_delegate", "conflict_bridge", "dinner_core"] as const) {
+    for (const sceneId of ["anonymous_delegate", "conflict_bridge", "dinner_core", "game_party_hok"] as const) {
       const scene = loadScene(sceneId);
-      const entryBeatId = sceneId === "dinner_core" ? "dinner.flash_anonymous" : scene.entryBeatId;
+      const entryBeatId = scene.entryBeatId;
       const entry = getTimeline(scene).beats.find((beat) => beat.id === entryBeatId);
 
       expect(entry).toBeTruthy();
@@ -171,7 +171,7 @@ describe("fixture contract", () => {
     const seedActions = getTimeline(dinner).beats.find((beat) => beat.id === "dinner.seed")?.availableActions ?? [];
 
     expect(manifest.scenes.map((scene) => scene.id)).not.toContain("anonymous_delegate");
-    expect(seedActions.map((action) => action.nextBeatId)).toContain("dinner.flash_anonymous");
+    expect(seedActions.map((action) => action.nextBeatId)).not.toContain("dinner.flash_anonymous");
   });
 
   it("lets the dinner scene surface bot intent detection without a user @ mention", () => {
@@ -181,7 +181,54 @@ describe("fixture contract", () => {
 
     expect(seed?.messages.some((message) => message.actorId === "bot_xjz")).toBe(true);
     expect(seed?.availableActions?.map((action) => action.label).join(" ")).not.toContain("@虾局长");
+    expect(seed?.availableActions?.map((action) => action.label).join(" ")).not.toContain("收口烤肉局");
     expect(plan?.messages.some((message) => message.actorId === "user_self" && message.text?.includes("@虾局长"))).toBe(false);
+  });
+
+  it("starts dinner planning with attendance only before time and place polls", () => {
+    const dinner = loadScene("dinner_core");
+    const cards = loadCardMap();
+    const plan = getTimeline(dinner).beats.find((beat) => beat.id === "dinner.plan");
+    const planCard = cards.get("plan_card_1");
+    const planActionLabels = (plan?.availableActions ?? []).map((action) => action.label).join(" ");
+    const planButtonLabels = (planCard?.buttons ?? []).map((button) => button.label).join(" ");
+
+    expect(planActionLabels).toMatch(/我可以去|看情况|这次不去/);
+    expect(planButtonLabels).toMatch(/我可以去|看情况|这次不去/);
+    expect(`${planActionLabels} ${planButtonLabels}`).not.toMatch(/时间投票|地点投票|提醒未回复|私下提醒|查看详情/);
+
+    const joinBeat = getTimeline(dinner).beats.find((beat) => beat.id === "dinner.join_vote");
+    expect((joinBeat?.availableActions ?? []).map((action) => action.label).join(" ")).toMatch(/进入时间投票/);
+    expect((joinBeat?.availableActions ?? []).map((action) => action.label).join(" ")).not.toMatch(/地点投票/);
+
+    const timeBeat = getTimeline(dinner).beats.find((beat) => beat.id === "dinner.time_vote");
+    expect((timeBeat?.availableActions ?? []).map((action) => action.label).join(" ")).toMatch(/进入地点投票/);
+  });
+
+  it("routes every dinner branch before the recap back to the memory beat", () => {
+    const dinner = loadScene("dinner_core");
+    const timeline = getTimeline(dinner);
+    const beforeRecapIds = collectReachableBefore(timeline, timeline.entryBeatId, "dinner.recap");
+
+    expect(beforeRecapIds.has("dinner.plan")).toBe(true);
+    expect(beforeRecapIds.has("dinner.decline_vote")).toBe(true);
+
+    for (const beat of timeline.beats) {
+      if (!beforeRecapIds.has(beat.id)) {
+        continue;
+      }
+
+      for (const action of beat.availableActions ?? []) {
+        if (action.actionId.includes("replay")) {
+          continue;
+        }
+
+        expect(
+          canReachBeat(timeline, action.nextBeatId, "dinner.recap"),
+          `${beat.id}/${action.label} should continue to dinner.recap instead of ending early`,
+        ).toBe(true);
+      }
+    }
   });
 
   it("offers graceful abandon paths after voting and confirmation", () => {
@@ -205,7 +252,38 @@ describe("fixture contract", () => {
 
     expect(firstImageIndex, "recap should show a barbecue photo before the memory card").toBeGreaterThanOrEqual(0);
     expect(firstImageIndex).toBeLessThan(firstCardIndex);
+    expect(messages.find((message) => message.type === "image")?.imageUrl).toMatch(/^\/generated\/qq-bbq-memory\.(png|jpg|jpeg|webp|svg)$/);
     expect(messages.map((message) => message.text).join(" ")).toMatch(/烤肉|肥牛|照片/);
+  });
+
+  it("gives conflict and game scenes visual assets and a complete final step", () => {
+    const expectedFinalByScene = new Map([
+      ["conflict_bridge", "conflict.decision"],
+      ["game_party_hok", "game_hok.recap"],
+    ]);
+
+    for (const sceneId of ["conflict_bridge", "game_party_hok"] as const) {
+      const scene = loadScene(sceneId);
+      const timeline = getTimeline(scene);
+      const finalBeatId = expectedFinalByScene.get(sceneId) ?? "";
+      const images = timeline.beats.flatMap((beat) => (beat.messages ?? []).filter((message) => message.type === "image"));
+
+      expect(images.length, `${sceneId} should include a generated scene image`).toBeGreaterThan(0);
+      for (const image of images) {
+        expect(image.imageUrl, `${sceneId} image should use a generated asset`).toMatch(/^\/generated\//);
+      }
+
+      for (const action of timeline.beats.find((beat) => beat.id === scene.entryBeatId)?.availableActions ?? []) {
+        if (action.actionId.includes("replay")) {
+          continue;
+        }
+
+        expect(
+          canReachBeat(timeline, action.nextBeatId, finalBeatId),
+          `${sceneId}/${action.label} should reach ${finalBeatId}`,
+        ).toBe(true);
+      }
+    }
   });
 
   it("keeps private outreach and anonymous delegation copy out of normal chat bubbles", () => {
@@ -270,7 +348,7 @@ describe("demo engine", () => {
       "m5",
       "m6_seed_bot",
     ]);
-    expect(state.availableActions.map((action) => action.label)).toContain("让虾局长收口烤肉局");
+    expect(state.availableActions.map((action) => action.label)).toContain("可以，先确认去不去");
   });
 
   it("advances the guided main path through plan, vote, confirm, and memory cards", () => {
@@ -278,7 +356,16 @@ describe("demo engine", () => {
     const cards = loadCardMap();
     let state = createInitialDemoState(scene, "guided");
 
-    for (const actionId of ["dinner.ask_close", "dinner.vote_time", "dinner.remind_pending", "dinner.confirm_after_reminder", "dinner.send_reminder", "dinner.show_recap"]) {
+    for (const actionId of [
+      "dinner.ask_attendance",
+      "dinner.vote_join",
+      "dinner.enter_time_vote",
+      "dinner.enter_place_vote",
+      "dinner.remind_pending",
+      "dinner.confirm_after_reminder",
+      "dinner.send_reminder",
+      "dinner.show_recap",
+    ]) {
       state = advanceStep(scene, state, actionId);
     }
 
@@ -286,7 +373,7 @@ describe("demo engine", () => {
       .filter((message) => message.type === "card")
       .map((message) => cards.get(message.cardId ?? "")?.cardType);
 
-    expect(cardTypes).toEqual(["plan", "vote", "confirm", "memory"]);
+    expect(cardTypes).toEqual(["plan", "vote", "vote", "confirm", "memory"]);
     expect(state.currentBeatId).toBe("dinner.recap");
     expect(state.availableActions.map((action) => action.label)).toContain(
       "Replay",
@@ -306,9 +393,13 @@ describe("demo engine", () => {
         (message) =>
           message.type === "card" &&
           cards.get(message.cardId ?? "")?.cardType === "memory",
-      ),
+    ),
     ).toBe(true);
-    expect(state.messages.filter((message) => message.side === "right").map((message) => message.id)).toEqual(["u_time"]);
+    expect(state.messages.filter((message) => message.side === "right").map((message) => message.id)).toEqual([
+      "u_join",
+      "u_time",
+      "u_place",
+    ]);
   });
 });
 
@@ -320,4 +411,60 @@ function collectVisibleBeatText(beat: ReturnType<typeof getTimeline>["beats"][nu
     ...((beat.messages ?? []).map((message) => message.text)),
     ...((beat.availableActions ?? []).map((action) => action.label)),
   ].filter((value): value is string => Boolean(value));
+}
+
+function canReachBeat(timeline: ReturnType<typeof getTimeline>, fromBeatId: string, targetBeatId: string): boolean {
+  const beatsById = new Map(timeline.beats.map((beat) => [beat.id, beat]));
+  const seen = new Set<string>();
+  const queue = [fromBeatId];
+
+  while (queue.length > 0) {
+    const beatId = queue.shift() ?? "";
+
+    if (beatId === targetBeatId) {
+      return true;
+    }
+
+    if (seen.has(beatId)) {
+      continue;
+    }
+
+    seen.add(beatId);
+
+    for (const action of beatsById.get(beatId)?.availableActions ?? []) {
+      if (!action.actionId.includes("replay")) {
+        queue.push(action.nextBeatId);
+      }
+    }
+  }
+
+  return false;
+}
+
+function collectReachableBefore(
+  timeline: ReturnType<typeof getTimeline>,
+  entryBeatId: string,
+  stopBeatId: string,
+): Set<string> {
+  const beatsById = new Map(timeline.beats.map((beat) => [beat.id, beat]));
+  const seen = new Set<string>();
+  const queue = [entryBeatId];
+
+  while (queue.length > 0) {
+    const beatId = queue.shift() ?? "";
+
+    if (beatId === stopBeatId || seen.has(beatId)) {
+      continue;
+    }
+
+    seen.add(beatId);
+
+    for (const action of beatsById.get(beatId)?.availableActions ?? []) {
+      if (!action.actionId.includes("replay")) {
+        queue.push(action.nextBeatId);
+      }
+    }
+  }
+
+  return seen;
 }

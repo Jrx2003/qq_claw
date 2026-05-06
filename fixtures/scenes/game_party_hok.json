@@ -26,7 +26,9 @@
       "messages": [
         { "id": "g_m1", "actorId": "akai", "type": "text", "side": "left", "text": "今晚有人王者五排吗" },
         { "id": "g_m2", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "我辅助，可以娱乐局", "delayMs": 420 },
-        { "id": "g_m3", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "game_party_card_1", "delayMs": 860 }
+        { "id": "g_m3", "actorId": "dazhuang", "type": "text", "side": "left", "text": "我打野可以，但 21:30 之后才上线", "delayMs": 820 },
+        { "id": "g_m4_seed", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "现在已有 4 人和一个明确时间，我可以帮你们补位、提醒上线，打完后再整理高光。", "delayMs": 1240 },
+        { "id": "g_m3_card", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "game_party_card_1", "delayMs": 1660 }
       ],
       "availableActions": [
         { "actionId": "game_hok.join", "label": "我来补位", "kind": "keyboard", "nextBeatId": "game_hok.join", "autoplayPriority": 1 },
@@ -42,7 +44,9 @@
       "expectedEffect": "用户看到按钮会改变队伍状态，而不是直接跳到回顾。",
       "messages": [
         { "id": "g_j1", "actorId": "user_self", "type": "text", "side": "right", "text": "我来补位，可以打射手" },
-        { "id": "g_j2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "五排已满：阿凯打野、小雨辅助、你补射手。21:30 开始，我提前 10 分钟提醒。", "delayMs": 520 }
+        { "id": "g_j2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "五排已满：阿凯打野、小雨辅助、你补射手。21:30 开始，我提前 10 分钟提醒。", "delayMs": 520 },
+        { "id": "g_j3", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "那我带治疗，别一进房间又换位置", "delayMs": 940 },
+        { "id": "g_j4", "actorId": "bot_xjz", "type": "hint", "side": "system", "text": "已记录本局位置分配和上线提醒。", "delayMs": 1320 }
       ],
       "availableActions": [
         { "actionId": "game_hok.import_recap", "label": "导入战绩回顾", "kind": "keyboard", "nextBeatId": "game_hok.recap", "autoplayPriority": 1 }
@@ -56,7 +60,8 @@
       "expectedEffect": "用户看到虾局长能继续承担执行提醒。",
       "messages": [
         { "id": "g_r1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已设置 21:20 上线提醒，并提示大家先更新游戏。", "delayMs": 420 },
-        { "id": "g_r2", "actorId": "akai", "type": "text", "side": "left", "text": "我先开房间，谁没更新赶紧更。", "delayMs": 860 }
+        { "id": "g_r2", "actorId": "akai", "type": "text", "side": "left", "text": "我先开房间，谁没更新赶紧更。", "delayMs": 860 },
+        { "id": "g_r3", "actorId": "naicha", "type": "text", "side": "left", "text": "我刚更新完，缺人我也能顶一把中路", "delayMs": 1280 }
       ],
       "availableActions": [
         { "actionId": "game_hok.import_recap", "label": "导入战绩回顾", "kind": "keyboard", "nextBeatId": "game_hok.recap", "autoplayPriority": 1 }
@@ -76,8 +81,10 @@
         "required": true
       },
       "messages": [
-        { "id": "g_m4", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "game_memory_card_1", "delayMs": 420 },
-        { "id": "g_m5", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "这次五排我已经沉淀了时间偏好和补位习惯，下次可以直接发起同款开黑局。", "delayMs": 860 }
+        { "id": "g_photo", "actorId": "akai", "type": "image", "side": "left", "imageUrl": "/generated/qq-game-party.png", "alt": "五排局后桌面照片", "text": "这把最后一波真的翻回来了，桌面都没来得及收", "delayMs": 320 },
+        { "id": "g_m4", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "game_memory_card_1", "delayMs": 760 },
+        { "id": "g_m5", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "这次五排我已经沉淀了时间偏好、补位习惯和高光关键词，下次可以直接发起同款开黑局。", "delayMs": 1200 },
+        { "id": "g_m6", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "记一下小雨辅助 MVP，下次别再让我补射手", "delayMs": 1640 }
       ],
       "availableActions": [
         { "actionId": "game_hok.next_party", "label": "下次继续五排", "kind": "keyboard", "nextBeatId": "game_hok.next_party", "autoplayPriority": 1 },

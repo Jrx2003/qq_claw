@@ -14,7 +14,7 @@ describe("studio conversation runtime", () => {
     const parsed = studioConversationSchema.parse({
       intent_type: "plan",
       stage: "suggest",
-      bot_message: "我看到大家都在聊周五吃饭，要不要我先帮你们收口成时间和地点投票？",
+      bot_message: "我看到大家都在聊周五吃饭，要不要我先帮你们确认谁能去？",
       npc_messages: [
         { actorId: "akai", text: "我可以，别太晚就行" },
         { actorId: "naicha", text: "地点最好别太远" },
@@ -24,10 +24,10 @@ describe("studio conversation runtime", () => {
         task: "intent",
         reason: "聊天里已经出现明确时间、地点和参与意向。",
       },
-      chips: ["周五晚饭后可以", "帮我收口成投票"],
+      chips: ["周五晚饭后可以", "先确认去不去"],
     });
 
-    expect(parsed.bot_message).toContain("收口");
+    expect(parsed.bot_message).toContain("确认");
     expect(parsed.npc_messages).toHaveLength(2);
     expect(parsed.function_suggestion?.task).toBe("intent");
   });
@@ -46,7 +46,7 @@ describe("studio conversation runtime", () => {
           { actorId: "xiaoyu", text: "我也可以" },
         ],
         function_suggestion: {
-          label: "发起时间投票",
+          label: "先确认去不去",
           task: "intent",
           reason: "已有两个积极响应。",
         },

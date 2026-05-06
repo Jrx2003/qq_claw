@@ -1,0 +1,40 @@
+{
+  "id": "place_vote_card_1",
+  "cardType": "vote",
+  "title": "周五烤肉局",
+  "status": "地点投票进行中",
+  "replied": "7/8",
+  "placeVotes": [
+    {
+      "label": "木屋烧烤",
+      "votes": 5,
+      "percent": 63
+    },
+    {
+      "label": "韩宫宴",
+      "votes": 2,
+      "percent": 25
+    }
+  ],
+  "pendingMembers": [
+    "阿凯"
+  ],
+  "buttons": [
+    {
+      "label": "继续看投票",
+      "actionId": "dinner.keep_voting"
+    },
+    {
+      "label": "提醒未回复",
+      "actionId": "dinner.remind_pending"
+    },
+    {
+      "label": "查看详情",
+      "actionId": "dinner.confirm_detail"
+    },
+    {
+      "label": "这次不去",
+      "actionId": "dinner.decline_from_time"
+    }
+  ]
+}

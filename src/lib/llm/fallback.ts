@@ -10,13 +10,7 @@ import type { LlmTaskData } from "@/lib/llm/schemas";
 import type { LlmTaskName } from "@/lib/types/demo";
 
 const fallbackByTask = {
-  intent: {
-    ...intentFallback,
-    chips: [
-      "@虾局长 周五要不要去吃烤肉，帮我收口这局",
-      ...intentFallback.chips,
-    ],
-  },
+  intent: intentFallback,
   anonymous: anonymousFallback,
   conflict: conflictFallback,
   recap: recapFallback,

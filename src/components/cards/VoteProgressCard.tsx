@@ -26,18 +26,22 @@ export function VoteProgressCard({
         <span className="text-sm font-semibold text-slate-700">已回复</span>
         <span className="text-lg font-bold text-rose-600">{cardString(card, "replied")} 人</span>
       </div>
-      <section className="space-y-2.5">
-        <p className="text-xs font-semibold text-slate-500">时间投票</p>
-        {timeVotes.map((row, index) => (
-          <PollBar key={row.label} {...row} leading={index === 1} />
-        ))}
-      </section>
-      <section className="space-y-2.5">
-        <p className="text-xs font-semibold text-slate-500">地点投票</p>
-        {placeVotes.map((row, index) => (
-          <PollBar key={row.label} {...row} leading={index === 0} />
-        ))}
-      </section>
+      {timeVotes.length > 0 ? (
+        <section className="space-y-2.5">
+          <p className="text-xs font-semibold text-slate-500">时间投票</p>
+          {timeVotes.map((row, index) => (
+            <PollBar key={row.label} {...row} leading={index === 1} />
+          ))}
+        </section>
+      ) : null}
+      {placeVotes.length > 0 ? (
+        <section className="space-y-2.5">
+          <p className="text-xs font-semibold text-slate-500">地点投票</p>
+          {placeVotes.map((row, index) => (
+            <PollBar key={row.label} {...row} leading={index === 0} />
+          ))}
+        </section>
+      ) : null}
       <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
         未回复：{cardStringArray(card, "pendingMembers").join("、")}
       </p>

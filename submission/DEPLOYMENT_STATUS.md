@@ -12,20 +12,24 @@ Vercel production:
 
 Latest verified production deployment on 2026-05-06:
 
-- Deployment id: `dpl_92nWWsUXLVsMRvsJ4vGhraJyT91E`
+- Deployment id: `dpl_GTt5UukAnUpxpNSHf3zuPiWn9c2r`
 - Alias: `https://qqclaw.vercel.app`
 - `/` returns HTTP 200 and includes the looping product showcase.
 - `/judge` returns HTTP 200.
 - `/generated/qq-bbq-memory.png` returns HTTP 200 and serves the generated BBQ memory asset.
+- `/generated/qq-game-party.png` returns HTTP 200 and serves the 王者荣耀五排回顾 asset.
 - `/recording` returns HTTP 404 because Recording Mode has been removed.
 - `/studio` returns HTTP 200 with access-key guard.
 - `/studio?key=local-studio` returns HTTP 200 with free-input live LLM chat controls.
 - `/studio?key=local-studio&runtime=live` with `周六有人吃火锅吗？` returns live DeepSeek JSON with `fallbackUsed: false`, `card_draft.title: "周六火锅局 · 先确认去不去"`, and the visible first-round card does not mix time/place vote options.
 - `/studio?key=local-studio&runtime=live` with `周六有人吃烤肉吗？` returns live DeepSeek JSON with `fallbackUsed: false`, `card_draft.title: "周六烤肉局 · 先确认去不去"`, and the visible first-round card does not mix time/place vote options.
-- In `/studio?key=local-studio&runtime=live`, after `周六有人吃火锅吗？`, free input `继续时间投票` returns live DeepSeek JSON with `fallbackUsed: false` and the visible last card is a `周六火锅局` time vote card, not another attendance card.
-- In `/studio?key=local-studio&runtime=live`, after `周六有人吃火锅吗？`, free input `我可以去` records attendance and advances to a `周六火锅局` time vote card; then `继续地点投票` advances to a `周六火锅局` place vote card, both with `fallbackUsed: false`.
-- In `/studio?key=local-studio&runtime=live`, after joining `周六火锅局`, repeated free input `周六晚上八点呢？`, `周六晚上九点也可以吗？`, and `再晚一点呢？` stays in the time-vote card tool, preserves the exact user supplied options `周六晚上八点`, `周六晚上九点`, and `晚一点`, and only moves to the place-vote card after explicit `继续地点投票`.
-- In the same live run, NPC replies no longer all mechanically agree with each proposed time; the verified responses include disagreement and constraints such as `太晚了`, `六点就得走`, and `再晚一点是几点？`.
+- In `/studio?key=local-studio&runtime=live`, after `周六有人吃火锅吗？`, free input `我可以去` records attendance but does not add a time vote card; the visible bot message guides the group to propose concrete times first.
+- In `/studio?key=local-studio&runtime=live`, free input `周六晚上八点呢？` then adds a `周六火锅局 · 时间投票` card with `周六晚上八点`, without falling back to static `18:30 / 19:00 / 19:30` options.
+- In `/studio?key=local-studio&runtime=live`, free input `继续地点投票` either asks the group for place candidates or opens a place card only when user/NPC chat has produced concrete candidates; verified cards used chat-backed options such as `新火锅店` and `学校南门那家烤肉店`, not static `木屋烧烤 / 韩宫宴`.
+- In `/studio?key=local-studio&runtime=live`, free input `寿喜烧可以吗？` opens a `周六火锅局 · 地点投票` card containing a 寿喜烧 candidate, with no static 烤肉地点 fallback.
+- In `/studio?key=local-studio&runtime=live&scene=conflict_bridge`, passive chat `我只是路过看一眼，先别管我` does not duplicate the existing conflict card.
+- In `/studio?key=local-studio&runtime=live&scene=game_party_hok`, spectator chat `我今天只是观战，先不打` does not duplicate the existing 王者五排 card.
+- In local and production browser smoke runs, pure dinner small talk such as `今天好累啊，完全不想动` did not add any card.
 - `/api/health` returns `{ "ok": true, "defaultMode": "judge", "llmRuntimeMode": "snapshot" }`.
 - `/api/llm/anonymous` with `mode: "snapshot"` returns schema-validated snapshot JSON.
 - `/api/llm/intent`, `/api/llm/anonymous`, `/api/llm/conflict`, `/api/llm/recap`, `/api/llm/game-recap`, and `/api/llm/studio-conversation` with `mode: "live"` return schema-validated DeepSeek JSON with `fallbackUsed: false`.

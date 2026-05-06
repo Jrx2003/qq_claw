@@ -16,8 +16,10 @@ import {
   buildStudioSceneActionMessages,
   buildStudioSuggestionActions,
   buildStudioTurnMessages,
+  isStudioDinnerCardId,
   resolveNextStudioThreadState,
   resolveStudioCardId,
+  stabilizeStudioConversationResponse,
   type StudioThreadState,
 } from "@/lib/scenario-engine/studioConversation";
 import { sceneTextArray } from "@/lib/sceneMeta";
@@ -198,7 +200,17 @@ export function ChatDemoPage({
         },
         runtimeMode,
       );
-      const cardId = resolveStudioCardId(response.data, {
+      const studioContext = {
+        userText: text,
+        recentMessages: displayedMessages.slice(-14).map((message) => ({
+          type: message.type,
+          text: message.text,
+          cardId: message.cardId,
+        })),
+        threadState: currentStudioThreadState,
+      };
+      const studioResponse = stabilizeStudioConversationResponse(response.data, studioContext);
+      const cardId = resolveStudioCardId(studioResponse, {
         userText: text,
         recentMessages: displayedMessages.slice(-14).map((message) => ({
           type: message.type,
@@ -212,21 +224,25 @@ export function ChatDemoPage({
         cardId,
         turnIndex: nextTurnIndex,
         userText: text,
-        cardDraft: response.data.card_draft,
+        cardDraft: studioResponse.card_draft,
         threadState: currentStudioThreadState,
+        optionEvidenceText: [
+          text,
+          ...studioResponse.npc_messages.map((message) => message.text),
+        ].join(" "),
       });
-      const renderedCardId = dynamicCard?.id ?? cardId;
-      const renderedCard = dynamicCard ?? (cardId ? cards.get(cardId) : undefined);
+      const renderedCardId = dynamicCard?.id ?? (isStudioDinnerCardId(cardId) ? undefined : cardId);
+      const renderedCard = dynamicCard ?? (renderedCardId && cardId ? cards.get(cardId) : undefined);
       const nextMessages = buildStudioTurnMessages({
         turnIndex: nextTurnIndex,
         userText: text,
-        response: response.data,
+        response: studioResponse,
         cardId: renderedCardId,
         includeUser: false,
       });
-      const chips = response.data.function_suggestion
-        ? [response.data.function_suggestion.label, ...response.data.chips]
-        : response.data.chips;
+      const chips = studioResponse.function_suggestion
+        ? [studioResponse.function_suggestion.label, ...studioResponse.chips]
+        : studioResponse.chips;
 
       if (dynamicCard) {
         setStudioCards((current) => new Map(current).set(dynamicCard.id, dynamicCard));
@@ -234,7 +250,7 @@ export function ChatDemoPage({
       studioThreadStateRef.current = resolveNextStudioThreadState({
         currentState: currentStudioThreadState,
         userText: text,
-        cardId,
+        cardId: renderedCardId ? cardId : undefined,
         card: renderedCard,
       });
       setStudioMessages((current) => [...current, ...nextMessages]);
@@ -293,12 +309,17 @@ export function ChatDemoPage({
 
         const nextTurnIndex = studioTurnIndex + 1;
         const nextBeat = findBeat(currentScene, authoredAction.nextBeatId);
+        const nextBeatEvidenceText = [
+          authoredAction.label,
+          ...(nextBeat.messages ?? []).map((message) => message.text ?? ""),
+        ].join(" ");
         const actionThreadState = resolveNextStudioThreadState({
           currentState: studioThreadStateRef.current,
           userText: authoredAction.label,
           actionId: authoredAction.actionId,
         });
         const dynamicCards = new Map<string, DemoCard>();
+        const hiddenCardIds: string[] = [];
         const cardIdMap = Object.fromEntries(
           (nextBeat.messages ?? [])
             .map((message) => message.cardId)
@@ -310,11 +331,17 @@ export function ChatDemoPage({
                 turnIndex: nextTurnIndex,
                 userText: authoredAction.label,
                 threadState: actionThreadState,
+                optionEvidenceText: nextBeatEvidenceText,
               });
 
               if (dynamicCard) {
                 dynamicCards.set(dynamicCard.id, dynamicCard);
                 return [nextCardId, dynamicCard.id] as const;
+              }
+
+              if (isStudioDinnerCardId(nextCardId)) {
+                hiddenCardIds.push(nextCardId);
+                return [nextCardId, undefined] as const;
               }
 
               return [nextCardId, nextCardId] as const;
@@ -330,8 +357,8 @@ export function ChatDemoPage({
         studioThreadStateRef.current = resolveNextStudioThreadState({
           currentState: actionThreadState,
           userText: authoredAction.label,
-          cardId: lastStaticCardId,
-          card: lastDynamicCard ?? (lastStaticCardId ? cards.get(lastStaticCardId) : undefined),
+          cardId: lastStaticCardId && !hiddenCardIds.includes(lastStaticCardId) ? lastStaticCardId : undefined,
+          card: lastDynamicCard ?? (lastStaticCardId && !hiddenCardIds.includes(lastStaticCardId) ? cards.get(lastStaticCardId) : undefined),
         });
         setStudioMessages((current) => [
           ...current,
@@ -339,6 +366,7 @@ export function ChatDemoPage({
             turnIndex: nextTurnIndex,
             beat: nextBeat,
             cardIdMap,
+            hiddenCardIds,
           }),
         ]);
         setStudioActions(nextBeat.availableActions ?? []);

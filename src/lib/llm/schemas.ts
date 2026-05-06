@@ -71,6 +71,28 @@ export const gameRecapSchema = z.object({
   next_invite_copy: z.string(),
 });
 
+const studioCardDraftSchema = z.object({
+  cardType: z.enum([
+    "plan",
+    "vote",
+    "confirm",
+    "memory",
+    "anonymous",
+    "conflict",
+    "game-party",
+    "game-memory",
+  ]),
+  title: z.string().optional(),
+  status: z.string().optional(),
+  summary: z.string().optional(),
+  attendanceOptions: z.array(z.string()).optional(),
+  timeOptions: z.array(z.string()).optional(),
+  placeOptions: z.array(z.string()).optional(),
+  pendingMembers: z.array(z.string()).optional(),
+  confirmedTime: z.string().optional(),
+  confirmedPlace: z.string().optional(),
+});
+
 export const studioConversationSchema = z.object({
   intent_type: z.enum(["plan", "anonymous", "conflict", "game_party", "recap", "none"]),
   stage: z.enum(["listen", "suggest", "execute", "follow_up"]),
@@ -91,6 +113,7 @@ export const studioConversationSchema = z.object({
       reason: z.string(),
     })
     .optional(),
+  card_draft: studioCardDraftSchema.optional(),
   chips: z.array(z.string()).min(2).max(4),
 });
 

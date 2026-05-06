@@ -2,6 +2,7 @@ import type { StudioConversation } from "@/lib/llm/schemas";
 import type { ChatMessage, DemoAction, DemoBeat, DemoCard, LlmTaskName } from "@/lib/types/demo";
 
 export type StudioConversationIntent = StudioConversation["intent_type"];
+type StudioCardDraft = NonNullable<StudioConversation["card_draft"]>;
 export type StudioCardContext = {
   userText?: string;
   recentMessages?: Array<Pick<ChatMessage, "type" | "text" | "cardId">>;
@@ -155,51 +156,146 @@ export function buildStudioDynamicCard({
   cardId,
   turnIndex,
   userText,
+  cardDraft,
 }: {
   baseCard?: DemoCard;
   cardId?: string;
   turnIndex: number;
   userText: string;
+  cardDraft?: StudioCardDraft;
 }): DemoCard | undefined {
   if (!baseCard || !cardId) {
     return undefined;
   }
 
+  if (cardId === "plan_card_1") {
+    return buildDynamicPlanCard({ baseCard, turnIndex, userText, cardDraft });
+  }
+
   if (cardId === "vote_card_1") {
-    const timeOption = extractTimeOption(userText);
+    const timeOption = extractTimeOption(userText) ?? firstText(cardDraft?.timeOptions);
 
     if (!timeOption) {
-      return undefined;
+      return cardDraft?.cardType === "vote"
+        ? applyCardDraft(
+            {
+              ...baseCard,
+              id: `studio_card_${turnIndex}`,
+            },
+            cardDraft,
+          )
+        : undefined;
     }
 
     const timeVotes = prependVoteOption(baseCard.timeVotes, timeOption);
 
-    return {
-      ...baseCard,
-      id: `studio_card_${turnIndex}`,
-      status: "时间投票更新中",
-      timeVotes,
-    };
+    return applyCardDraft(
+      {
+        ...baseCard,
+        id: `studio_card_${turnIndex}`,
+        status: "时间投票更新中",
+        timeVotes,
+      },
+      cardDraft?.cardType === "vote" ? cardDraft : undefined,
+    );
   }
 
   if (cardId === "place_vote_card_1") {
-    const placeOption = extractPlaceOption(userText);
+    const placeOption = extractPlaceOption(userText) ?? firstText(cardDraft?.placeOptions);
 
     if (!placeOption) {
-      return undefined;
+      return cardDraft?.cardType === "vote"
+        ? applyCardDraft(
+            {
+              ...baseCard,
+              id: `studio_card_${turnIndex}`,
+            },
+            cardDraft,
+          )
+        : undefined;
     }
 
     const placeVotes = prependVoteOption(baseCard.placeVotes, placeOption);
 
-    return {
-      ...baseCard,
-      id: `studio_card_${turnIndex}`,
-      status: "地点投票更新中",
-      placeVotes,
-    };
+    return applyCardDraft(
+      {
+        ...baseCard,
+        id: `studio_card_${turnIndex}`,
+        status: "地点投票更新中",
+        placeVotes,
+      },
+      cardDraft?.cardType === "vote" ? cardDraft : undefined,
+    );
   }
 
   return undefined;
+}
+
+function buildDynamicPlanCard({
+  baseCard,
+  turnIndex,
+  userText,
+  cardDraft,
+}: {
+  baseCard: DemoCard;
+  turnIndex: number;
+  userText: string;
+  cardDraft?: StudioCardDraft;
+}): DemoCard {
+  const planDraft = cardDraft?.cardType === "plan" ? cardDraft : undefined;
+  const timeLabel = extractEventTimeLabel(userText);
+  const activityLabel = extractActivityLabel(userText);
+  const eventLabel = buildEventLabel(timeLabel, activityLabel);
+
+  return applyPlanCardDraft(
+    {
+      ...baseCard,
+      id: `studio_card_${turnIndex}`,
+      title: `${eventLabel}局 · 先确认去不去`,
+      status: "参加意向投票中",
+      summary: `先确认${eventLabel}谁能来，人数稳定后再分开问时间和地点`,
+      attendanceOptions: baseCard.attendanceOptions,
+      timeOptions: [],
+      placeOptions: [],
+    },
+    planDraft,
+  );
+}
+
+function applyPlanCardDraft(card: DemoCard, cardDraft?: StudioCardDraft): DemoCard {
+  if (!cardDraft) {
+    return card;
+  }
+
+  return {
+    ...card,
+    ...(cardDraft.title ? { title: cardDraft.title } : {}),
+    ...(cardDraft.status ? { status: cardDraft.status } : {}),
+    ...(cardDraft.summary ? { summary: cardDraft.summary } : {}),
+    ...(cardDraft.attendanceOptions ? { attendanceOptions: cardDraft.attendanceOptions } : {}),
+    ...(cardDraft.pendingMembers ? { pendingMembers: cardDraft.pendingMembers } : {}),
+    timeOptions: [],
+    placeOptions: [],
+  };
+}
+
+function applyCardDraft(card: DemoCard, cardDraft?: StudioCardDraft): DemoCard {
+  if (!cardDraft) {
+    return card;
+  }
+
+  return {
+    ...card,
+    ...(cardDraft.title ? { title: cardDraft.title } : {}),
+    ...(cardDraft.status ? { status: cardDraft.status } : {}),
+    ...(cardDraft.summary ? { summary: cardDraft.summary } : {}),
+    ...(cardDraft.attendanceOptions ? { attendanceOptions: cardDraft.attendanceOptions } : {}),
+    ...(cardDraft.timeOptions ? { timeOptions: cardDraft.timeOptions } : {}),
+    ...(cardDraft.placeOptions ? { placeOptions: cardDraft.placeOptions } : {}),
+    ...(cardDraft.pendingMembers ? { pendingMembers: cardDraft.pendingMembers } : {}),
+    ...(cardDraft.confirmedTime ? { confirmedTime: cardDraft.confirmedTime } : {}),
+    ...(cardDraft.confirmedPlace ? { confirmedPlace: cardDraft.confirmedPlace } : {}),
+  };
 }
 
 function resolveIntentStudioCardId(response: StudioConversation, context: StudioCardContext): string {
@@ -248,6 +344,43 @@ function isTimeText(text: string): boolean {
 
 function isPlaceText(text: string): boolean {
   return Boolean(extractPlaceOption(text));
+}
+
+function firstText(values?: string[]): string | undefined {
+  return values?.find((value) => value.trim().length > 0)?.trim();
+}
+
+function extractEventTimeLabel(text: string): string | undefined {
+  const normalized = text.replace(/\s+/g, "");
+  const match = normalized.match(/((?:本周|这周|下周)?周[一二三四五六日天末]|今天|今晚|明天|明晚|后天|周末)/);
+
+  return match?.[1];
+}
+
+function extractActivityLabel(text: string): string {
+  const normalized = text.replace(/\s+/g, "");
+  const activityRules: Array<[RegExp, string]> = [
+    [/火锅/, "火锅"],
+    [/烤肉|烧烤/, "烤肉"],
+    [/王者荣耀|王者|五排|开黑/, "王者五排"],
+    [/剧本杀/, "剧本杀"],
+    [/密室/, "密室"],
+    [/KTV|唱歌/i, "KTV"],
+    [/电影/, "电影"],
+    [/奶茶/, "奶茶"],
+    [/羽毛球|打球/, "羽毛球"],
+    [/吃饭|聚餐|饭局/, "聚餐"],
+  ];
+
+  return activityRules.find(([pattern]) => pattern.test(normalized))?.[1] ?? "活动";
+}
+
+function buildEventLabel(timeLabel: string | undefined, activityLabel: string): string {
+  if (activityLabel === "活动" && !timeLabel) {
+    return "这次活动";
+  }
+
+  return `${timeLabel ?? ""}${activityLabel}`;
 }
 
 function extractTimeOption(text: string): string | undefined {

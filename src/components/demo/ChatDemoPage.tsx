@@ -205,6 +205,7 @@ export function ChatDemoPage({
         cardId,
         turnIndex: nextTurnIndex,
         userText: text,
+        cardDraft: response.data.card_draft,
       });
       const renderedCardId = dynamicCard?.id ?? cardId;
       const nextMessages = buildStudioTurnMessages({

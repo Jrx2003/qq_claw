@@ -37,6 +37,31 @@ describe("studio conversation runtime", () => {
     expect(parsed.function_suggestion?.task).toBe("intent");
   });
 
+  it("keeps LLM-authored dynamic card drafts for studio plan cards", () => {
+    const parsed = studioConversationSchema.parse({
+      intent_type: "plan",
+      stage: "suggest",
+      bot_message: "可以，我先帮你们确认周六火锅谁能来。",
+      npc_messages: [{ actorId: "akai", text: "周六火锅我可以。" }],
+      function_suggestion: {
+        label: "先确认去不去",
+        task: "intent",
+        reason: "用户发起了新的周六火锅局。",
+      },
+      card_draft: {
+        cardType: "plan",
+        title: "周六火锅局 · 先确认去不去",
+        status: "参加意向投票中",
+        summary: "先确认周六火锅谁能来，再分开问时间和地点",
+        attendanceOptions: ["我可以去", "看情况", "这次不去"],
+      },
+      chips: ["我可以去", "再问几点", "换个地点"],
+    });
+
+    expect(parsed.card_draft?.title).toBe("周六火锅局 · 先确认去不去");
+    expect(parsed.card_draft?.attendanceOptions).toEqual(["我可以去", "看情况", "这次不去"]);
+  });
+
   it("renders the user input, LLM-controlled NPCs, bot response, and suggested card into chat messages", () => {
     const messages = buildStudioTurnMessages({
       turnIndex: 3,
@@ -169,6 +194,57 @@ describe("studio conversation runtime", () => {
     expect(placeCard?.placeVotes).toEqual(
       expect.arrayContaining([expect.objectContaining({ label: "南门新开的烤肉店" })]),
     );
+  });
+
+  it("builds contextual first-round plan cards from the user's activity text", () => {
+    const cards = loadCardMap();
+    const hotpotCard = buildStudioDynamicCard({
+      baseCard: cards.get("plan_card_1"),
+      cardId: "plan_card_1",
+      turnIndex: 6,
+      userText: "周六有人吃火锅吗？",
+    });
+    const bbqCard = buildStudioDynamicCard({
+      baseCard: cards.get("plan_card_1"),
+      cardId: "plan_card_1",
+      turnIndex: 7,
+      userText: "周六有人吃烤肉吗？",
+    });
+
+    expect(hotpotCard?.id).toBe("studio_card_6");
+    expect(hotpotCard?.title).toBe("周六火锅局 · 先确认去不去");
+    expect(hotpotCard?.summary).toBe("先确认周六火锅谁能来，人数稳定后再分开问时间和地点");
+    expect(hotpotCard?.summary).not.toContain("周五烤肉");
+    expect(hotpotCard?.timeOptions).toEqual([]);
+    expect(hotpotCard?.placeOptions).toEqual([]);
+    expect(bbqCard?.title).toBe("周六烤肉局 · 先确认去不去");
+  });
+
+  it("uses LLM-authored plan-card copy without mixing in time or place votes", () => {
+    const cards = loadCardMap();
+    const draftedCard = buildStudioDynamicCard({
+      baseCard: cards.get("plan_card_1"),
+      cardId: "plan_card_1",
+      turnIndex: 8,
+      userText: "周六有人吃火锅吗？",
+      cardDraft: {
+        cardType: "plan",
+        title: "周六宿舍火锅局 · 先确认去不去",
+        status: "先看人数",
+        summary: "只问能不能来，不把时间地点混在一张卡里",
+        attendanceOptions: ["能来", "晚点看", "不来了"],
+        timeOptions: ["周六 19:00"],
+        placeOptions: ["宿舍楼下火锅"],
+      },
+    });
+
+    expect(draftedCard?.id).toBe("studio_card_8");
+    expect(draftedCard?.title).toBe("周六宿舍火锅局 · 先确认去不去");
+    expect(draftedCard?.status).toBe("先看人数");
+    expect(draftedCard?.summary).toBe("只问能不能来，不把时间地点混在一张卡里");
+    expect(draftedCard?.attendanceOptions).toEqual(["能来", "晚点看", "不来了"]);
+    expect(draftedCard?.timeOptions).toEqual([]);
+    expect(draftedCard?.placeOptions).toEqual([]);
   });
 
   it("turns LLM suggestions into dynamic free-input actions", () => {

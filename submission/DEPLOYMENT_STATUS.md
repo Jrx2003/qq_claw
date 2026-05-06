@@ -12,7 +12,7 @@ Vercel production:
 
 Latest verified production deployment on 2026-05-06:
 
-- Deployment id: `dpl_5jij2tPY4HZCvMui53Z5QoV6CNrz`
+- Deployment id: `dpl_3NiN2jLjeaxCqbbbXXGTwyjWLwc4`
 - Alias: `https://qqclaw.vercel.app`
 - `/` returns HTTP 200 and includes the looping product showcase.
 - `/judge` returns HTTP 200.
@@ -20,6 +20,8 @@ Latest verified production deployment on 2026-05-06:
 - `/recording` returns HTTP 404 because Recording Mode has been removed.
 - `/studio` returns HTTP 200 with access-key guard.
 - `/studio?key=local-studio` returns HTTP 200 with free-input live LLM chat controls.
+- `/studio?key=local-studio&runtime=live` with `周六有人吃火锅吗？` returns live DeepSeek JSON with `fallbackUsed: false`, `card_draft.title: "周六火锅局 · 先确认去不去"`, and the visible first-round card does not mix time/place vote options.
+- `/studio?key=local-studio&runtime=live` with `周六有人吃烤肉吗？` returns live DeepSeek JSON with `fallbackUsed: false`, `card_draft.title: "周六烤肉局 · 先确认去不去"`, and the visible first-round card does not mix time/place vote options.
 - `/api/health` returns `{ "ok": true, "defaultMode": "judge", "llmRuntimeMode": "snapshot" }`.
 - `/api/llm/anonymous` with `mode: "snapshot"` returns schema-validated snapshot JSON.
 - `/api/llm/intent`, `/api/llm/anonymous`, `/api/llm/conflict`, `/api/llm/recap`, `/api/llm/game-recap`, and `/api/llm/studio-conversation` with `mode: "live"` return schema-validated DeepSeek JSON with `fallbackUsed: false`.

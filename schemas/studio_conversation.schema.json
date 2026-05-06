@@ -57,6 +57,65 @@
         }
       }
     },
+    "card_draft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cardType"],
+      "properties": {
+        "cardType": {
+          "type": "string",
+          "enum": ["plan", "vote", "confirm", "memory", "anonymous", "conflict", "game-party", "game-memory"]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attendanceOptions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "timeOptions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "placeOptions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "pendingMembers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "confirmedTime": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confirmedPlace": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "chips": {
       "type": "array",
       "minItems": 2,

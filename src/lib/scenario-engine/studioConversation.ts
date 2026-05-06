@@ -1,5 +1,5 @@
 import type { StudioConversation } from "@/lib/llm/schemas";
-import type { ChatMessage, DemoAction, LlmTaskName } from "@/lib/types/demo";
+import type { ChatMessage, DemoAction, DemoBeat, LlmTaskName } from "@/lib/types/demo";
 
 export type StudioConversationIntent = StudioConversation["intent_type"];
 
@@ -8,20 +8,27 @@ export function buildStudioTurnMessages({
   userText,
   response,
   cardId,
+  includeUser = true,
 }: {
   turnIndex: number;
   userText: string;
   response: StudioConversation;
   cardId?: string;
+  includeUser?: boolean;
 }): ChatMessage[] {
-  const messages: ChatMessage[] = [
-    {
+  const messages: ChatMessage[] = [];
+
+  if (includeUser) {
+    messages.push({
       id: `studio_${turnIndex}_user`,
       actorId: "user_self",
       side: "right",
       type: "text",
       text: userText,
-    },
+    });
+  }
+
+  messages.push(
     ...response.npc_messages.map((message, index): ChatMessage => ({
       id: `studio_${turnIndex}_npc_${index}`,
       actorId: message.actorId,
@@ -38,7 +45,7 @@ export function buildStudioTurnMessages({
       text: response.bot_message,
       delayMs: 520 + response.npc_messages.length * 360,
     },
-  ];
+  );
 
   if (cardId) {
     messages.push({
@@ -52,6 +59,46 @@ export function buildStudioTurnMessages({
   }
 
   return messages;
+}
+
+export function buildStudioPendingMessages({
+  turnIndex,
+  userText,
+}: {
+  turnIndex: number;
+  userText: string;
+}): ChatMessage[] {
+  return [
+    {
+      id: `studio_${turnIndex}_user`,
+      actorId: "user_self",
+      side: "right",
+      type: "text",
+      text: userText,
+    },
+    {
+      id: `studio_${turnIndex}_pending`,
+      actorId: "bot_xjz",
+      side: "system",
+      type: "hint",
+      text: "虾局长正在生成回答...",
+      delayMs: 240,
+    },
+  ];
+}
+
+export function buildStudioSceneActionMessages({
+  turnIndex,
+  beat,
+}: {
+  turnIndex: number;
+  beat: Pick<DemoBeat, "messages">;
+}): ChatMessage[] {
+  return (beat.messages ?? []).map((message, index) => ({
+    ...message,
+    id: `studio_scene_${turnIndex}_${message.id}`,
+    delayMs: message.delayMs ?? index * 420,
+  }));
 }
 
 export function buildStudioSuggestionActions(chips: string[]): DemoAction[] {

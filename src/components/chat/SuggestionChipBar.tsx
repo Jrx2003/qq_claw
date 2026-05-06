@@ -5,6 +5,7 @@ import { SendHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { DemoAction } from "@/lib/types/demo";
+import { getVisibleSuggestionActions } from "./suggestionActions";
 
 export function SuggestionChipBar({
   actions,
@@ -22,7 +23,7 @@ export function SuggestionChipBar({
   placeholder?: string;
 }) {
   const [draft, setDraft] = useState("");
-  const chipActions = actions.filter((action) => action.kind === "chip" || action.kind === "toolbar" || action.kind === "scene-switch");
+  const chipActions = getVisibleSuggestionActions(actions);
   const isFreeInput = inputMode === "free" && Boolean(onSubmitText);
   const canSubmit = isFreeInput && draft.trim().length > 0 && !inputDisabled;
 

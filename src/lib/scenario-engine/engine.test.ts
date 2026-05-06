@@ -288,6 +288,41 @@ describe("fixture contract", () => {
     }
   });
 
+  it("routes every reachable non-final branch in every authored scene to its final beat", () => {
+    const finalBeatByScene = new Map([
+      ["dinner_core", "dinner.recap"],
+      ["anonymous_delegate", "anonymous.close_draft"],
+      ["conflict_bridge", "conflict.decision"],
+      ["game_party_hok", "game_hok.recap"],
+    ]);
+
+    for (const scene of loadScenes()) {
+      const finalBeatId = finalBeatByScene.get(scene.id);
+
+      expect(finalBeatId, `${scene.id} needs an explicit final beat for branch audits`).toBeTruthy();
+
+      const timeline = getTimeline(scene);
+      const beforeFinalIds = collectReachableBefore(timeline, timeline.entryBeatId, finalBeatId ?? "");
+
+      for (const beat of timeline.beats) {
+        if (!beforeFinalIds.has(beat.id)) {
+          continue;
+        }
+
+        for (const action of beat.availableActions ?? []) {
+          if (action.actionId.includes("replay")) {
+            continue;
+          }
+
+          expect(
+            canReachBeat(timeline, action.nextBeatId, finalBeatId ?? ""),
+            `${scene.id}/${beat.id}/${action.label} should continue to ${finalBeatId}`,
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
   it("offers graceful abandon paths after voting and confirmation", () => {
     const dinner = loadScene("dinner_core");
     const actionLabelsByBeat = new Map(

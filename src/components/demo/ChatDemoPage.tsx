@@ -7,11 +7,12 @@ import { FlaskConical, Home, PanelLeft } from "lucide-react";
 
 import { ChatShell } from "@/components/chat/ChatShell";
 import { DemoToolbar } from "@/components/demo/DemoToolbar";
-import { StudioPanel } from "@/components/demo/StudioPanel";
 import type { StudioConversation } from "@/lib/llm/schemas";
 import { collectSceneActions, findBeat } from "@/lib/scenario-engine/engine";
 import { runClientLlmTask } from "@/lib/scenario-engine/llmRuntime";
 import {
+  buildStudioPendingMessages,
+  buildStudioSceneActionMessages,
   buildStudioSuggestionActions,
   buildStudioTurnMessages,
   resolveStudioCardId,
@@ -64,8 +65,6 @@ export function ChatDemoPage({
   const [studioMessages, setStudioMessages] = useState<ChatMessage[]>([]);
   const [studioActions, setStudioActions] = useState<DemoAction[]>([]);
   const [studioPending, setStudioPending] = useState(false);
-  const [studioError, setStudioError] = useState<string>();
-  const [lastStudioResponse, setLastStudioResponse] = useState<StudioConversation>();
   const [studioTurnIndex, setStudioTurnIndex] = useState(0);
 
   const actorList = useMemo(() => Array.from(actors.values()), [actors]);
@@ -116,8 +115,6 @@ export function ChatDemoPage({
   useEffect(() => {
     setStudioMessages([]);
     setStudioActions([]);
-    setStudioError(undefined);
-    setLastStudioResponse(undefined);
     setStudioTurnIndex(0);
   }, [sceneId]);
 
@@ -148,7 +145,14 @@ export function ChatDemoPage({
     const nextTurnIndex = studioTurnIndex + 1;
     setStudioTurnIndex(nextTurnIndex);
     setStudioPending(true);
-    setStudioError(undefined);
+    setStudioActions([]);
+    setStudioMessages((current) => [
+      ...current,
+      ...buildStudioPendingMessages({
+        turnIndex: nextTurnIndex,
+        userText: text,
+      }),
+    ]);
 
     try {
       const response = await runClientLlmTask<StudioConversation>(
@@ -183,6 +187,7 @@ export function ChatDemoPage({
         userText: text,
         response: response.data,
         cardId,
+        includeUser: false,
       });
       const chips = response.data.function_suggestion
         ? [response.data.function_suggestion.label, ...response.data.chips]
@@ -190,9 +195,7 @@ export function ChatDemoPage({
 
       setStudioMessages((current) => [...current, ...nextMessages]);
       setStudioActions(buildStudioSuggestionActions(chips));
-      setLastStudioResponse(response.data);
     } catch (caught) {
-      setStudioError(caught instanceof Error ? caught.message : "unknown error");
       setStudioMessages((current) => [
         ...current,
         ...buildStudioTurnMessages({
@@ -205,7 +208,16 @@ export function ChatDemoPage({
             npc_messages: [{ actorId: "xiaoyu", text: "可以再说具体一点，我跟得上。" }],
             chips: ["先确认去不去", "匿名问问大家", "先帮他们降温"],
           },
+          includeUser: false,
         }),
+        {
+          id: `studio_${nextTurnIndex}_error`,
+          actorId: "bot_xjz",
+          side: "system",
+          type: "hint",
+          text: caught instanceof Error ? `生成失败：${caught.message}` : "生成失败：unknown error",
+          delayMs: 520,
+        },
       ]);
       setStudioActions(buildStudioSuggestionActions(["先确认去不去", "匿名问问大家", "先帮他们降温"]));
     } finally {
@@ -220,6 +232,33 @@ export function ChatDemoPage({
         void submitStudioPrompt(action.label);
       }
       return;
+    }
+
+    if (showStudioTools) {
+      const authoredAction = cardActions.find((candidate) => candidate.actionId === actionId || candidate.id === actionId);
+
+      if (authoredAction) {
+        if (authoredAction.actionId.includes("replay")) {
+          setStudioMessages([]);
+          setStudioActions([]);
+          triggerAction(actionId);
+          return;
+        }
+
+        const nextTurnIndex = studioTurnIndex + 1;
+        const nextBeat = findBeat(currentScene, authoredAction.nextBeatId);
+
+        setStudioTurnIndex(nextTurnIndex);
+        setStudioMessages((current) => [
+          ...current,
+          ...buildStudioSceneActionMessages({
+            turnIndex: nextTurnIndex,
+            beat: nextBeat,
+          }),
+        ]);
+        setStudioActions(nextBeat.availableActions ?? []);
+        return;
+      }
     }
 
     triggerAction(actionId);
@@ -296,17 +335,6 @@ export function ChatDemoPage({
               </div>
             ))}
           </div>
-          {showStudioTools ? (
-            <StudioPanel
-              actors={actorList}
-              error={studioError}
-              lastResponse={lastStudioResponse}
-              onPrompt={submitStudioPrompt}
-              pending={studioPending}
-              runtimeMode={runtimeMode}
-              scene={currentScene}
-            />
-          ) : null}
         </div>
       </div>
     </div>

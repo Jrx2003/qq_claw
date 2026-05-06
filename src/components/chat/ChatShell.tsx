@@ -3,6 +3,7 @@
 import { ChatHeader } from "@/components/chat/ChatHeader";
 import { MessageList } from "@/components/chat/MessageList";
 import { SuggestionChipBar } from "@/components/chat/SuggestionChipBar";
+import { useSequencedMessages } from "@/components/chat/useSequencedMessages";
 import { sceneContextLabel } from "@/lib/sceneMeta";
 import type {
   Actor,
@@ -40,6 +41,8 @@ export function ChatShell({
   inputMode?: "guided" | "free";
   inputPlaceholder?: string;
 }) {
+  const visibleMessages = useSequencedMessages(messages);
+
   return (
     <main className="flex h-[780px] max-h-[calc(100vh-32px)] w-full max-w-[430px] flex-col overflow-hidden rounded-[32px] border border-white/70 bg-qq-bg shadow-soft">
       <ChatHeader mode={mode} scene={scene} />
@@ -48,7 +51,7 @@ export function ChatShell({
         cardActions={cardActions ?? actions}
         cards={cards}
         contextLabel={sceneContextLabel(scene)}
-        messages={messages}
+        messages={visibleMessages}
         onAction={onAction}
       />
       <SuggestionChipBar

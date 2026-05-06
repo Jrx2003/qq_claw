@@ -5,6 +5,8 @@ import path from "path";
 import { studioConversationSchema } from "@/lib/llm/schemas";
 import { loadCardMap } from "@/lib/fixtures/loader";
 import {
+  buildStudioPendingMessages,
+  buildStudioSceneActionMessages,
   buildStudioSuggestionActions,
   buildStudioTurnMessages,
   resolveStudioCardId,
@@ -117,6 +119,39 @@ describe("studio conversation runtime", () => {
     ]);
   });
 
+  it("shows an immediate generating status before the studio response arrives", () => {
+    expect(buildStudioPendingMessages({ turnIndex: 2, userText: "周五有人吃烤肉吗？" })).toEqual([
+      expect.objectContaining({
+        id: "studio_2_user",
+        actorId: "user_self",
+        side: "right",
+        type: "text",
+        text: "周五有人吃烤肉吗？",
+      }),
+      expect.objectContaining({
+        id: "studio_2_pending",
+        actorId: "bot_xjz",
+        side: "system",
+        type: "hint",
+        text: "虾局长正在生成回答...",
+      }),
+    ]);
+  });
+
+  it("appends authored scene action results after dynamic studio cards", () => {
+    const beat = {
+      messages: [
+        { id: "join_1", actorId: "user_self", side: "right", type: "text", text: "我可以去" },
+        { id: "join_2", actorId: "bot_xjz", side: "left", type: "text", text: "已记录" },
+      ],
+    };
+
+    expect(buildStudioSceneActionMessages({ turnIndex: 3, beat }).map((message) => message.id)).toEqual([
+      "studio_scene_3_join_1",
+      "studio_scene_3_join_2",
+    ]);
+  });
+
   it("selects the matching structured task for each studio intent", () => {
     expect(resolveStudioConversationTask("plan")).toBe("intent");
     expect(resolveStudioConversationTask("anonymous")).toBe("anonymous");
@@ -125,21 +160,21 @@ describe("studio conversation runtime", () => {
     expect(resolveStudioConversationTask("none")).toBe("intent");
   });
 
-  it("wires studio UI as a free-input chat sandbox, not a raw JSON task panel", () => {
+  it("wires studio UI as free-input chat without the side sandbox panel or raw JSON output", () => {
     const chatShell = readFileSync(path.join(process.cwd(), "src/components/chat/ChatShell.tsx"), "utf8");
     const chipBar = readFileSync(path.join(process.cwd(), "src/components/chat/SuggestionChipBar.tsx"), "utf8");
     const chatDemoPage = readFileSync(path.join(process.cwd(), "src/components/demo/ChatDemoPage.tsx"), "utf8");
-    const studioPanel = readFileSync(path.join(process.cwd(), "src/components/demo/StudioPanel.tsx"), "utf8");
 
     expect(chatShell).toContain("onSubmitText");
     expect(chatDemoPage).toContain("effectiveMode");
+    expect(chatDemoPage).not.toContain("<StudioPanel");
+    expect(chatDemoPage).not.toContain("自由群聊沙盒");
     expect(chipBar).toContain("textarea");
     expect(chipBar).toContain("自由输入");
     expect(chipBar).toContain("flex-wrap");
     expect(chipBar).not.toContain("overflow-x-auto");
-    expect(studioPanel).toContain("群聊背景");
-    expect(studioPanel).not.toContain("<pre");
-    expect(studioPanel).not.toContain("JSON.stringify");
+    expect(chatDemoPage).not.toContain("<pre");
+    expect(chatDemoPage).not.toContain("JSON.stringify");
   });
 
   it("removes the debug inspector surface from judge and studio UI", () => {

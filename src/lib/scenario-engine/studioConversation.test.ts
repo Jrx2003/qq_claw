@@ -10,6 +10,7 @@ import {
   buildStudioSceneActionMessages,
   buildStudioSuggestionActions,
   buildStudioTurnMessages,
+  resolveNextStudioThreadState,
   resolveStudioCardId,
   resolveStudioConversationTask,
 } from "./studioConversation";
@@ -171,6 +172,72 @@ describe("studio conversation runtime", () => {
     expect(cardId).toBe("place_vote_card_1");
   });
 
+  it("routes free-text continuation intents through the active dynamic dinner thread", () => {
+    const confusedResponse = {
+      intent_type: "plan",
+      stage: "suggest",
+      bot_message: "我再帮你们确认一次谁能去。",
+      npc_messages: [{ actorId: "akai", text: "我已经说过能去啦。" }],
+      function_suggestion: {
+        label: "先确认去不去",
+        task: "intent",
+        reason: "模型误以为需要重新确认参加意向。",
+      },
+      chips: ["我可以去", "继续时间投票"],
+    } as const;
+
+    expect(
+      resolveStudioCardId(confusedResponse, {
+        userText: "继续时间投票",
+        recentMessages: [{ type: "card", cardId: "studio_card_1" }],
+        threadState: {
+          dinner: {
+            stage: "plan",
+            eventTitle: "周六火锅局",
+            attendanceStatus: "joined",
+          },
+        },
+      }),
+    ).toBe("vote_card_1");
+
+    expect(
+      resolveStudioCardId(confusedResponse, {
+        userText: "继续地点投票",
+        recentMessages: [{ type: "card", cardId: "studio_card_2" }],
+        threadState: {
+          dinner: {
+            stage: "time",
+            eventTitle: "周六火锅局",
+            attendanceStatus: "joined",
+          },
+        },
+      }),
+    ).toBe("place_vote_card_1");
+  });
+
+  it("records free-text attendance and lets it advance to time voting", () => {
+    const confusedResponse = {
+      intent_type: "plan",
+      stage: "listen",
+      bot_message: "收到。",
+      npc_messages: [{ actorId: "xiaoyu", text: "那人数够了吧。" }],
+      chips: ["继续时间投票", "再等一下"],
+    } as const;
+
+    expect(
+      resolveStudioCardId(confusedResponse, {
+        userText: "我可以去",
+        recentMessages: [{ type: "card", cardId: "studio_card_1" }],
+        threadState: {
+          dinner: {
+            stage: "plan",
+            eventTitle: "周六火锅局",
+          },
+        },
+      }),
+    ).toBe("vote_card_1");
+  });
+
   it("injects user supplied time and place options into studio vote cards", () => {
     const cards = loadCardMap();
     const timeCard = buildStudioDynamicCard({
@@ -245,6 +312,70 @@ describe("studio conversation runtime", () => {
     expect(draftedCard?.attendanceOptions).toEqual(["能来", "晚点看", "不来了"]);
     expect(draftedCard?.timeOptions).toEqual([]);
     expect(draftedCard?.placeOptions).toEqual([]);
+  });
+
+  it("keeps dynamic dinner titles when free text opens time or place vote cards", () => {
+    const cards = loadCardMap();
+    const timeCard = buildStudioDynamicCard({
+      baseCard: cards.get("vote_card_1"),
+      cardId: "vote_card_1",
+      turnIndex: 9,
+      userText: "继续时间投票",
+      threadState: {
+        dinner: {
+          stage: "plan",
+          eventTitle: "周六火锅局",
+          attendanceStatus: "joined",
+        },
+      },
+    });
+    const placeCard = buildStudioDynamicCard({
+      baseCard: cards.get("place_vote_card_1"),
+      cardId: "place_vote_card_1",
+      turnIndex: 10,
+      userText: "继续地点投票",
+      threadState: {
+        dinner: {
+          stage: "time",
+          eventTitle: "周六火锅局",
+          attendanceStatus: "joined",
+        },
+      },
+    });
+
+    expect(timeCard?.id).toBe("studio_card_9");
+    expect(timeCard?.title).toBe("周六火锅局");
+    expect(timeCard?.status).toBe("时间投票进行中");
+    expect(placeCard?.id).toBe("studio_card_10");
+    expect(placeCard?.title).toBe("周六火锅局");
+    expect(placeCard?.status).toBe("地点投票进行中");
+  });
+
+  it("updates the studio dinner thread state from dynamic cards and free-text attendance", () => {
+    const nextState = resolveNextStudioThreadState({
+      currentState: {},
+      userText: "周六有人吃火锅吗？",
+      cardId: "plan_card_1",
+      card: {
+        id: "studio_card_1",
+        cardType: "plan",
+        title: "周六火锅局 · 先确认去不去",
+      },
+    });
+
+    expect(nextState).toEqual({
+      dinner: {
+        stage: "plan",
+        eventTitle: "周六火锅局",
+      },
+    });
+
+    expect(
+      resolveNextStudioThreadState({
+        currentState: nextState,
+        userText: "我可以去",
+      }).dinner?.attendanceStatus,
+    ).toBe("joined");
   });
 
   it("turns LLM suggestions into dynamic free-input actions", () => {

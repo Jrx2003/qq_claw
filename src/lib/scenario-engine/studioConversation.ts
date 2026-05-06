@@ -3,9 +3,19 @@ import type { ChatMessage, DemoAction, DemoBeat, DemoCard, LlmTaskName } from "@
 
 export type StudioConversationIntent = StudioConversation["intent_type"];
 type StudioCardDraft = NonNullable<StudioConversation["card_draft"]>;
+export type StudioDinnerStage = "plan" | "time" | "place" | "confirm";
+export type StudioAttendanceStatus = "joined" | "maybe" | "declined";
+export type StudioThreadState = {
+  dinner?: {
+    stage: StudioDinnerStage;
+    eventTitle?: string;
+    attendanceStatus?: StudioAttendanceStatus;
+  };
+};
 export type StudioCardContext = {
   userText?: string;
   recentMessages?: Array<Pick<ChatMessage, "type" | "text" | "cardId">>;
+  threadState?: StudioThreadState;
 };
 
 export function buildStudioTurnMessages({
@@ -95,13 +105,16 @@ export function buildStudioPendingMessages({
 export function buildStudioSceneActionMessages({
   turnIndex,
   beat,
+  cardIdMap = {},
 }: {
   turnIndex: number;
   beat: Pick<DemoBeat, "messages">;
+  cardIdMap?: Record<string, string>;
 }): ChatMessage[] {
   return (beat.messages ?? []).map((message, index) => ({
     ...message,
     id: `studio_scene_${turnIndex}_${message.id}`,
+    cardId: message.cardId ? (cardIdMap[message.cardId] ?? message.cardId) : message.cardId,
     delayMs: message.delayMs ?? index * 420,
   }));
 }
@@ -132,6 +145,11 @@ export function resolveStudioConversationTask(intentType: StudioConversationInte
 
 export function resolveStudioCardId(response: StudioConversation, context: StudioCardContext = {}): string | undefined {
   const task = response.function_suggestion?.task ?? resolveStudioConversationTask(response.intent_type);
+  const contextualDinnerCardId = resolveContextualDinnerCardId(context);
+
+  if (contextualDinnerCardId) {
+    return contextualDinnerCardId;
+  }
 
   if (!response.function_suggestion && response.stage !== "execute") {
     return undefined;
@@ -157,12 +175,14 @@ export function buildStudioDynamicCard({
   turnIndex,
   userText,
   cardDraft,
+  threadState,
 }: {
   baseCard?: DemoCard;
   cardId?: string;
   turnIndex: number;
   userText: string;
   cardDraft?: StudioCardDraft;
+  threadState?: StudioThreadState;
 }): DemoCard | undefined {
   if (!baseCard || !cardId) {
     return undefined;
@@ -174,61 +194,142 @@ export function buildStudioDynamicCard({
 
   if (cardId === "vote_card_1") {
     const timeOption = extractTimeOption(userText) ?? firstText(cardDraft?.timeOptions);
+    const hasDinnerThread = Boolean(threadState?.dinner);
 
     if (!timeOption) {
       return cardDraft?.cardType === "vote"
         ? applyCardDraft(
-            {
-              ...baseCard,
-              id: `studio_card_${turnIndex}`,
-            },
+            applyThreadEventTitle(
+              {
+                ...baseCard,
+                id: `studio_card_${turnIndex}`,
+                status: "时间投票进行中",
+              },
+              threadState,
+            ),
             cardDraft,
           )
-        : undefined;
+        : hasDinnerThread
+          ? applyThreadEventTitle(
+              {
+                ...baseCard,
+                id: `studio_card_${turnIndex}`,
+                status: "时间投票进行中",
+              },
+              threadState,
+            )
+          : undefined;
     }
 
     const timeVotes = prependVoteOption(baseCard.timeVotes, timeOption);
 
     return applyCardDraft(
-      {
-        ...baseCard,
-        id: `studio_card_${turnIndex}`,
-        status: "时间投票更新中",
-        timeVotes,
-      },
+      applyThreadEventTitle(
+        {
+          ...baseCard,
+          id: `studio_card_${turnIndex}`,
+          status: "时间投票更新中",
+          timeVotes,
+        },
+        threadState,
+      ),
       cardDraft?.cardType === "vote" ? cardDraft : undefined,
     );
   }
 
   if (cardId === "place_vote_card_1") {
     const placeOption = extractPlaceOption(userText) ?? firstText(cardDraft?.placeOptions);
+    const hasDinnerThread = Boolean(threadState?.dinner);
 
     if (!placeOption) {
       return cardDraft?.cardType === "vote"
         ? applyCardDraft(
-            {
-              ...baseCard,
-              id: `studio_card_${turnIndex}`,
-            },
+            applyThreadEventTitle(
+              {
+                ...baseCard,
+                id: `studio_card_${turnIndex}`,
+                status: "地点投票进行中",
+              },
+              threadState,
+            ),
             cardDraft,
           )
-        : undefined;
+        : hasDinnerThread
+          ? applyThreadEventTitle(
+              {
+                ...baseCard,
+                id: `studio_card_${turnIndex}`,
+                status: "地点投票进行中",
+              },
+              threadState,
+            )
+          : undefined;
     }
 
     const placeVotes = prependVoteOption(baseCard.placeVotes, placeOption);
 
     return applyCardDraft(
-      {
-        ...baseCard,
-        id: `studio_card_${turnIndex}`,
-        status: "地点投票更新中",
-        placeVotes,
-      },
+      applyThreadEventTitle(
+        {
+          ...baseCard,
+          id: `studio_card_${turnIndex}`,
+          status: "地点投票更新中",
+          placeVotes,
+        },
+        threadState,
+      ),
       cardDraft?.cardType === "vote" ? cardDraft : undefined,
     );
   }
 
+  if (cardId === "confirm_card_1") {
+    if (!threadState?.dinner && cardDraft?.cardType !== "confirm") {
+      return undefined;
+    }
+
+    return applyCardDraft(
+      applyThreadEventTitle(
+        {
+          ...baseCard,
+          id: `studio_card_${turnIndex}`,
+        },
+        threadState,
+      ),
+      cardDraft?.cardType === "confirm" ? cardDraft : undefined,
+    );
+  }
+
   return undefined;
+}
+
+export function resolveNextStudioThreadState({
+  currentState = {},
+  userText = "",
+  cardId,
+  card,
+  actionId,
+}: {
+  currentState?: StudioThreadState;
+  userText?: string;
+  cardId?: string;
+  card?: DemoCard;
+  actionId?: string;
+}): StudioThreadState {
+  const next: StudioThreadState = currentState.dinner ? { dinner: { ...currentState.dinner } } : {};
+  const actionUpdate = actionId ? resolveDinnerActionUpdate(actionId) : undefined;
+  const cardStage = resolveDinnerStageFromCard(cardId, card);
+  const attendanceStatus = resolveAttendanceStatus(userText);
+  const eventTitle = normalizeDinnerEventTitle(card?.title) ?? next.dinner?.eventTitle;
+
+  if (actionUpdate || cardStage || attendanceStatus || eventTitle) {
+    next.dinner = {
+      stage: actionUpdate?.stage ?? cardStage ?? next.dinner?.stage ?? "plan",
+      eventTitle,
+      attendanceStatus: actionUpdate?.attendanceStatus ?? attendanceStatus ?? next.dinner?.attendanceStatus,
+    };
+  }
+
+  return next;
 }
 
 function buildDynamicPlanCard({
@@ -298,6 +399,17 @@ function applyCardDraft(card: DemoCard, cardDraft?: StudioCardDraft): DemoCard {
   };
 }
 
+function applyThreadEventTitle(card: DemoCard, threadState?: StudioThreadState): DemoCard {
+  const eventTitle = threadState?.dinner?.eventTitle;
+
+  return eventTitle
+    ? {
+        ...card,
+        title: eventTitle,
+      }
+    : card;
+}
+
 function resolveIntentStudioCardId(response: StudioConversation, context: StudioCardContext): string {
   const userText = context.userText ?? "";
   const suggestionText = [
@@ -306,14 +418,8 @@ function resolveIntentStudioCardId(response: StudioConversation, context: Studio
     response.function_suggestion?.reason,
     ...response.chips,
   ].join(" ");
-  const activeCardIds = new Set(
-    (context.recentMessages ?? [])
-      .map((message) => message.cardId)
-      .filter((cardId): cardId is string => Boolean(cardId)),
-  );
-  const hasActiveDinnerCard = ["plan_card_1", "vote_card_1", "place_vote_card_1", "confirm_card_1"].some((cardId) =>
-    activeCardIds.has(cardId),
-  );
+  const activeCardIds = getActiveCardIds(context);
+  const hasActiveDinnerCard = hasActiveDinnerContext(context);
 
   if (hasActiveDinnerCard && isPlaceText(userText)) {
     return "place_vote_card_1";
@@ -331,11 +437,77 @@ function resolveIntentStudioCardId(response: StudioConversation, context: Studio
     return "vote_card_1";
   }
 
-  if (activeCardIds.has("place_vote_card_1") && /确认|定了|成局|就这/.test(`${userText} ${suggestionText}`)) {
+  if (activeCardIds.includes("place_vote_card_1") && /确认|定了|成局|就这/.test(`${userText} ${suggestionText}`)) {
     return "confirm_card_1";
   }
 
   return "plan_card_1";
+}
+
+function resolveContextualDinnerCardId(context: StudioCardContext): string | undefined {
+  const userText = context.userText ?? "";
+
+  if (!hasActiveDinnerContext(context)) {
+    return undefined;
+  }
+
+  if (wantsPlaceVote(userText) || isPlaceText(userText)) {
+    return "place_vote_card_1";
+  }
+
+  if (wantsTimeVote(userText) || isTimeText(userText) || isJoinText(userText)) {
+    return "vote_card_1";
+  }
+
+  if (wantsConfirm(userText) && inferDinnerStage(context) === "place") {
+    return "confirm_card_1";
+  }
+
+  return undefined;
+}
+
+function hasActiveDinnerContext(context: StudioCardContext): boolean {
+  if (context.threadState?.dinner) {
+    return true;
+  }
+
+  return getActiveCardIds(context).some(
+    (cardId) =>
+      ["plan_card_1", "vote_card_1", "place_vote_card_1", "confirm_card_1"].includes(cardId) ||
+      cardId.startsWith("studio_card_"),
+  );
+}
+
+function inferDinnerStage(context: StudioCardContext): StudioDinnerStage | undefined {
+  if (context.threadState?.dinner?.stage) {
+    return context.threadState.dinner.stage;
+  }
+
+  const cardIds = getActiveCardIds(context).reverse();
+
+  if (cardIds.includes("confirm_card_1")) {
+    return "confirm";
+  }
+
+  if (cardIds.includes("place_vote_card_1")) {
+    return "place";
+  }
+
+  if (cardIds.includes("vote_card_1")) {
+    return "time";
+  }
+
+  if (cardIds.includes("plan_card_1") || cardIds.some((cardId) => cardId.startsWith("studio_card_"))) {
+    return "plan";
+  }
+
+  return undefined;
+}
+
+function getActiveCardIds(context: StudioCardContext): string[] {
+  return (context.recentMessages ?? [])
+    .map((message) => message.cardId)
+    .filter((cardId): cardId is string => Boolean(cardId));
 }
 
 function isTimeText(text: string): boolean {
@@ -344,6 +516,42 @@ function isTimeText(text: string): boolean {
 
 function isPlaceText(text: string): boolean {
   return Boolean(extractPlaceOption(text));
+}
+
+function wantsTimeVote(text: string): boolean {
+  return /时间投票|投时间|继续.*时间|进入.*时间|开.*时间|问.*时间|选.*时间|几点/.test(text);
+}
+
+function wantsPlaceVote(text: string): boolean {
+  return /地点投票|投地点|继续.*地点|进入.*地点|开.*地点|问.*地点|选.*地点|选店|哪家|哪里|去哪/.test(text);
+}
+
+function wantsConfirm(text: string): boolean {
+  return /确认|定了|成局|就这|收口/.test(text);
+}
+
+function isJoinText(text: string): boolean {
+  const normalized = text.replace(/\s+/g, "");
+
+  if (/不去|不参加|去不了|算了|不了/.test(normalized)) {
+    return false;
+  }
+
+  return /我可以去|可以去|我能去|能去|我去|算我|加我|报名|参加/.test(normalized);
+}
+
+function resolveAttendanceStatus(text: string): StudioAttendanceStatus | undefined {
+  const normalized = text.replace(/\s+/g, "");
+
+  if (/不去|不参加|去不了|算了|不了/.test(normalized)) {
+    return "declined";
+  }
+
+  if (/看情况|待定|不确定|可能/.test(normalized)) {
+    return "maybe";
+  }
+
+  return isJoinText(normalized) ? "joined" : undefined;
 }
 
 function firstText(values?: string[]): string | undefined {
@@ -381,6 +589,64 @@ function buildEventLabel(timeLabel: string | undefined, activityLabel: string): 
   }
 
   return `${timeLabel ?? ""}${activityLabel}`;
+}
+
+function resolveDinnerStageFromCard(cardId?: string, card?: DemoCard): StudioDinnerStage | undefined {
+  const effectiveCardId = cardId ?? card?.id;
+
+  if (effectiveCardId === "plan_card_1" || card?.cardType === "plan") {
+    return "plan";
+  }
+
+  if (effectiveCardId === "vote_card_1") {
+    return "time";
+  }
+
+  if (effectiveCardId === "place_vote_card_1") {
+    return "place";
+  }
+
+  if (effectiveCardId === "confirm_card_1" || card?.cardType === "confirm") {
+    return "confirm";
+  }
+
+  if (card?.cardType === "vote") {
+    return card.placeVotes ? "place" : "time";
+  }
+
+  return undefined;
+}
+
+function resolveDinnerActionUpdate(
+  actionId: string,
+): { stage?: StudioDinnerStage; attendanceStatus?: StudioAttendanceStatus } | undefined {
+  if (/vote_join|enter_time_vote|maybe_to_time/.test(actionId)) {
+    return { stage: "time", attendanceStatus: "joined" };
+  }
+
+  if (/maybe_join|maybe_watch/.test(actionId)) {
+    return { stage: "plan", attendanceStatus: "maybe" };
+  }
+
+  if (/decline/.test(actionId)) {
+    return { attendanceStatus: "declined" };
+  }
+
+  if (/enter_place_vote|place_vote/.test(actionId)) {
+    return { stage: "place" };
+  }
+
+  if (/confirm/.test(actionId)) {
+    return { stage: "confirm" };
+  }
+
+  return undefined;
+}
+
+function normalizeDinnerEventTitle(title?: string): string | undefined {
+  const normalized = title?.replace(/\s*·.*$/, "").trim();
+
+  return normalized && normalized.length > 0 ? normalized : undefined;
 }
 
 function extractTimeOption(text: string): string | undefined {

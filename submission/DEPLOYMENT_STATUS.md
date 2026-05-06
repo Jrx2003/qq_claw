@@ -12,7 +12,7 @@ Vercel production:
 
 Latest verified production deployment on 2026-05-06:
 
-- Deployment id: `dpl_3NiN2jLjeaxCqbbbXXGTwyjWLwc4`
+- Deployment id: `dpl_7Sw6AWYACnsj96BZEfhD1ydvLz1K`
 - Alias: `https://qqclaw.vercel.app`
 - `/` returns HTTP 200 and includes the looping product showcase.
 - `/judge` returns HTTP 200.
@@ -22,6 +22,8 @@ Latest verified production deployment on 2026-05-06:
 - `/studio?key=local-studio` returns HTTP 200 with free-input live LLM chat controls.
 - `/studio?key=local-studio&runtime=live` with `周六有人吃火锅吗？` returns live DeepSeek JSON with `fallbackUsed: false`, `card_draft.title: "周六火锅局 · 先确认去不去"`, and the visible first-round card does not mix time/place vote options.
 - `/studio?key=local-studio&runtime=live` with `周六有人吃烤肉吗？` returns live DeepSeek JSON with `fallbackUsed: false`, `card_draft.title: "周六烤肉局 · 先确认去不去"`, and the visible first-round card does not mix time/place vote options.
+- In `/studio?key=local-studio&runtime=live`, after `周六有人吃火锅吗？`, free input `继续时间投票` returns live DeepSeek JSON with `fallbackUsed: false` and the visible last card is a `周六火锅局` time vote card, not another attendance card.
+- In `/studio?key=local-studio&runtime=live`, after `周六有人吃火锅吗？`, free input `我可以去` records attendance and advances to a `周六火锅局` time vote card; then `继续地点投票` advances to a `周六火锅局` place vote card, both with `fallbackUsed: false`.
 - `/api/health` returns `{ "ok": true, "defaultMode": "judge", "llmRuntimeMode": "snapshot" }`.
 - `/api/llm/anonymous` with `mode: "snapshot"` returns schema-validated snapshot JSON.
 - `/api/llm/intent`, `/api/llm/anonymous`, `/api/llm/conflict`, `/api/llm/recap`, `/api/llm/game-recap`, and `/api/llm/studio-conversation` with `mode: "live"` return schema-validated DeepSeek JSON with `fallbackUsed: false`.

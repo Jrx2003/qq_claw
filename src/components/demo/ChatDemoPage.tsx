@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FlaskConical, Home, PanelLeft } from "lucide-react";
@@ -16,7 +16,9 @@ import {
   buildStudioSceneActionMessages,
   buildStudioSuggestionActions,
   buildStudioTurnMessages,
+  resolveNextStudioThreadState,
   resolveStudioCardId,
+  type StudioThreadState,
 } from "@/lib/scenario-engine/studioConversation";
 import { sceneTextArray } from "@/lib/sceneMeta";
 import { useDemoStore } from "@/lib/state/demoStore";
@@ -69,6 +71,7 @@ export function ChatDemoPage({
   const [studioCards, setStudioCards] = useState<Map<string, DemoCard>>(() => new Map());
   const [studioPending, setStudioPending] = useState(false);
   const [studioTurnIndex, setStudioTurnIndex] = useState(0);
+  const studioThreadStateRef = useRef<StudioThreadState>({});
 
   const actorList = useMemo(() => Array.from(actors.values()), [actors]);
   const effectiveMode = showStudioTools ? "studio" : defaultMode === "judge" ? "judge" : mode;
@@ -126,6 +129,7 @@ export function ChatDemoPage({
     setStudioMessages([]);
     setStudioActions([]);
     setStudioCards(new Map());
+    studioThreadStateRef.current = {};
     setStudioTurnIndex(0);
   }, [sceneId]);
 
@@ -157,6 +161,7 @@ export function ChatDemoPage({
     setStudioTurnIndex(nextTurnIndex);
     setStudioPending(true);
     setStudioActions([]);
+    const currentStudioThreadState = studioThreadStateRef.current;
     setStudioMessages((current) => [
       ...current,
       ...buildStudioPendingMessages({
@@ -187,6 +192,7 @@ export function ChatDemoPage({
             text: message.text,
             cardId: message.cardId,
           })),
+          studioState: currentStudioThreadState,
           userText: text,
           availableFunctions: ["intent", "anonymous", "conflict", "recap", "game-recap"],
         },
@@ -199,6 +205,7 @@ export function ChatDemoPage({
           text: message.text,
           cardId: message.cardId,
         })),
+        threadState: currentStudioThreadState,
       });
       const dynamicCard = buildStudioDynamicCard({
         baseCard: cardId ? cards.get(cardId) : undefined,
@@ -206,8 +213,10 @@ export function ChatDemoPage({
         turnIndex: nextTurnIndex,
         userText: text,
         cardDraft: response.data.card_draft,
+        threadState: currentStudioThreadState,
       });
       const renderedCardId = dynamicCard?.id ?? cardId;
+      const renderedCard = dynamicCard ?? (cardId ? cards.get(cardId) : undefined);
       const nextMessages = buildStudioTurnMessages({
         turnIndex: nextTurnIndex,
         userText: text,
@@ -222,6 +231,12 @@ export function ChatDemoPage({
       if (dynamicCard) {
         setStudioCards((current) => new Map(current).set(dynamicCard.id, dynamicCard));
       }
+      studioThreadStateRef.current = resolveNextStudioThreadState({
+        currentState: currentStudioThreadState,
+        userText: text,
+        cardId,
+        card: renderedCard,
+      });
       setStudioMessages((current) => [...current, ...nextMessages]);
       setStudioActions(buildStudioSuggestionActions(chips));
     } catch (caught) {
@@ -271,19 +286,59 @@ export function ChatDemoPage({
           setStudioMessages([]);
           setStudioActions([]);
           setStudioCards(new Map());
+          studioThreadStateRef.current = {};
           triggerAction(actionId);
           return;
         }
 
         const nextTurnIndex = studioTurnIndex + 1;
         const nextBeat = findBeat(currentScene, authoredAction.nextBeatId);
+        const actionThreadState = resolveNextStudioThreadState({
+          currentState: studioThreadStateRef.current,
+          userText: authoredAction.label,
+          actionId: authoredAction.actionId,
+        });
+        const dynamicCards = new Map<string, DemoCard>();
+        const cardIdMap = Object.fromEntries(
+          (nextBeat.messages ?? [])
+            .map((message) => message.cardId)
+            .filter((nextCardId): nextCardId is string => Boolean(nextCardId))
+            .map((nextCardId) => {
+              const dynamicCard = buildStudioDynamicCard({
+                baseCard: cards.get(nextCardId),
+                cardId: nextCardId,
+                turnIndex: nextTurnIndex,
+                userText: authoredAction.label,
+                threadState: actionThreadState,
+              });
+
+              if (dynamicCard) {
+                dynamicCards.set(dynamicCard.id, dynamicCard);
+                return [nextCardId, dynamicCard.id] as const;
+              }
+
+              return [nextCardId, nextCardId] as const;
+            }),
+        );
+        const lastDynamicCard = Array.from(dynamicCards.values()).at(-1);
+        const lastStaticCardId = (nextBeat.messages ?? []).findLast((message) => message.cardId)?.cardId;
 
         setStudioTurnIndex(nextTurnIndex);
+        if (dynamicCards.size > 0) {
+          setStudioCards((current) => new Map([...current, ...dynamicCards]));
+        }
+        studioThreadStateRef.current = resolveNextStudioThreadState({
+          currentState: actionThreadState,
+          userText: authoredAction.label,
+          cardId: lastStaticCardId,
+          card: lastDynamicCard ?? (lastStaticCardId ? cards.get(lastStaticCardId) : undefined),
+        });
         setStudioMessages((current) => [
           ...current,
           ...buildStudioSceneActionMessages({
             turnIndex: nextTurnIndex,
             beat: nextBeat,
+            cardIdMap,
           }),
         ]);
         setStudioActions(nextBeat.availableActions ?? []);

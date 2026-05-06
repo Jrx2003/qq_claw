@@ -346,9 +346,11 @@
       "painPoint": "每次重新约都要重新问时间、地点和口味，组织成本重复发生。",
       "expectedEffect": "用户能看到“下次再约”不是口号，而是复用上次低风险配置。",
       "messages": [
-        { "id": "p1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已记住：周五 19:00、宿舍附近、微辣烤肉优先。下次有人说想聚，我会先给这个低打扰建议。", "delayMs": 420 }
+        { "id": "p1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已记住：周五 19:00、宿舍附近、微辣烤肉优先。下次有人说想聚，我会先给这个低打扰建议。", "delayMs": 420 },
+        { "id": "p2", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "这个偏好留着，下次就不用从头问一轮了", "delayMs": 860 }
       ],
       "availableActions": [
+        { "actionId": "dinner.return_recap_from_preference", "label": "回到回忆卡", "kind": "scene-switch", "nextBeatId": "dinner.recap" },
         { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }
       ]
     },
@@ -360,9 +362,11 @@
       "painPoint": "精彩活动经常只停留在聊天记录里，很快被新消息淹没。",
       "expectedEffect": "用户看到保存后会形成可回看的活动资产。",
       "messages": [
-        { "id": "save_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已保存到群回忆：周五烤肉局、8 人、木屋烧烤、关键词“老周终于没鸽”。", "delayMs": 420 }
+        { "id": "save_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已保存到群回忆：周五烤肉局、8 人、木屋烧烤、关键词“老周终于没鸽”。", "delayMs": 420 },
+        { "id": "save_2", "actorId": "naicha", "type": "text", "side": "left", "text": "下次翻群回忆就能直接找到这家，不用再爬聊天记录", "delayMs": 860 }
       ],
       "availableActions": [
+        { "actionId": "dinner.return_recap_from_save", "label": "回到回忆卡", "kind": "scene-switch", "nextBeatId": "dinner.recap" },
         { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }
       ]
     },
@@ -374,9 +378,11 @@
       "painPoint": "活动结束后如果没有总结，下次再约又要从零开始。",
       "expectedEffect": "活动沉淀、偏好复用和下一次邀请形成闭环。",
       "messages": [
-        { "id": "summary_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "群总结：这次成局靠近宿舍、时间明确、口味轻辣，下次可直接复用为“周五轻松饭局”。", "delayMs": 420 }
+        { "id": "summary_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "群总结：这次成局靠近宿舍、时间明确、口味轻辣，下次可直接复用为“周五轻松饭局”。", "delayMs": 420 },
+        { "id": "summary_2", "actorId": "akai", "type": "text", "side": "left", "text": "这句可以，既有结果也有下次怎么约", "delayMs": 860 }
       ],
       "availableActions": [
+        { "actionId": "dinner.return_recap_from_summary", "label": "回到回忆卡", "kind": "scene-switch", "nextBeatId": "dinner.recap" },
         { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }
       ]
     },

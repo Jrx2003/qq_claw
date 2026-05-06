@@ -231,6 +231,63 @@ describe("fixture contract", () => {
     }
   });
 
+  it("routes every reachable dinner card button back to the memory beat", () => {
+    const dinner = loadScene("dinner_core");
+    const cards = loadCardMap();
+    const timeline = getTimeline(dinner);
+    const reachableBeatIds = collectReachableBeats(timeline, timeline.entryBeatId);
+    const actionsById = new Map(
+      timeline.beats.flatMap((beat) => beat.availableActions ?? []).map((action) => [action.actionId, action]),
+    );
+
+    for (const beat of timeline.beats) {
+      if (!reachableBeatIds.has(beat.id)) {
+        continue;
+      }
+
+      for (const message of beat.messages ?? []) {
+        if (message.type !== "card" || !message.cardId) {
+          continue;
+        }
+
+        const card = cards.get(message.cardId);
+
+        for (const button of card?.buttons ?? []) {
+          const action = actionsById.get(button.actionId ?? "");
+
+          expect(action, `${beat.id}/${card?.id}/${button.label} should bind to a dinner action`).toBeTruthy();
+          expect(
+            action ? canReachBeat(timeline, action.nextBeatId, "dinner.recap") : false,
+            `${beat.id}/${card?.id}/${button.label} should still end at dinner.recap`,
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("routes every reachable dinner choice back to the final memory outcome", () => {
+    const dinner = loadScene("dinner_core");
+    const timeline = getTimeline(dinner);
+    const reachableBeatIds = collectReachableBeats(timeline, timeline.entryBeatId);
+
+    for (const beat of timeline.beats) {
+      if (!reachableBeatIds.has(beat.id)) {
+        continue;
+      }
+
+      for (const action of beat.availableActions ?? []) {
+        if (action.actionId.includes("replay")) {
+          continue;
+        }
+
+        expect(
+          canReachBeat(timeline, action.nextBeatId, "dinner.recap"),
+          `${beat.id}/${action.label} should be able to return to dinner.recap`,
+        ).toBe(true);
+      }
+    }
+  });
+
   it("offers graceful abandon paths after voting and confirmation", () => {
     const dinner = loadScene("dinner_core");
     const actionLabelsByBeat = new Map(
@@ -454,6 +511,33 @@ function collectReachableBefore(
     const beatId = queue.shift() ?? "";
 
     if (beatId === stopBeatId || seen.has(beatId)) {
+      continue;
+    }
+
+    seen.add(beatId);
+
+    for (const action of beatsById.get(beatId)?.availableActions ?? []) {
+      if (!action.actionId.includes("replay")) {
+        queue.push(action.nextBeatId);
+      }
+    }
+  }
+
+  return seen;
+}
+
+function collectReachableBeats(
+  timeline: ReturnType<typeof getTimeline>,
+  entryBeatId: string,
+): Set<string> {
+  const beatsById = new Map(timeline.beats.map((beat) => [beat.id, beat]));
+  const seen = new Set<string>();
+  const queue = [entryBeatId];
+
+  while (queue.length > 0) {
+    const beatId = queue.shift() ?? "";
+
+    if (seen.has(beatId)) {
       continue;
     }
 

@@ -3,8 +3,8 @@
   "title": "匿名倡议",
   "groupName": "507宿舍干饭群",
   "onlineText": "8 人在线",
-  "progressLabel": "私下委托 → 官方代发 → 群内响应 → 可升级投票",
-  "stageLabels": ["委托", "代发", "响应", "投票"],
+  "progressLabel": "私下委托 → 官方代发 → 收集意向 → 成局草稿",
+  "stageLabels": ["委托", "代发", "意向", "成局"],
   "modeDefault": "judge",
   "runtimeDefault": "snapshot",
   "triggerPreset": "balanced",
@@ -14,8 +14,8 @@
       "id": "anonymous.seed",
       "description": "用户不想暴露身份，但想让群里周末轻松聚一下",
       "designIntent": "把不方便直接说出口的想法交给官方 Agent 代发，降低发起人的社交压力。",
-      "painPoint": "很多群活动不是没人想去，而是没人想成为发起人或承担失败尴尬。",
-      "expectedEffect": "评委能看懂匿名倡议不是匿名吐槽，而是帮正向活动迈出第一步。",
+      "painPoint": "想发起活动，但不想成为出头的人。",
+      "expectedEffect": "匿名倡议先降低尴尬感，再继续推进成局。",
       "llmTask": {
         "taskName": "anonymous",
         "schemaKey": "anonymous_proposal",
@@ -51,66 +51,86 @@
       "id": "anonymous.interest",
       "description": "群成员在不知道发起人的前提下表达兴趣",
       "designIntent": "兴趣按钮触发真实群内反馈，让匿名代发进入可继续推进的状态。",
-      "painPoint": "发起人最怕没人响应，匿名代发需要尽快产生低压力反馈。",
-      "expectedEffect": "评委能看到有人响应后，虾局长可以继续升级投票。",
+      "painPoint": "匿名想法最怕没人接话。",
+      "expectedEffect": "有人响应后，虾局长继续收集时间与地点。",
       "messages": [
         { "id": "a_i1", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "这个可以！不一定要谁来当组织者", "delayMs": 420 },
-        { "id": "a_i2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先记录为有兴趣，不展示真实发起人。", "delayMs": 860 }
+        { "id": "a_i2", "actorId": "naicha", "type": "text", "side": "left", "text": "如果是附近吃饭我也可以", "delayMs": 820 },
+        { "id": "a_i3", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已记录 2 个积极响应。我先把它升级成不暴露发起人的小投票。", "delayMs": 1260 }
       ],
       "availableActions": [
         { "actionId": "anonymous.upgrade_vote", "label": "升级成小投票", "kind": "keyboard", "nextBeatId": "anonymous.vote", "autoplayPriority": 1 },
-        { "actionId": "anonymous.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "anonymous.seed" }
+        { "actionId": "anonymous.ask_time", "label": "先收时间", "kind": "keyboard", "nextBeatId": "anonymous.time", "autoplayPriority": 2 }
       ]
     },
     {
       "id": "anonymous.time",
       "description": "匿名倡议补时间",
       "designIntent": "把“看时间”变成独立逻辑，证明卡片选项不是同一个跳转。",
-      "painPoint": "匿名想法如果没有时间范围，很难变成真正活动。",
-      "expectedEffect": "评委看到匿名链路也能向时间投票推进。",
+      "painPoint": "没有时间范围，匿名想法很难落地。",
+      "expectedEffect": "先收时间，再自然进入地点和人数。",
       "messages": [
-        { "id": "a_t1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先收两个低压力时间：周五晚饭后、周六下午。只展示统计，不展示发起人。", "delayMs": 420 }
+        { "id": "a_t1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先收两个低压力时间：周五晚饭后、周六下午。只展示统计，不展示发起人。", "delayMs": 420 },
+        { "id": "a_t2", "actorId": "laozhou", "type": "text", "side": "left", "text": "周六下午更稳，我周五有课", "delayMs": 860 }
       ],
       "availableActions": [
-        { "actionId": "anonymous.upgrade_vote", "label": "升级成小投票", "kind": "keyboard", "nextBeatId": "anonymous.vote", "autoplayPriority": 1 },
-        { "actionId": "anonymous.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "anonymous.seed" }
+        { "actionId": "anonymous.pick_place", "label": "继续看地点", "kind": "keyboard", "nextBeatId": "anonymous.place", "autoplayPriority": 1 },
+        { "actionId": "anonymous.upgrade_vote", "label": "升级成小投票", "kind": "keyboard", "nextBeatId": "anonymous.vote", "autoplayPriority": 2 }
       ]
     },
     {
       "id": "anonymous.place",
       "description": "匿名倡议补地点",
       "designIntent": "把“看地点”变成预算和距离约束，帮助匿名想法落地。",
-      "painPoint": "匿名提议太宽泛时，群成员不知道自己该不该响应。",
-      "expectedEffect": "评委看到虾局长会主动降低参与成本。",
+      "painPoint": "地点过远或太贵，会让响应变少。",
+      "expectedEffect": "用低压力候选项继续推进。",
       "messages": [
-        { "id": "a_p1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先给三个不尴尬选项：宿舍附近、预算 50 内、不需要提前订位。", "delayMs": 420 }
+        { "id": "a_p1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先给三个不尴尬选项：宿舍附近、预算 50 内、不需要提前订位。", "delayMs": 420 },
+        { "id": "a_p2", "actorId": "dazhuang", "type": "text", "side": "left", "text": "预算 50 内可以，别太正式就行", "delayMs": 860 }
       ],
       "availableActions": [
         { "actionId": "anonymous.upgrade_vote", "label": "升级成小投票", "kind": "keyboard", "nextBeatId": "anonymous.vote", "autoplayPriority": 1 },
-        { "actionId": "anonymous.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "anonymous.seed" }
+        { "actionId": "anonymous.soft_close", "label": "生成成局草稿", "kind": "keyboard", "nextBeatId": "anonymous.close_draft", "autoplayPriority": 2 }
       ]
     },
     {
       "id": "anonymous.watch",
       "description": "匿名倡议先保留",
       "designIntent": "先围观也要被系统接住，避免用户被迫表态。",
-      "painPoint": "有些群成员只是暂时不确定，但不想让提议消失。",
-      "expectedEffect": "评委看到轻量参与和延后推进也在产品设计范围内。",
+      "painPoint": "有人暂时不确定，但又不想让提议消失。",
+      "expectedEffect": "弱响应也能转成后续的低压力推进。",
       "messages": [
-        { "id": "a_w1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先保留这个想法，等群里兴趣更明确时再升级，不会暴露发起人。", "delayMs": 420 }
+        { "id": "a_w1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先保留这个想法，不暴露发起人。等有人点兴趣，我再自动升级成时间投票。", "delayMs": 420 },
+        { "id": "a_w2", "actorId": "xiaoma", "type": "text", "side": "left", "text": "先看时间吧，如果周末我可能去", "delayMs": 860 }
       ],
       "availableActions": [
-        { "actionId": "anonymous.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "anonymous.seed" }
+        { "actionId": "anonymous.watch_to_time", "label": "顺势收时间", "kind": "keyboard", "nextBeatId": "anonymous.time", "autoplayPriority": 1 },
+        { "actionId": "anonymous.watch_to_place", "label": "先给地点范围", "kind": "keyboard", "nextBeatId": "anonymous.place", "autoplayPriority": 2 }
       ]
     },
     {
       "id": "anonymous.vote",
       "description": "匿名倡议升级投票",
       "designIntent": "把匿名代发继续推进为轻量投票，形成从想法到行动的闭环。",
-      "painPoint": "匿名想法如果无法升级，只是多了一条消息，不会真正成局。",
-      "expectedEffect": "评委看到匿名能力也可以承接成局主流程。",
+      "painPoint": "匿名想法只代发一句，仍然很难成局。",
+      "expectedEffect": "匿名能力也能承接成局主流程。",
       "messages": [
-        { "id": "a_v1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我已把匿名倡议升级成轻量投票：想参加、看时间、看地点、先围观。发起人身份不会在群里展示。", "delayMs": 420 }
+        { "id": "a_v1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我已把匿名倡议升级成轻量投票：周六下午、宿舍附近、预算 50 内。发起人身份不会展示。", "delayMs": 420 },
+        { "id": "a_v2", "actorId": "naicha", "type": "text", "side": "left", "text": "这样挺舒服，我投周六下午", "delayMs": 860 }
+      ],
+      "availableActions": [
+        { "actionId": "anonymous.soft_close", "label": "生成成局草稿", "kind": "keyboard", "nextBeatId": "anonymous.close_draft", "autoplayPriority": 1 },
+        { "actionId": "anonymous.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "anonymous.seed" }
+      ]
+    },
+    {
+      "id": "anonymous.close_draft",
+      "description": "匿名成局草稿",
+      "designIntent": "把匿名倡议转成可执行草稿，但仍不暴露发起人。",
+      "painPoint": "匿名提议需要有人继续承担收口。",
+      "expectedEffect": "成局动作由虾局长承接。",
+      "messages": [
+        { "id": "a_c1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "成局草稿：周六下午，宿舍附近轻松饭局，预算 50 内。我可以继续收人数并提醒未回复的人。", "delayMs": 420 }
       ],
       "availableActions": [
         { "actionId": "anonymous.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "anonymous.seed" }

@@ -114,14 +114,6 @@ export function ChatDemoPage({
     return () => window.clearTimeout(timeout);
   }, [autoplayRunning, autoplayTick, messages.length, sceneId]);
 
-  const handleMode = (nextMode: AppMode) => {
-    switchMode(nextMode);
-    setAutoplayRunning(false);
-    if (nextMode === "studio") {
-      setDebugOpen(true);
-    }
-  };
-
   const handleNext = () => {
     const nextAction = availableActions.find((action) => action.kind !== "scene-switch");
     if (nextAction) {
@@ -172,20 +164,17 @@ export function ChatDemoPage({
           <DemoToolbar
             autoplayRunning={autoplayRunning}
             debugOpen={debugOpen}
-            mode={mode}
             onAutoplay={() => {
               switchScene(currentScene.id, mode);
               setAutoplayRunning(true);
             }}
             onDebug={() => setDebugOpen(!debugOpen)}
-            onMode={handleMode}
             onNext={handleNext}
             onReplay={replay}
-            onRuntimeMode={switchRuntimeMode}
             onScene={(nextSceneId) => switchScene(nextSceneId)}
+            painPoint={currentBeat.painPoint}
             scene={currentScene}
             sceneManifest={sceneManifest}
-            runtimeMode={runtimeMode}
             showStudioTools={showStudioTools}
           />
           <div className="grid grid-cols-4 gap-2">
@@ -202,24 +191,6 @@ export function ChatDemoPage({
               </div>
             ))}
           </div>
-          <section className="rounded-2xl border border-white/80 bg-white/90 p-4 shadow-card">
-            <p className="text-xs font-bold uppercase text-blue-500">这一幕为什么这样设计</p>
-            <h3 className="mt-2 text-lg font-black text-slate-950">{currentBeat.act ?? currentBeat.description}</h3>
-            <div className="mt-3 space-y-3 text-sm leading-6 text-slate-650">
-              <p>
-                <span className="font-bold text-slate-900">痛点：</span>
-                {currentBeat.painPoint}
-              </p>
-              <p>
-                <span className="font-bold text-slate-900">设计意图：</span>
-                {currentBeat.designIntent}
-              </p>
-              <p>
-                <span className="font-bold text-slate-900">期望效果：</span>
-                {currentBeat.expectedEffect}
-              </p>
-            </div>
-          </section>
           {showStudioTools ? (
             <StudioPanel runtimeMode={runtimeMode} sceneId={sceneId} />
           ) : null}

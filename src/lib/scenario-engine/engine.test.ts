@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "fs";
+import path from "path";
 
 import {
   advanceStep,
@@ -98,12 +100,50 @@ describe("fixture contract", () => {
     }
   });
 
-  it("adds judge-facing design explanation to every beat", () => {
+  it("keeps judge-facing beat copy limited to concise pain points", () => {
     for (const scene of loadScenes()) {
       for (const beat of getTimeline(scene).beats) {
-        expect(beat.designIntent, `${scene.id}/${beat.id} needs designIntent`).toBeTruthy();
         expect(beat.painPoint, `${scene.id}/${beat.id} needs painPoint`).toBeTruthy();
-        expect(beat.expectedEffect, `${scene.id}/${beat.id} needs expectedEffect`).toBeTruthy();
+        expect(beat.painPoint.length, `${scene.id}/${beat.id} painPoint should stay concise`).toBeLessThanOrEqual(48);
+
+        for (const value of collectVisibleBeatText(beat)) {
+          expect(value, `${scene.id}/${beat.id} contains judge-facing forbidden copy`).not.toContain("评委");
+        }
+      }
+    }
+  });
+
+  it("keeps LLM mode switching out of the right-side demo toolbar", () => {
+    const toolbarSource = readFileSync(path.join(process.cwd(), "src/components/demo/DemoToolbar.tsx"), "utf8");
+    const pageSource = readFileSync(path.join(process.cwd(), "src/components/demo/ChatDemoPage.tsx"), "utf8");
+    const homeSource = readFileSync(path.join(process.cwd(), "src/app/page.tsx"), "utf8");
+
+    expect(toolbarSource).not.toContain("onMode");
+    expect(toolbarSource).not.toContain("真实 LLM 工作台");
+    expect(toolbarSource).not.toContain("无 LLM 评审");
+    expect(pageSource).not.toContain("设计意图");
+    expect(pageSource).not.toContain("期望效果");
+    expect(homeSource).not.toContain("评委");
+  });
+
+  it("continues side-branch flows instead of ending after one reply", () => {
+    for (const sceneId of ["anonymous_delegate", "conflict_bridge", "dinner_core"] as const) {
+      const scene = loadScene(sceneId);
+      const entryBeatId = sceneId === "dinner_core" ? "dinner.flash_anonymous" : scene.entryBeatId;
+      const entry = getTimeline(scene).beats.find((beat) => beat.id === entryBeatId);
+
+      expect(entry).toBeTruthy();
+
+      for (const action of entry?.availableActions ?? []) {
+        const nextBeat = getTimeline(scene).beats.find((beat) => beat.id === action.nextBeatId);
+        const followUpActions = (nextBeat?.availableActions ?? []).filter(
+          (candidate) => !candidate.actionId.includes("replay"),
+        );
+
+        expect(
+          followUpActions.length,
+          `${scene.id}/${action.actionId} should keep the branch moving after the first response`,
+        ).toBeGreaterThan(0);
       }
     }
   });
@@ -171,3 +211,13 @@ describe("demo engine", () => {
     ]);
   });
 });
+
+function collectVisibleBeatText(beat: ReturnType<typeof getTimeline>["beats"][number]): string[] {
+  return [
+    beat.description,
+    beat.act,
+    beat.painPoint,
+    ...((beat.messages ?? []).map((message) => message.text)),
+    ...((beat.availableActions ?? []).map((action) => action.label)),
+  ].filter((value): value is string => Boolean(value));
+}

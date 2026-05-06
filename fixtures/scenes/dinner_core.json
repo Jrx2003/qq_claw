@@ -14,9 +14,9 @@
       "id": "dinner.seed",
       "act": "群聊自然起势",
       "description": "自然聊天起势",
-      "designIntent": "先让评委看到真实群聊里的模糊意图，而不是直接展示工具卡片。",
+      "designIntent": "先让用户看到真实群聊里的模糊意图，而不是直接展示工具卡片。",
       "painPoint": "群里有想吃饭的信号，但没人愿意承担收口、问时间、定地点的组织责任。",
-      "expectedEffect": "评委能在第一屏理解虾局长要解决的是社交推进问题，不是普通聊天机器人。",
+      "expectedEffect": "用户能在第一屏理解虾局长要解决的是社交推进问题，不是普通聊天机器人。",
       "llmTask": {
         "taskName": "intent",
         "schemaKey": "intent_extraction",
@@ -43,7 +43,7 @@
       "description": "用户触发 bot 收口",
       "designIntent": "把散落的聊天内容收束成一个可操作的成局卡，让组织动作从人转移给官方 Agent。",
       "painPoint": "群成员常说“我都行”，但缺少一个低压力的下一步。",
-      "expectedEffect": "评委能看到时间、地点、参加意向和待补全信息被一次性结构化。",
+      "expectedEffect": "用户能看到时间、地点、参加意向和待补全信息被一次性结构化。",
       "messages": [
         { "id": "u1", "actorId": "user_self", "type": "text", "side": "right", "text": "@虾局长 帮我收口这局" },
         { "id": "t1", "actorId": "bot_xjz", "type": "typing", "side": "left", "text": "虾局长正在收口中...", "delayMs": 350 },
@@ -63,7 +63,7 @@
       "description": "用户先补时间",
       "designIntent": "让一个按钮只承担一种明确动作，避免所有选项都跳到同一个结果。",
       "painPoint": "时间不确定会拖住整局，尤其有人有课或临时安排。",
-      "expectedEffect": "点击时间投票后，群里出现逐条响应，评委看到时间维度被真实推进。",
+      "expectedEffect": "点击时间投票后，群里出现逐条响应，用户看到时间维度被真实推进。",
       "messages": [
         { "id": "u_time", "actorId": "user_self", "type": "text", "side": "right", "text": "我投周五 19:00" },
         { "id": "m6", "actorId": "xiaoma", "type": "text", "side": "left", "text": "19:00 我也可以", "delayMs": 420 },
@@ -83,7 +83,7 @@
       "description": "用户先补地点",
       "designIntent": "地点按钮走独立分支，体现 Agent 会按用户关心的维度推进。",
       "painPoint": "地点常卡在距离、排队、口味差异上，最后变成没人拍板。",
-      "expectedEffect": "评委能看到地点选择被转成可投票的候选项，并带出距离这个变化因素。",
+      "expectedEffect": "用户能看到地点选择被转成可投票的候选项，并带出距离这个变化因素。",
       "messages": [
         { "id": "u_place", "actorId": "user_self", "type": "text", "side": "right", "text": "我更想选木屋，离宿舍近" },
         { "id": "m_place_1", "actorId": "naicha", "type": "text", "side": "left", "text": "木屋可以，回来也方便", "delayMs": 420 },
@@ -103,7 +103,7 @@
       "description": "用户表达参加",
       "designIntent": "参加按钮不是装饰，它会改变人数和后续提醒策略。",
       "painPoint": "群里常有人口头说想去，但没有被记录，组织者还要反复确认。",
-      "expectedEffect": "评委能看到“我要参加”会进入人数统计，而不是和投票按钮共用结果。",
+      "expectedEffect": "用户能看到“我要参加”会进入人数统计，而不是和投票按钮共用结果。",
       "messages": [
         { "id": "u_join", "actorId": "user_self", "type": "text", "side": "right", "text": "我参加，能接受微辣" },
         { "id": "b_join_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已记录你参加，并把“微辣可接受”写入本次偏好。", "delayMs": 420 },
@@ -122,7 +122,7 @@
       "description": "单聊补全缺口",
       "designIntent": "把公开群聊里的追问压力移到低打扰私聊，保护群氛围。",
       "painPoint": "组织者不想在群里反复点名，也怕催人显得尴尬。",
-      "expectedEffect": "评委能理解虾局长不仅发投票，也能承担柔性的组织动作。",
+      "expectedEffect": "用户能理解虾局长不仅发投票，也能承担柔性的组织动作。",
       "messages": [
         { "id": "dm_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我去单聊阿凯和老周补时间，不在群里公开点名。", "delayMs": 420 },
         { "id": "dm_2", "actorId": "laozhou", "type": "text", "side": "left", "text": "我 19:00 后可以，别太辣就行", "delayMs": 900 }
@@ -138,7 +138,7 @@
       "description": "投票继续滚动",
       "designIntent": "用逐条消息替代整页状态跳转，让演示更像真实群聊。",
       "painPoint": "真实群聊不会一次性变成下一张 slide，而是成员陆续表态。",
-      "expectedEffect": "评委能看到其他群成员的响应一条条出现，降低 demo 感。",
+      "expectedEffect": "用户能看到其他群成员的响应一条条出现，降低 demo 感。",
       "messages": [
         { "id": "mv_1", "actorId": "ayuan", "type": "text", "side": "left", "text": "我刚看到，19:00 + 木屋 OK", "delayMs": 420 },
         { "id": "mv_2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "现在 8/10 已回复，还差 2 位。我建议再轻提醒一次。", "delayMs": 880 }
@@ -154,7 +154,7 @@
       "description": "轻提醒",
       "designIntent": "把催促设计成官方低打扰提醒，而不是用户亲自追问。",
       "painPoint": "未回复成员会拖慢成局，但直接催人容易破坏关系。",
-      "expectedEffect": "评委能看到 Agent 在社交压力最高的环节承担中介角色。",
+      "expectedEffect": "用户能看到 Agent 在社交压力最高的环节承担中介角色。",
       "messages": [
         { "id": "rp_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我轻提醒了还没回复的同学：只需要点一下能不能来，不会公开催促。", "delayMs": 420 },
         { "id": "rp_2", "actorId": "akai", "type": "text", "side": "left", "text": "我来！刚才在路上", "delayMs": 920 }
@@ -170,7 +170,7 @@
       "description": "确认前详情",
       "designIntent": "在最终成局前把时间、地点、人数、偏好摊开，避免误会。",
       "painPoint": "群活动最容易在最后一刻因为信息不一致翻车。",
-      "expectedEffect": "评委能看到虾局长给的是可执行确认，不是泛泛总结。",
+      "expectedEffect": "用户能看到虾局长给的是可执行确认，不是泛泛总结。",
       "messages": [
         { "id": "cd_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "详情：周五 19:00，木屋烧烤，8 人，微辣优先，老周 19:05 到。", "delayMs": 420 },
         { "id": "cd_2", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "这个信息够清楚，可以定", "delayMs": 880 }
@@ -186,7 +186,7 @@
       "description": "确认成局",
       "designIntent": "把投票结果转成可执行安排，并继续提供名单、提醒、补充说明三个动作。",
       "painPoint": "投票结束不等于成局，仍需要有人确认地点、人数和提醒。",
-      "expectedEffect": "评委能看到虾局长承担了组织闭环，而不只是生成一张投票卡。",
+      "expectedEffect": "用户能看到虾局长承担了组织闭环，而不只是生成一张投票卡。",
       "messages": [
         { "id": "m8", "actorId": "akai", "type": "text", "side": "left", "text": "那就定了🎉", "delayMs": 420 },
         { "id": "m9", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "周五见🤘", "delayMs": 820 },
@@ -203,7 +203,7 @@
       "id": "dinner.roster",
       "act": "查看名单",
       "description": "名单确认",
-      "designIntent": "名单按钮只展示参与人和迟到风险，帮助评委理解按钮有真实分工。",
+      "designIntent": "名单按钮只展示参与人和迟到风险，帮助用户理解按钮有真实分工。",
       "painPoint": "组织者常要单独维护谁来、谁晚到、谁有口味限制。",
       "expectedEffect": "点击查看名单后会出现名单信息，而不是直接跳到回忆卡。",
       "messages": [
@@ -219,7 +219,7 @@
       "description": "出发提醒",
       "designIntent": "提醒按钮触发真正的组织消息，体现官方 Agent 的执行能力。",
       "painPoint": "成局后还会有人忘记时间或地点，导致临出发再混乱。",
-      "expectedEffect": "评委看到虾局长能把安排继续推到出发前，而不是停在确认页。",
+      "expectedEffect": "用户看到虾局长能把安排继续推到出发前，而不是停在确认页。",
       "messages": [
         { "id": "reminder_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已设置 18:30 出发提醒：带学生证，木屋烧烤门口集合。", "delayMs": 420 }
       ],
@@ -233,7 +233,7 @@
       "description": "补充偏好",
       "designIntent": "补充说明按钮处理临时变量，让演示里出现变化因素。",
       "painPoint": "真实活动常有口味、迟到、天气等小变量，没有记录就会被遗忘。",
-      "expectedEffect": "评委能看到虾局长会把微辣、近距离、迟到等信息沉淀到本次安排。",
+      "expectedEffect": "用户能看到虾局长会把微辣、近距离、迟到等信息沉淀到本次安排。",
       "messages": [
         { "id": "note_1", "actorId": "user_self", "type": "text", "side": "right", "text": "补充：尽量别太辣，老周会晚到一点" },
         { "id": "note_2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "收到，我已把“微辣”和“老周晚到 5 分钟”写进提醒。", "delayMs": 520 }
@@ -248,7 +248,7 @@
       "description": "局后回忆卡",
       "designIntent": "把一次活动转成可复用的关系资产，而不是让群聊热度自然消失。",
       "painPoint": "活动结束后没有沉淀，下次再约又要从零开始。",
-      "expectedEffect": "评委能看到回忆卡和偏好复用是下一次成局的起点。",
+      "expectedEffect": "用户能看到回忆卡和偏好复用是下一次成局的起点。",
       "llmTask": {
         "taskName": "recap",
         "schemaKey": "recap_card",
@@ -275,7 +275,7 @@
       "description": "复用上次偏好",
       "designIntent": "展示虾局长如何把一次活动的偏好带到下一次低打扰建议里。",
       "painPoint": "每次重新约都要重新问时间、地点和口味，组织成本重复发生。",
-      "expectedEffect": "评委能看到“下次再约”不是口号，而是复用上次低风险配置。",
+      "expectedEffect": "用户能看到“下次再约”不是口号，而是复用上次低风险配置。",
       "messages": [
         { "id": "p1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已记住：周五 19:00、宿舍附近、微辣烤肉优先。下次有人说想聚，我会先给这个低打扰建议。", "delayMs": 420 }
       ],
@@ -289,7 +289,7 @@
       "description": "保存活动资产",
       "designIntent": "让保存按钮产生明确反馈，避免卡片按钮看起来像摆设。",
       "painPoint": "精彩活动经常只停留在聊天记录里，很快被新消息淹没。",
-      "expectedEffect": "评委看到保存后会形成可回看的活动资产。",
+      "expectedEffect": "用户看到保存后会形成可回看的活动资产。",
       "messages": [
         { "id": "save_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已保存到群回忆：周五烤肉局、8 人、木屋烧烤、关键词“老周终于没鸽”。", "delayMs": 420 }
       ],
@@ -302,8 +302,8 @@
       "act": "生成群总结",
       "description": "群总结",
       "designIntent": "把回忆卡进一步变成轻量总结，给 PDF/录屏一个清晰收束点。",
-      "painPoint": "活动价值如果没有被总结，评委不容易看出它如何带来下一次互动。",
-      "expectedEffect": "评委看到活动沉淀、偏好复用和下一次邀请的完整闭环。",
+      "painPoint": "活动结束后如果没有总结，下次再约又要从零开始。",
+      "expectedEffect": "活动沉淀、偏好复用和下一次邀请形成闭环。",
       "messages": [
         { "id": "summary_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "群总结：这次成局靠近宿舍、时间明确、口味轻辣，下次可直接复用为“周五轻松饭局”。", "delayMs": 420 }
       ],
@@ -317,7 +317,7 @@
       "description": "匿名倡议支线入口",
       "designIntent": "在主线内快速展示支线能力，但仍让卡片按钮可点击。",
       "painPoint": "有人想发起活动却不想暴露身份，普通群工具很难处理这种社交压力。",
-      "expectedEffect": "评委能快速理解匿名倡议是同一套社交推进能力的扩展。",
+      "expectedEffect": "匿名倡议是同一套社交推进能力的扩展。",
       "messages": [
         { "id": "x1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "除了收口组局，我也可以替你匿名发起想法，不暴露真实发起人。", "delayMs": 420 },
         { "id": "x2", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "anonymous_card_1", "delayMs": 860 }
@@ -335,12 +335,14 @@
       "description": "匿名倡议有人响应",
       "designIntent": "匿名卡片里的兴趣按钮触发群内响应，证明支线不是静态截图。",
       "painPoint": "匿名想法需要先降低尴尬感，再观察真实兴趣。",
-      "expectedEffect": "评委看到官方 Agent 代发后，群成员可以自然响应。",
+      "expectedEffect": "官方 Agent 代发后，群成员可以自然响应。",
       "messages": [
-        { "id": "fi_1", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "匿名也挺好，不用谁出来背锅，我有兴趣", "delayMs": 420 }
+        { "id": "fi_1", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "匿名也挺好，不用谁出来背锅，我有兴趣", "delayMs": 420 },
+        { "id": "fi_2", "actorId": "naicha", "type": "text", "side": "left", "text": "如果是附近吃饭，我也可以看看", "delayMs": 820 }
       ],
       "availableActions": [
-        { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }
+        { "actionId": "dinner.flash_interest_time", "label": "顺势收时间", "kind": "keyboard", "nextBeatId": "dinner.flash_time" },
+        { "actionId": "dinner.flash_interest_vote", "label": "升级匿名投票", "kind": "keyboard", "nextBeatId": "dinner.flash_vote" }
       ]
     },
     {
@@ -349,12 +351,14 @@
       "description": "匿名倡议时间补全",
       "designIntent": "让看时间按钮进入轻量投票，而不是和兴趣按钮共用逻辑。",
       "painPoint": "匿名发起后如果没有下一步，很容易停在一句试探。",
-      "expectedEffect": "评委看到匿名倡议也能继续推进到可成局结构。",
+      "expectedEffect": "匿名倡议也能继续推进到可成局结构。",
       "messages": [
-        { "id": "ft_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先不公开发起人，只收大家本周五/周六哪个时间更舒服。", "delayMs": 420 }
+        { "id": "ft_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先不公开发起人，只收大家本周五/周六哪个时间更舒服。", "delayMs": 420 },
+        { "id": "ft_2", "actorId": "laozhou", "type": "text", "side": "left", "text": "周六下午更稳", "delayMs": 820 }
       ],
       "availableActions": [
-        { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }
+        { "actionId": "dinner.flash_time_place", "label": "继续看地点", "kind": "keyboard", "nextBeatId": "dinner.flash_place" },
+        { "actionId": "dinner.flash_time_vote", "label": "升级匿名投票", "kind": "keyboard", "nextBeatId": "dinner.flash_vote" }
       ]
     },
     {
@@ -363,12 +367,14 @@
       "description": "匿名倡议地点补全",
       "designIntent": "地点按钮关注线下执行成本，让匿名想法也能变得具体。",
       "painPoint": "匿名倡议如果地点过远或过贵，会让响应变少。",
-      "expectedEffect": "评委看到系统会优先给低压力地点候选。",
+      "expectedEffect": "系统会优先给低压力地点候选。",
       "messages": [
-        { "id": "fp_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先给低压力地点：宿舍附近、预算 50 内、无需提前订位。", "delayMs": 420 }
+        { "id": "fp_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先给低压力地点：宿舍附近、预算 50 内、无需提前订位。", "delayMs": 420 },
+        { "id": "fp_2", "actorId": "dazhuang", "type": "text", "side": "left", "text": "预算 50 内可以，别太正式就行", "delayMs": 820 }
       ],
       "availableActions": [
-        { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }
+        { "actionId": "dinner.flash_place_vote", "label": "升级匿名投票", "kind": "keyboard", "nextBeatId": "dinner.flash_vote" },
+        { "actionId": "dinner.flash_place_close", "label": "生成成局草稿", "kind": "keyboard", "nextBeatId": "dinner.flash_close" }
       ]
     },
     {
@@ -377,9 +383,40 @@
       "description": "匿名倡议保留",
       "designIntent": "先围观也要有结果，避免按钮看起来无效。",
       "painPoint": "很多群成员不想第一时间表态，但仍希望保留可能性。",
-      "expectedEffect": "评委看到轻量参与也能被系统接住。",
+      "expectedEffect": "轻量参与也能被系统接住。",
       "messages": [
-        { "id": "fw_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先保留这个匿名想法，不公开发起人，等群里兴趣更明确时再升级投票。", "delayMs": 420 }
+        { "id": "fw_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先保留这个匿名想法，不公开发起人。等有人表态，我再升级投票。", "delayMs": 420 },
+        { "id": "fw_2", "actorId": "xiaoma", "type": "text", "side": "left", "text": "先看时间吧，周末我可能去", "delayMs": 820 }
+      ],
+      "availableActions": [
+        { "actionId": "dinner.flash_watch_time", "label": "顺势收时间", "kind": "keyboard", "nextBeatId": "dinner.flash_time" },
+        { "actionId": "dinner.flash_watch_place", "label": "先给地点范围", "kind": "keyboard", "nextBeatId": "dinner.flash_place" }
+      ]
+    },
+    {
+      "id": "dinner.flash_vote",
+      "act": "匿名投票",
+      "description": "匿名倡议升级投票",
+      "designIntent": "把匿名响应继续推进为轻量投票。",
+      "painPoint": "匿名代发如果不继续推进，只会停在一句试探。",
+      "expectedEffect": "匿名想法进入可成局状态。",
+      "messages": [
+        { "id": "fv_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我已生成匿名小投票：周六下午、宿舍附近、预算 50 内。发起人身份不会展示。", "delayMs": 420 }
+      ],
+      "availableActions": [
+        { "actionId": "dinner.flash_vote_close", "label": "生成成局草稿", "kind": "keyboard", "nextBeatId": "dinner.flash_close" },
+        { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }
+      ]
+    },
+    {
+      "id": "dinner.flash_close",
+      "act": "匿名成局草稿",
+      "description": "匿名倡议成局草稿",
+      "designIntent": "把匿名倡议收口到可执行安排。",
+      "painPoint": "不想暴露发起人，也需要有人继续收口。",
+      "expectedEffect": "匿名倡议可以走到成局草稿。",
+      "messages": [
+        { "id": "fc_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "成局草稿：周六下午，宿舍附近轻松饭局，预算 50 内。我继续收人数，不暴露发起人。", "delayMs": 420 }
       ],
       "availableActions": [
         { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }

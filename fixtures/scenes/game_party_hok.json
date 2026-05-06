@@ -15,7 +15,7 @@
       "description": "王者荣耀开黑意图",
       "designIntent": "保留腾讯游戏局，但只留下王者荣耀这一条更容易理解的代表线。",
       "painPoint": "游戏群里经常缺最后一个补位队友，喊人和确认时间都很耗散。",
-      "expectedEffect": "评委看到虾局长可以承接 QQ 内高频游戏社交，而不是只做吃饭局。",
+      "expectedEffect": "用户看到虾局长可以承接 QQ 内高频游戏社交，而不是只做吃饭局。",
       "llmTask": {
         "taskName": "intent",
         "schemaKey": "intent_extraction",
@@ -39,7 +39,7 @@
       "description": "用户补位",
       "designIntent": "补位按钮进入人数闭环，让开黑局从喊人变成确定队伍。",
       "painPoint": "游戏局最常卡在缺一人、没人补位、位置不清楚。",
-      "expectedEffect": "评委看到按钮会改变队伍状态，而不是直接跳到回顾。",
+      "expectedEffect": "用户看到按钮会改变队伍状态，而不是直接跳到回顾。",
       "messages": [
         { "id": "g_j1", "actorId": "user_self", "type": "text", "side": "right", "text": "我来补位，可以打射手" },
         { "id": "g_j2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "五排已满：阿凯打野、小雨辅助、你补射手。21:30 开始，我提前 10 分钟提醒。", "delayMs": 520 }
@@ -53,7 +53,7 @@
       "description": "开黑提醒",
       "designIntent": "提醒按钮处理游戏局里最常见的迟到和忘记上线问题。",
       "painPoint": "开黑局约好了也可能因为有人没上线而散掉。",
-      "expectedEffect": "评委看到虾局长能继续承担执行提醒。",
+      "expectedEffect": "用户看到虾局长能继续承担执行提醒。",
       "messages": [
         { "id": "g_r1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已设置 21:20 上线提醒，并提示大家先更新游戏。", "delayMs": 420 }
       ],
@@ -66,7 +66,7 @@
       "description": "王者荣耀局后回顾",
       "designIntent": "把游戏结果转成高光回忆和下次再约入口，承接 QQ 游戏社交。",
       "painPoint": "游戏结束后只剩几句“再来”，战绩和补位偏好没有沉淀。",
-      "expectedEffect": "评委能看到游戏局也能形成回忆卡和下一次活动资产。",
+      "expectedEffect": "用户能看到游戏局也能形成回忆卡和下一次活动资产。",
       "llmTask": {
         "taskName": "game-recap",
         "schemaKey": "game_recap",
@@ -88,7 +88,7 @@
       "description": "下次再约",
       "designIntent": "让游戏回忆卡有明确的下一次组队入口。",
       "painPoint": "游戏局热度消散很快，第二次再约需要重新喊人。",
-      "expectedEffect": "评委看到回忆卡可以直接复用时间和位置偏好。",
+      "expectedEffect": "用户看到回忆卡可以直接复用时间和位置偏好。",
       "messages": [
         { "id": "g_n1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已生成下次五排草稿：周末 21:30 娱乐局，优先保留补位和辅助偏好。", "delayMs": 420 }
       ],
@@ -101,7 +101,7 @@
       "description": "保存高光",
       "designIntent": "保存按钮给游戏高光一个可回看结果。",
       "painPoint": "精彩翻盘经常只停留在口头夸奖里。",
-      "expectedEffect": "评委看到游戏回忆也可以成为群关系资产。",
+      "expectedEffect": "用户看到游戏回忆也可以成为群关系资产。",
       "messages": [
         { "id": "g_s1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已保存高光：最后一波反打翻盘，小雨 MVP，下次可直接沿用五排配置。", "delayMs": 420 }
       ],

@@ -8,7 +8,7 @@
 部署与接口验证记录见 `submission/DEPLOYMENT_STATUS.md`。
 
 ### 方式一：无 LLM 评审模式（推荐）
-这是为评委准备的正式体验入口。
+这是正式体验入口，走稳定 snapshot，不依赖模型波动。
 线上路径：`https://qqclaw.vercel.app/judge`。
 推荐你先走主线：
 1. 进入 507 宿舍干饭群
@@ -18,6 +18,7 @@
 ### 方式二：真实 LLM 工作台
 这是调试入口，适合查看 live LLM、状态和支线能力，不建议第一次先看。
 线上路径：`https://qqclaw.vercel.app/studio?key=local-studio`。
+当前演示访问密钥：`local-studio`。
 真实 LLM 工作台用于证明模型链路，不建议作为第一次体验入口。
 
 ## 核心能力

@@ -55,7 +55,7 @@ export default function Home() {
             虾局长
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-650">
-            QQ 群里的官方社交推进 Agent。评委只需要控制一个用户，其余群成员由导演脚本驱动，核心交互通过按钮、chips 和预置选项完成。
+            QQ 群里的官方社交推进 Agent。体验者只需要控制一个用户，其余群成员由导演脚本驱动，核心交互通过按钮、chips 和预置选项完成。
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link

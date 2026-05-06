@@ -7,11 +7,12 @@ Vercel production:
 - Home: `https://qqclaw.vercel.app/`
 - 无 LLM 评审模式: `https://qqclaw.vercel.app/judge`
 - 真实 LLM 工作台: `https://qqclaw.vercel.app/studio?key=local-studio`
+- 真实 LLM 工作台访问密钥: `local-studio`
 - Health check: `https://qqclaw.vercel.app/api/health`
 
 Latest verified production deployment on 2026-05-05:
 
-- Deployment id: `dpl_7uW8XudEsaohfpsUDt31zqyMiRqW`
+- Deployment id: `dpl_AeFLuusycRSUXexv4dBL2kXe6oXe`
 - Alias: `https://qqclaw.vercel.app`
 - `/` returns HTTP 200 and includes the looping product showcase.
 - `/judge` returns HTTP 200.

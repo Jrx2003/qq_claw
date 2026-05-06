@@ -3,8 +3,8 @@
   "title": "冲突桥梁",
   "groupName": "507宿舍干饭群",
   "onlineText": "8 人在线",
-  "progressLabel": "识别冲突 → 总结诉求 → 中性转述 → 后续选择",
-  "stageLabels": ["识别", "总结", "转述", "降温"],
+  "progressLabel": "识别冲突 → 拆分诉求 → 中性转述 → 回到决策",
+  "stageLabels": ["识别", "拆分", "转述", "回到决策"],
   "modeDefault": "judge",
   "runtimeDefault": "snapshot",
   "triggerPreset": "conflict_safe",
@@ -13,9 +13,9 @@
     {
       "id": "conflict.seed",
       "description": "冲突样例",
-      "designIntent": "先展示群聊里的轻微升温，再让虾局长作为中性桥梁介入。",
-      "painPoint": "群主面对争执常只有禁言或放任两种粗糙选择。",
-      "expectedEffect": "评委能看到冲突桥梁是降温和转述，不是替某一方站队。",
+      "designIntent": "先展示群聊里的升温，再让虾局长作为中性桥梁介入。",
+      "painPoint": "争执升温时，群主常只有禁言或放任。",
+      "expectedEffect": "冲突桥梁负责降温和转述，不替任何一方站队。",
       "llmTask": {
         "taskName": "conflict",
         "schemaKey": "conflict_bridge",
@@ -24,10 +24,11 @@
         "required": true
       },
       "messages": [
-        { "id": "c_m1", "actorId": "akai", "type": "text", "side": "left", "text": "你每次都临时改时间" },
-        { "id": "c_m2", "actorId": "laozhou", "type": "text", "side": "left", "text": "那你自己又从来不提前说", "delayMs": 420 },
-        { "id": "c_m3", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我看到讨论有点升温，要不要我先把双方在意的点拆开说清楚？", "delayMs": 860 },
-        { "id": "c_m4", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "conflict_card_1", "delayMs": 1280 }
+        { "id": "c_m1", "actorId": "akai", "type": "text", "side": "left", "text": "你每次都临时改时间，大家都要跟着你变" },
+        { "id": "c_m2", "actorId": "laozhou", "type": "text", "side": "left", "text": "我也不是故意的，有课我能怎么办", "delayMs": 420 },
+        { "id": "c_m3", "actorId": "akai", "type": "text", "side": "left", "text": "但你上次也是这样，最后又没人订位", "delayMs": 840 },
+        { "id": "c_m4", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我看到讨论有点升温。要不要我先只整理事实和双方诉求？", "delayMs": 1280 },
+        { "id": "c_m5", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "conflict_card_1", "delayMs": 1700 }
       ],
       "availableActions": [
         { "actionId": "conflict.bridge", "label": "我来温和转述", "kind": "keyboard", "nextBeatId": "conflict.bridge", "autoplayPriority": 1 },
@@ -39,50 +40,102 @@
     {
       "id": "conflict.bridge",
       "description": "中性转述",
-      "designIntent": "用中性语言把双方诉求转成可解决的问题。",
-      "painPoint": "争执时双方都觉得自己被误解，继续辩论只会升温。",
-      "expectedEffect": "评委能看到虾局长把攻击性话语转成行动建议。",
+      "designIntent": "用中性语言把指责转成可处理的问题。",
+      "painPoint": "争执时双方都觉得自己被误解。",
+      "expectedEffect": "攻击性话语被转成行动建议。",
       "messages": [
-        { "id": "c_m5", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先中性转述一下：阿凯在意的是时间变动影响安排，老周在意的是大家提前同步不够。我们先回到这次要解决的时间确认，好吗？", "delayMs": 420 }
+        { "id": "c_b1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先中性转述：阿凯在意的是时间反复变化会影响订位；老周在意的是课程冲突不是故意拖延。", "delayMs": 420 },
+        { "id": "c_b2", "actorId": "laozhou", "type": "text", "side": "left", "text": "这样说可以，我主要是不想被说成故意鸽", "delayMs": 900 }
       ],
       "availableActions": [
-        { "actionId": "conflict.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "conflict.seed" }
+        { "actionId": "conflict.extract_needs", "label": "提炼双方诉求", "kind": "keyboard", "nextBeatId": "conflict.needs", "autoplayPriority": 1 },
+        { "actionId": "conflict.public_bridge", "label": "发群内桥梁话术", "kind": "keyboard", "nextBeatId": "conflict.public_bridge", "autoplayPriority": 2 }
       ]
     },
     {
       "id": "conflict.cooldown",
       "description": "降温选项",
-      "designIntent": "冷静按钮给群聊一个低冲突暂停，不需要群主公开处罚任何人。",
-      "painPoint": "继续聊会吵，直接禁言又显得过度管理。",
-      "expectedEffect": "评委看到群主多了一个柔性治理动作。",
+      "designIntent": "冷静按钮给群聊一个低冲突暂停，不公开处罚任何人。",
+      "painPoint": "继续聊会吵，直接禁言又太重。",
+      "expectedEffect": "公共话题先降温，再回到要解决的问题。",
       "messages": [
-        { "id": "c_m6", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先把这个话题静置 10 分钟，之后再提醒大家回到要确认的问题上。", "delayMs": 420 }
+        { "id": "c_c1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先把这个话题静置 10 分钟。期间不再推送争执消息，只保留这次要确认的时间问题。", "delayMs": 420 },
+        { "id": "c_c2", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "先别吵了，确实先把时间定下来吧", "delayMs": 880 }
       ],
       "availableActions": [
-        { "actionId": "conflict.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "conflict.seed" }
+        { "actionId": "conflict.after_cooldown", "label": "回到时间确认", "kind": "keyboard", "nextBeatId": "conflict.decision", "autoplayPriority": 1 },
+        { "actionId": "conflict.extract_needs", "label": "再拆双方诉求", "kind": "keyboard", "nextBeatId": "conflict.needs", "autoplayPriority": 2 }
       ]
     },
     {
       "id": "conflict.dm",
       "description": "私聊沟通",
       "designIntent": "把可能继续升级的内容转到私聊，保护公共群氛围。",
-      "painPoint": "公开群聊里继续解释容易让旁观者加入，冲突扩大。",
-      "expectedEffect": "评委看到虾局长能从群治理切到低打扰沟通。",
+      "painPoint": "公开解释容易让旁观者加入，冲突扩大。",
+      "expectedEffect": "群里只保留最终结论，细节私下处理。",
       "messages": [
-        { "id": "c_dm1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我建议把细节转到私聊确认，群里只保留最终时间结论。", "delayMs": 420 }
+        { "id": "c_d1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我建议把细节转到私聊确认，群里只同步结论：老周课程冲突，阿凯担心订位失败。", "delayMs": 420 },
+        { "id": "c_d2", "actorId": "akai", "type": "text", "side": "left", "text": "可以，群里别继续吵了", "delayMs": 860 }
       ],
       "availableActions": [
-        { "actionId": "conflict.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "conflict.seed" }
+        { "actionId": "conflict.private_to_public", "label": "整理成群内结论", "kind": "keyboard", "nextBeatId": "conflict.public_bridge", "autoplayPriority": 1 },
+        { "actionId": "conflict.after_dm_decision", "label": "回到时间确认", "kind": "keyboard", "nextBeatId": "conflict.decision", "autoplayPriority": 2 }
       ]
     },
     {
       "id": "conflict.history",
       "description": "总结历史记录",
-      "designIntent": "历史总结按钮让 AI 只整理事实，不制造新的立场冲突。",
-      "painPoint": "争执中大家常只记得对自己有利的片段。",
-      "expectedEffect": "评委看到真实 LLM 能在结构化边界内辅助群治理。",
+      "designIntent": "历史总结只整理事实，不制造新的立场冲突。",
+      "painPoint": "争执中大家只记得对自己有利的片段。",
+      "expectedEffect": "把过往争议压缩成事实清单。",
       "messages": [
-        { "id": "c_h1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我只总结事实：这周改过两次时间，第一次是课程冲突，第二次是地点没定。先解决本次确认，不追溯责任。", "delayMs": 420 }
+        { "id": "c_h1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我只总结事实：这周改过两次时间，一次是课程冲突，一次是地点未定。先不追溯责任。", "delayMs": 420 },
+        { "id": "c_h2", "actorId": "naicha", "type": "text", "side": "left", "text": "这样比较清楚，不要继续翻旧账了", "delayMs": 860 }
+      ],
+      "availableActions": [
+        { "actionId": "conflict.extract_needs", "label": "提炼双方诉求", "kind": "keyboard", "nextBeatId": "conflict.needs", "autoplayPriority": 1 },
+        { "actionId": "conflict.public_bridge", "label": "发群内桥梁话术", "kind": "keyboard", "nextBeatId": "conflict.public_bridge", "autoplayPriority": 2 }
+      ]
+    },
+    {
+      "id": "conflict.needs",
+      "description": "拆分双方诉求",
+      "designIntent": "把“谁对谁错”改写成“各自需要什么”。",
+      "painPoint": "争执常卡在归责，而不是解决眼前问题。",
+      "expectedEffect": "双方需求被拆开后，更容易回到决策。",
+      "messages": [
+        { "id": "c_n1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "拆开看：阿凯需要稳定时间，方便订位；老周需要别人知道课程冲突不是故意拖延。", "delayMs": 420 },
+        { "id": "c_n2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "共同点是：大家都想吃成这顿饭，不想临时散掉。", "delayMs": 860 }
+      ],
+      "availableActions": [
+        { "actionId": "conflict.public_bridge", "label": "发群内桥梁话术", "kind": "keyboard", "nextBeatId": "conflict.public_bridge", "autoplayPriority": 1 },
+        { "actionId": "conflict.after_needs_decision", "label": "回到时间确认", "kind": "keyboard", "nextBeatId": "conflict.decision", "autoplayPriority": 2 }
+      ]
+    },
+    {
+      "id": "conflict.public_bridge",
+      "description": "群内桥梁话术",
+      "designIntent": "把双方诉求翻译成群内可接受的话术。",
+      "painPoint": "直接复述原话会继续刺激对方。",
+      "expectedEffect": "群聊从情绪对抗回到行动选择。",
+      "messages": [
+        { "id": "c_p1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我来帮大家收一下：老周是课程冲突，不是故意拖；阿凯担心订位失败。我们现在只确认一个最终时间。", "delayMs": 420 },
+        { "id": "c_p2", "actorId": "laozhou", "type": "text", "side": "left", "text": "那就 19:10 吧，我能赶到", "delayMs": 900 },
+        { "id": "c_p3", "actorId": "akai", "type": "text", "side": "left", "text": "19:10 可以，我去订位", "delayMs": 1320 }
+      ],
+      "availableActions": [
+        { "actionId": "conflict.confirm_decision", "label": "确认最终时间", "kind": "keyboard", "nextBeatId": "conflict.decision", "autoplayPriority": 1 },
+        { "actionId": "conflict.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "conflict.seed" }
+      ]
+    },
+    {
+      "id": "conflict.decision",
+      "description": "回到决策",
+      "designIntent": "冲突处理最终要回到当前活动要完成的动作。",
+      "painPoint": "只降温不收口，问题还会再次出现。",
+      "expectedEffect": "降温、转述、成局确认形成闭环。",
+      "messages": [
+        { "id": "c_f1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已确认：周五 19:10，木屋烧烤。后续只提醒时间和订位，不再追溯刚才的争执。", "delayMs": 420 }
       ],
       "availableActions": [
         { "actionId": "conflict.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "conflict.seed" }

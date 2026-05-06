@@ -1,6 +1,6 @@
 "use client";
 
-import { Bug, Play, RotateCcw, SkipForward } from "lucide-react";
+import { Play, RotateCcw, SkipForward } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { sceneText } from "@/lib/sceneMeta";
@@ -12,27 +12,21 @@ import type {
 export function DemoToolbar({
   scene,
   sceneManifest,
-  debugOpen,
   autoplayRunning,
   painPoint,
-  showStudioTools,
   onScene,
   onReplay,
   onAutoplay,
   onNext,
-  onDebug,
 }: {
   scene: SceneDefinition;
   sceneManifest: SceneManifest;
-  debugOpen: boolean;
   autoplayRunning: boolean;
   painPoint: string;
-  showStudioTools: boolean;
   onScene: (sceneId: SceneManifest["scenes"][number]["id"]) => void;
   onReplay: () => void;
   onAutoplay: () => void;
   onNext: () => void;
-  onDebug: () => void;
 }) {
   return (
     <aside className="w-full max-w-[390px] space-y-4 rounded-2xl border border-white/70 bg-white/90 p-4 shadow-soft backdrop-blur">
@@ -66,12 +60,6 @@ export function DemoToolbar({
           <SkipForward size={16} />
           下一幕
         </Button>
-        {showStudioTools ? (
-          <Button onClick={onDebug} type="button" variant={debugOpen ? "warn" : "outline"}>
-            <Bug size={16} />
-            Debug
-          </Button>
-        ) : null}
       </div>
       <div className="space-y-2">
         <p className="text-xs font-semibold text-slate-500">能力入口</p>

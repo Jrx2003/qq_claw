@@ -32,7 +32,6 @@ type DemoStore = DemoState & {
   currentScene: SceneDefinition;
   actors: Map<string, Actor>;
   cards: Map<string, DemoCard>;
-  debugOpen: boolean;
   autoplayRunning: boolean;
   switchMode: (mode: AppMode) => void;
   switchRuntimeMode: (mode: RuntimeMode) => void;
@@ -41,7 +40,6 @@ type DemoStore = DemoState & {
   triggerAction: (actionId: string) => void;
   replay: () => void;
   jumpToStep: (stepId: string) => void;
-  setDebugOpen: (open: boolean) => void;
   setAutoplayRunning: (running: boolean) => void;
   autoplayTick: () => boolean;
 };
@@ -58,15 +56,13 @@ export const useDemoStore = create<DemoStore>((set, get) => ({
   currentScene: initialScene,
   actors: loadActorMap(),
   cards: loadCardMap(),
-  debugOpen: false,
   autoplayRunning: false,
   switchMode: (mode) => {
-    set((state) => ({
+    set({
       experienceMode: mode,
       mode,
-      debugOpen: mode === "studio" ? true : state.debugOpen,
       autoplayRunning: false,
-    }));
+    });
   },
   switchRuntimeMode: (runtimeMode) => {
     set({ runtimeMode });
@@ -127,7 +123,6 @@ export const useDemoStore = create<DemoStore>((set, get) => ({
       autoplayRunning: false,
     });
   },
-  setDebugOpen: (open) => set({ debugOpen: open }),
   setAutoplayRunning: (running) => {
     set((state) => ({
       autoplayRunning: running,

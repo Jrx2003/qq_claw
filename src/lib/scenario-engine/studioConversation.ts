@@ -86,11 +86,11 @@ export function resolveStudioCardId(response: StudioConversation): string | unde
   }
 
   const cardByTask: Partial<Record<LlmTaskName, string>> = {
-    intent: "plan_card",
-    anonymous: "anonymous_card",
-    conflict: "conflict_card",
-    recap: "memory_card",
-    "game-recap": "game_party_card",
+    intent: "plan_card_1",
+    anonymous: "anonymous_card_1",
+    conflict: "conflict_card_1",
+    recap: "memory_card_1",
+    "game-recap": "game_party_card_1",
   };
 
   return cardByTask[task];

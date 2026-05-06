@@ -7,7 +7,6 @@ import { FlaskConical, Home, PanelLeft } from "lucide-react";
 
 import { ChatShell } from "@/components/chat/ChatShell";
 import { DemoToolbar } from "@/components/demo/DemoToolbar";
-import { StateInspector } from "@/components/demo/StateInspector";
 import { StudioPanel } from "@/components/demo/StudioPanel";
 import type { StudioConversation } from "@/lib/llm/schemas";
 import { collectSceneActions, findBeat } from "@/lib/scenario-engine/engine";
@@ -53,15 +52,12 @@ export function ChatDemoPage({
     messages,
     activeCards,
     availableActions,
-    debugOpen,
     autoplayRunning,
     switchMode,
     switchRuntimeMode,
     switchScene,
     triggerAction,
     replay,
-    jumpToStep,
-    setDebugOpen,
     setAutoplayRunning,
     autoplayTick,
   } = useDemoStore();
@@ -92,7 +88,6 @@ export function ChatDemoPage({
     const modeParam = searchParams.get("mode");
     const runtimeParam = searchParams.get("runtime");
     const sceneParam = searchParams.get("scene");
-    const debugParam = searchParams.get("debug");
     const parsedMode = modeParam ? appModeSchema.safeParse(modeParam) : appModeSchema.safeParse(defaultMode);
     const parsedRuntime = runtimeParam
       ? runtimeModeSchema.safeParse(runtimeParam)
@@ -108,17 +103,11 @@ export function ChatDemoPage({
     } else if (parsedMode?.success) {
       switchMode(parsedMode.data);
     }
-
-    if (showStudioTools || debugParam === "1") {
-      setDebugOpen(true);
-    }
   }, [
     defaultMode,
     defaultRuntimeMode,
     searchParams,
     setAutoplayRunning,
-    setDebugOpen,
-    showStudioTools,
     switchMode,
     switchRuntimeMode,
     switchScene,
@@ -131,17 +120,6 @@ export function ChatDemoPage({
     setLastStudioResponse(undefined);
     setStudioTurnIndex(0);
   }, [sceneId]);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.shiftKey && event.key.toLowerCase() === "d") {
-        setDebugOpen(!debugOpen);
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [debugOpen, setDebugOpen]);
 
   useEffect(() => {
     if (!autoplayRunning) {
@@ -251,8 +229,8 @@ export function ChatDemoPage({
   const cardActions = collectSceneActions(currentScene);
 
   return (
-    <div className="min-h-screen px-4 py-4 md:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-32px)] max-w-6xl flex-col items-center justify-center gap-5 lg:flex-row lg:items-center">
+    <div className="min-h-screen px-4 pb-6 pt-20 md:px-8">
+      <div className="mx-auto grid min-h-[calc(100vh-104px)] w-full max-w-6xl items-start justify-center gap-5 lg:grid-cols-[430px_minmax(340px,390px)]">
         <nav className="fixed left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-white/80 bg-white/90 p-2 shadow-card backdrop-blur">
           <Link
             aria-label="返回主界面"
@@ -293,19 +271,16 @@ export function ChatDemoPage({
         <div className="flex w-full max-w-[430px] flex-col gap-4 lg:max-w-[390px]">
           <DemoToolbar
             autoplayRunning={autoplayRunning}
-            debugOpen={debugOpen}
             onAutoplay={() => {
               switchScene(currentScene.id, mode);
               setAutoplayRunning(true);
             }}
-            onDebug={() => setDebugOpen(!debugOpen)}
             onNext={handleNext}
             onReplay={replay}
             onScene={(nextSceneId) => switchScene(nextSceneId)}
             painPoint={currentBeat.painPoint}
             scene={currentScene}
             sceneManifest={sceneManifest}
-            showStudioTools={showStudioTools}
           />
           <div className="grid grid-cols-5 gap-2">
             {stageLabels.map((label, index) => (
@@ -331,9 +306,6 @@ export function ChatDemoPage({
               runtimeMode={runtimeMode}
               scene={currentScene}
             />
-          ) : null}
-          {debugOpen && showStudioTools ? (
-            <StateInspector cards={cards} onJump={jumpToStep} scene={currentScene} state={useDemoStore.getState()} />
           ) : null}
         </div>
       </div>

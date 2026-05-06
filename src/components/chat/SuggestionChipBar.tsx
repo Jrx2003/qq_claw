@@ -39,10 +39,10 @@ export function SuggestionChipBar({
   return (
     <footer className="border-t border-slate-200 bg-white px-3 py-3">
       {chipActions.length > 0 ? (
-        <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+        <div className="mb-3 flex max-h-20 flex-wrap gap-2 overflow-y-auto pb-1">
           {chipActions.map((action) => (
             <button
-              className="shrink-0 rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-100"
+              className="max-w-full rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-left text-sm font-medium leading-5 text-blue-700 transition hover:bg-blue-100"
               key={action.actionId}
               onClick={() => onAction(action.actionId)}
               type="button"

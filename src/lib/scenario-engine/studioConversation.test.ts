@@ -3,9 +3,11 @@ import { readFileSync } from "fs";
 import path from "path";
 
 import { studioConversationSchema } from "@/lib/llm/schemas";
+import { loadCardMap } from "@/lib/fixtures/loader";
 import {
   buildStudioSuggestionActions,
   buildStudioTurnMessages,
+  resolveStudioCardId,
   resolveStudioConversationTask,
 } from "./studioConversation";
 
@@ -36,7 +38,7 @@ describe("studio conversation runtime", () => {
     const messages = buildStudioTurnMessages({
       turnIndex: 3,
       userText: "周五晚上有人想吃烤肉吗？",
-      cardId: "plan_card",
+      cardId: "plan_card_1",
       response: {
         intent_type: "plan",
         stage: "execute",
@@ -61,7 +63,40 @@ describe("studio conversation runtime", () => {
       "bot_xjz",
       "bot_xjz",
     ]);
-    expect(messages.at(-1)).toMatchObject({ type: "card", cardId: "plan_card" });
+    expect(messages.at(-1)).toMatchObject({ type: "card", cardId: "plan_card_1" });
+  });
+
+  it("resolves every studio function suggestion to an existing renderable card", () => {
+    const cards = loadCardMap();
+    const cases: Array<{
+      intentType: Parameters<typeof resolveStudioCardId>[0]["intent_type"];
+      task: NonNullable<Parameters<typeof resolveStudioCardId>[0]["function_suggestion"]>["task"];
+      expectedCardId: string;
+    }> = [
+      { intentType: "plan", task: "intent", expectedCardId: "plan_card_1" },
+      { intentType: "anonymous", task: "anonymous", expectedCardId: "anonymous_card_1" },
+      { intentType: "conflict", task: "conflict", expectedCardId: "conflict_card_1" },
+      { intentType: "recap", task: "recap", expectedCardId: "memory_card_1" },
+      { intentType: "game_party", task: "game-recap", expectedCardId: "game_party_card_1" },
+    ];
+
+    for (const testCase of cases) {
+      const cardId = resolveStudioCardId({
+        intent_type: testCase.intentType,
+        stage: "suggest",
+        bot_message: "ok",
+        npc_messages: [],
+        function_suggestion: {
+          label: "显示卡片",
+          task: testCase.task,
+          reason: "test",
+        },
+        chips: [],
+      });
+
+      expect(cardId).toBe(testCase.expectedCardId);
+      expect(cards.has(cardId ?? ""), `${testCase.intentType} should resolve to an existing card`).toBe(true);
+    }
   });
 
   it("turns LLM suggestions into dynamic free-input actions", () => {
@@ -100,8 +135,23 @@ describe("studio conversation runtime", () => {
     expect(chatDemoPage).toContain("effectiveMode");
     expect(chipBar).toContain("textarea");
     expect(chipBar).toContain("自由输入");
+    expect(chipBar).toContain("flex-wrap");
+    expect(chipBar).not.toContain("overflow-x-auto");
     expect(studioPanel).toContain("群聊背景");
     expect(studioPanel).not.toContain("<pre");
     expect(studioPanel).not.toContain("JSON.stringify");
+  });
+
+  it("removes the debug inspector surface from judge and studio UI", () => {
+    const pageSource = readFileSync(path.join(process.cwd(), "src/components/demo/ChatDemoPage.tsx"), "utf8");
+    const toolbarSource = readFileSync(path.join(process.cwd(), "src/components/demo/DemoToolbar.tsx"), "utf8");
+    const storeSource = readFileSync(path.join(process.cwd(), "src/lib/state/demoStore.ts"), "utf8");
+
+    expect(pageSource).not.toContain("StateInspector");
+    expect(pageSource).not.toContain("debugOpen");
+    expect(pageSource).not.toContain("debugParam");
+    expect(toolbarSource).not.toContain("Debug");
+    expect(toolbarSource).not.toContain("Bug");
+    expect(storeSource).not.toContain("debugOpen");
   });
 });

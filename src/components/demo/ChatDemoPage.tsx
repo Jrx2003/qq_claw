@@ -29,6 +29,8 @@ import {
   type RuntimeMode,
 } from "@/lib/types/demo";
 
+const AUTOPLAY_TICK_MS = 3600;
+
 export function ChatDemoPage({
   defaultMode = "judge",
   defaultRuntimeMode = "snapshot",
@@ -71,9 +73,20 @@ export function ChatDemoPage({
   const [studioTurnIndex, setStudioTurnIndex] = useState(0);
 
   const actorList = useMemo(() => Array.from(actors.values()), [actors]);
-  const effectiveMode = showStudioTools ? "studio" : mode;
+  const effectiveMode = showStudioTools ? "studio" : defaultMode === "judge" ? "judge" : mode;
   const displayedMessages = showStudioTools ? [...messages, ...studioMessages] : messages;
   const displayedActions = showStudioTools ? studioActions : availableActions;
+  const stageLabels = sceneTextArray(currentScene, "stageLabels", ["收口", "投票", "成局", "回忆"]);
+  const stageProgressCount = resolveStageProgressCount(currentBeatId, activeCards.length);
+  const navLinkClass = (targetMode: AppMode) =>
+    [
+      "inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold transition",
+      effectiveMode === targetMode
+        ? targetMode === "studio"
+          ? "bg-emerald-50 text-emerald-700"
+          : "bg-blue-50 text-blue-700"
+        : "border border-slate-200 bg-white text-slate-650 hover:bg-slate-50",
+    ].join(" ");
 
   useEffect(() => {
     const modeParam = searchParams.get("mode");
@@ -137,7 +150,7 @@ export function ChatDemoPage({
 
     const timeout = window.setTimeout(() => {
       autoplayTick();
-    }, 1800);
+    }, AUTOPLAY_TICK_MS);
 
     return () => window.clearTimeout(timeout);
   }, [autoplayRunning, autoplayTick, messages.length, sceneId]);
@@ -249,14 +262,14 @@ export function ChatDemoPage({
             <Home size={18} />
           </Link>
           <Link
-            className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 transition hover:bg-blue-100"
+            className={navLinkClass("judge")}
             href="/judge"
           >
             <PanelLeft size={15} />
             无 LLM 评审
           </Link>
           <Link
-            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-650 transition hover:bg-slate-50"
+            className={navLinkClass("studio")}
             href="/studio?key=local-studio"
           >
             <FlaskConical size={15} />
@@ -294,11 +307,11 @@ export function ChatDemoPage({
             sceneManifest={sceneManifest}
             showStudioTools={showStudioTools}
           />
-          <div className="grid grid-cols-4 gap-2">
-            {sceneTextArray(currentScene, "stageLabels", ["收口", "投票", "成局", "回忆"]).map((label, index) => (
+          <div className="grid grid-cols-5 gap-2">
+            {stageLabels.map((label, index) => (
               <div
                 className={`rounded-2xl px-3 py-2 text-center text-xs font-bold ${
-                  activeCards.length > index
+                  stageProgressCount > index
                     ? "bg-emerald-500 text-white"
                     : "border border-white/70 bg-white/70 text-slate-500"
                 }`}
@@ -326,4 +339,20 @@ export function ChatDemoPage({
       </div>
     </div>
   );
+}
+
+function resolveStageProgressCount(currentBeatId: string, activeCardCount: number) {
+  if (/recap|preference|memory|summary/.test(currentBeatId)) {
+    return Math.max(activeCardCount, 5);
+  }
+
+  if (/confirm|roster|outing_reminder|extra_note/.test(currentBeatId)) {
+    return Math.max(activeCardCount, 4);
+  }
+
+  if (/remind|more_votes|dm_pending|decline/.test(currentBeatId)) {
+    return Math.max(activeCardCount, 3);
+  }
+
+  return activeCardCount;
 }

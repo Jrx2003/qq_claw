@@ -25,6 +25,11 @@ export function MessageList({
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    const settledScroll = window.setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, 420);
+
+    return () => window.clearTimeout(settledScroll);
   }, [messages.length]);
 
   return (

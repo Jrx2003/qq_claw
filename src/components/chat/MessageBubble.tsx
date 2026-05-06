@@ -8,6 +8,8 @@ import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { cn } from "@/lib/utils";
 import type { Actor, ChatMessage, DemoAction, DemoCard } from "@/lib/types/demo";
 
+const MAX_REVEAL_DELAY_SECONDS = 0.35;
+
 export function MessageBubble({
   message,
   actor,
@@ -26,17 +28,28 @@ export function MessageBubble({
   onAction: (actionId: string) => void;
 }) {
   const isRight = message.side === "right";
-  const revealDelaySeconds = (message.delayMs ?? 0) / 1000;
+  const revealDelaySeconds = Math.min((message.delayMs ?? 0) / 1000, MAX_REVEAL_DELAY_SECONDS);
 
   if (message.side === "system") {
+    const isHint = message.type === "hint";
+
     return (
       <motion.div
         animate={{ opacity: 1, y: 0 }}
         className="flex justify-center"
         initial={{ opacity: 0, y: 8 }}
-        transition={{ delay: revealDelaySeconds, duration: 0.22 }}
+        transition={{ delay: revealDelaySeconds, duration: 0.18 }}
       >
-        <span className="rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-500">{message.text}</span>
+        <span
+          className={cn(
+            "max-w-[88%] rounded-full px-3 py-1 text-center text-xs leading-5",
+            isHint
+              ? "border border-amber-100 bg-amber-50 text-amber-800"
+              : "bg-slate-200 text-slate-500",
+          )}
+        >
+          {message.text}
+        </span>
       </motion.div>
     );
   }
@@ -46,7 +59,7 @@ export function MessageBubble({
       animate={{ opacity: 1, y: 0 }}
       className={cn("flex gap-2", isRight ? "justify-end" : "justify-start")}
       initial={{ opacity: 0, y: 8 }}
-      transition={{ delay: revealDelaySeconds, duration: 0.22 }}
+      transition={{ delay: revealDelaySeconds, duration: 0.18 }}
     >
       {!isRight ? <Avatar actor={actor} /> : null}
       <div className={cn("max-w-[82%] space-y-1", isRight ? "items-end" : "items-start")}>
@@ -74,6 +87,18 @@ export function MessageBubble({
           >
             {message.text}
           </div>
+        ) : null}
+        {message.type === "image" && message.imageUrl ? (
+          <figure className="overflow-hidden rounded-2xl rounded-tl-sm bg-white shadow-sm ring-1 ring-slate-100">
+            <div
+              aria-label={message.alt ?? message.text ?? "群聊图片"}
+              className="h-40 w-[min(280px,72vw)] bg-cover bg-center"
+              style={{ backgroundImage: `url(${message.imageUrl})` }}
+            />
+            {message.text ? (
+              <figcaption className="px-3 py-2 text-xs leading-5 text-slate-500">{message.text}</figcaption>
+            ) : null}
+          </figure>
         ) : null}
         {message.type === "card" && card ? (
           <div className="w-[min(330px,82vw)]">

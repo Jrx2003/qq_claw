@@ -49,6 +49,10 @@
     {
       "label": "查看详情",
       "actionId": "dinner.confirm_detail"
+    },
+    {
+      "label": "这次不参加",
+      "actionId": "dinner.decline_from_time"
     }
   ]
 }

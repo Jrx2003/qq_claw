@@ -29,7 +29,7 @@
           "actorId": "bot_xjz",
           "type": "text",
           "side": "left",
-          "text": "有人把一个想法匿名委托给我：这周想不想来个轻松饭局？我会用虾局长身份代发，不暴露发起人。"
+          "text": "虾局长发起一个轻松饭局意向：这周想不想一起聚一下？先看兴趣，不给任何人压力。"
         },
         {
           "id": "a_m2",
@@ -56,7 +56,7 @@
       "messages": [
         { "id": "a_i1", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "这个可以！不一定要谁来当组织者", "delayMs": 420 },
         { "id": "a_i2", "actorId": "naicha", "type": "text", "side": "left", "text": "如果是附近吃饭我也可以", "delayMs": 820 },
-        { "id": "a_i3", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已记录 2 个积极响应。我先把它升级成不暴露发起人的小投票。", "delayMs": 1260 }
+        { "id": "a_i3", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已记录 2 个积极响应。我先把它升级成低压力小投票。", "delayMs": 1260 }
       ],
       "availableActions": [
         { "actionId": "anonymous.upgrade_vote", "label": "升级成小投票", "kind": "keyboard", "nextBeatId": "anonymous.vote", "autoplayPriority": 1 },
@@ -100,7 +100,7 @@
       "painPoint": "有人暂时不确定，但又不想让提议消失。",
       "expectedEffect": "弱响应也能转成后续的低压力推进。",
       "messages": [
-        { "id": "a_w1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先保留这个想法，不暴露发起人。等有人点兴趣，我再自动升级成时间投票。", "delayMs": 420 },
+        { "id": "a_w1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先保留这个轻松饭局想法。等有人点兴趣，我再自动升级成时间投票。", "delayMs": 420 },
         { "id": "a_w2", "actorId": "xiaoma", "type": "text", "side": "left", "text": "先看时间吧，如果周末我可能去", "delayMs": 860 }
       ],
       "availableActions": [
@@ -115,7 +115,7 @@
       "painPoint": "匿名发起人不便催大家表态，容易错过成局窗口。",
       "expectedEffect": "匿名能力也能承接成局主流程。",
       "messages": [
-        { "id": "a_v1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我已把匿名倡议升级成轻量投票：周六下午、宿舍附近、预算 50 内。发起人身份不会展示。", "delayMs": 420 },
+        { "id": "a_v1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我已把轻松饭局升级成小投票：周六下午、宿舍附近、预算 50 内。", "delayMs": 420 },
         { "id": "a_v2", "actorId": "naicha", "type": "text", "side": "left", "text": "这样挺舒服，我投周六下午", "delayMs": 860 }
       ],
       "availableActions": [
@@ -126,7 +126,7 @@
     {
       "id": "anonymous.close_draft",
       "description": "匿名成局草稿",
-      "designIntent": "把匿名倡议转成可执行草稿，但仍不暴露发起人。",
+      "designIntent": "把匿名倡议转成可执行草稿，同时保留低压力参与方式。",
       "painPoint": "匿名提议需要有人继续承担收口。",
       "expectedEffect": "成局动作由虾局长承接。",
       "messages": [

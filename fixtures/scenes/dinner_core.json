@@ -29,12 +29,29 @@
         { "id": "m2", "actorId": "xiaoyu", "type": "text", "side": "left", "text": "+1！上次吃还是上个月呢", "delayMs": 420 },
         { "id": "m3", "actorId": "laozhou", "type": "text", "side": "left", "text": "我周五晚上有课，得看几点下课", "delayMs": 820 },
         { "id": "m4", "actorId": "dazhuang", "type": "text", "side": "left", "text": "可以啊！我都行", "delayMs": 1220 },
-        { "id": "m5", "actorId": "naicha", "type": "text", "side": "left", "text": "想去！但地点选哪🤔", "delayMs": 1620 }
+        { "id": "m5", "actorId": "naicha", "type": "text", "side": "left", "text": "想去！但地点选哪🤔", "delayMs": 1620 },
+        { "id": "m6_seed_bot", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我看到大家在聊周五烤肉，可以帮你们把时间、地点和人数收口成一个轻量投票。", "delayMs": 1980 }
       ],
       "availableActions": [
-        { "actionId": "dinner.ask_close", "label": "@虾局长 帮我收口这局", "kind": "chip", "nextBeatId": "dinner.plan", "autoplayPriority": 1 },
-        { "actionId": "dinner.quick_vote", "label": "直接发起时间投票", "kind": "chip", "nextBeatId": "dinner.time_vote", "autoplayPriority": 2 },
-        { "actionId": "dinner.to_anonymous", "label": "看看匿名倡议", "kind": "scene-switch", "nextBeatId": "dinner.flash_anonymous" }
+        { "actionId": "dinner.ask_close", "label": "让虾局长收口烤肉局", "kind": "chip", "nextBeatId": "dinner.plan", "autoplayPriority": 1 },
+        { "actionId": "dinner.observe_more", "label": "先看大家意向", "kind": "chip", "nextBeatId": "dinner.observe", "autoplayPriority": 2 },
+        { "actionId": "dinner.to_anonymous", "label": "匿名发起轻松饭局", "kind": "chip", "nextBeatId": "dinner.flash_anonymous", "autoplayPriority": 3 }
+      ]
+    },
+    {
+      "id": "dinner.observe",
+      "act": "继续观察",
+      "description": "虾局长等待更多信号",
+      "designIntent": "允许群聊自然多走一步，再由虾局长给出更明确的收口建议。",
+      "painPoint": "有人想聚但还没说清时间地点，过早拍板会增加参与压力。",
+      "expectedEffect": "用户看到虾局长不是强行打断，而是等意图足够明确再推进。",
+      "messages": [
+        { "id": "obs_1", "actorId": "xiaoma", "type": "text", "side": "left", "text": "如果周五七点后，我可以来", "delayMs": 420 },
+        { "id": "obs_2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "现在时间和地点都有线索了，我可以把它整理成可投票的烤肉局。", "delayMs": 860 }
+      ],
+      "availableActions": [
+        { "actionId": "dinner.ask_close_after_observe", "label": "收口成投票", "kind": "keyboard", "nextBeatId": "dinner.plan", "autoplayPriority": 1 },
+        { "actionId": "dinner.to_anonymous_after_observe", "label": "匿名发起另一局", "kind": "keyboard", "nextBeatId": "dinner.flash_anonymous", "autoplayPriority": 2 }
       ]
     },
     {
@@ -45,7 +62,7 @@
       "painPoint": "群成员常说“我都行”，但缺少一个低压力的下一步。",
       "expectedEffect": "用户能看到时间、地点、参加意向和待补全信息被一次性结构化。",
       "messages": [
-        { "id": "u1", "actorId": "user_self", "type": "text", "side": "right", "text": "@虾局长 帮我收口这局" },
+        { "id": "sys_summon", "actorId": "bot_xjz", "type": "hint", "side": "system", "text": "群助手浮出收口建议，不显示具体召唤者。", "delayMs": 260 },
         { "id": "t1", "actorId": "bot_xjz", "type": "typing", "side": "left", "text": "虾局长正在收口中...", "delayMs": 350 },
         { "id": "b1", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "plan_card_1", "delayMs": 760 },
         { "id": "b2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先把这局拆成时间、地点、参加意向三步，大家点一下就能推进。", "delayMs": 1180 }
@@ -54,7 +71,8 @@
         { "actionId": "dinner.vote_join", "label": "我要参加", "kind": "keyboard", "nextBeatId": "dinner.join_vote", "autoplayPriority": 3 },
         { "actionId": "dinner.vote_time", "label": "时间投票", "kind": "keyboard", "nextBeatId": "dinner.time_vote", "autoplayPriority": 1 },
         { "actionId": "dinner.vote_place", "label": "地点投票", "kind": "keyboard", "nextBeatId": "dinner.place_vote", "autoplayPriority": 2 },
-        { "actionId": "dinner.dm_pending", "label": "去单聊补全", "kind": "keyboard", "nextBeatId": "dinner.dm_pending", "autoplayPriority": 4 }
+        { "actionId": "dinner.dm_pending", "label": "私下提醒未回复", "kind": "keyboard", "nextBeatId": "dinner.dm_pending", "autoplayPriority": 4 },
+        { "actionId": "dinner.decline_from_plan", "label": "这次不参加", "kind": "keyboard", "nextBeatId": "dinner.decline_vote", "autoplayPriority": 5 }
       ]
     },
     {
@@ -74,7 +92,8 @@
       "availableActions": [
         { "actionId": "dinner.keep_voting", "label": "继续投票", "kind": "keyboard", "nextBeatId": "dinner.more_votes", "autoplayPriority": 3 },
         { "actionId": "dinner.remind_pending", "label": "提醒未回复", "kind": "keyboard", "nextBeatId": "dinner.remind_pending", "autoplayPriority": 1 },
-        { "actionId": "dinner.confirm_detail", "label": "查看详情", "kind": "keyboard", "nextBeatId": "dinner.confirm_detail", "autoplayPriority": 2 }
+        { "actionId": "dinner.confirm_detail", "label": "查看详情", "kind": "keyboard", "nextBeatId": "dinner.confirm_detail", "autoplayPriority": 2 },
+        { "actionId": "dinner.decline_from_time", "label": "这次不参加", "kind": "keyboard", "nextBeatId": "dinner.decline_vote", "autoplayPriority": 4 }
       ]
     },
     {
@@ -94,7 +113,8 @@
       "availableActions": [
         { "actionId": "dinner.keep_voting", "label": "继续投票", "kind": "keyboard", "nextBeatId": "dinner.more_votes", "autoplayPriority": 3 },
         { "actionId": "dinner.remind_pending", "label": "提醒未回复", "kind": "keyboard", "nextBeatId": "dinner.remind_pending", "autoplayPriority": 1 },
-        { "actionId": "dinner.confirm_detail", "label": "查看详情", "kind": "keyboard", "nextBeatId": "dinner.confirm_detail", "autoplayPriority": 2 }
+        { "actionId": "dinner.confirm_detail", "label": "查看详情", "kind": "keyboard", "nextBeatId": "dinner.confirm_detail", "autoplayPriority": 2 },
+        { "actionId": "dinner.decline_from_time", "label": "这次不参加", "kind": "keyboard", "nextBeatId": "dinner.decline_vote", "autoplayPriority": 4 }
       ]
     },
     {
@@ -113,18 +133,19 @@
       "availableActions": [
         { "actionId": "dinner.keep_voting", "label": "继续投票", "kind": "keyboard", "nextBeatId": "dinner.more_votes", "autoplayPriority": 3 },
         { "actionId": "dinner.remind_pending", "label": "提醒未回复", "kind": "keyboard", "nextBeatId": "dinner.remind_pending", "autoplayPriority": 1 },
-        { "actionId": "dinner.confirm_detail", "label": "查看详情", "kind": "keyboard", "nextBeatId": "dinner.confirm_detail", "autoplayPriority": 2 }
+        { "actionId": "dinner.confirm_detail", "label": "查看详情", "kind": "keyboard", "nextBeatId": "dinner.confirm_detail", "autoplayPriority": 2 },
+        { "actionId": "dinner.decline_from_time", "label": "改为不参加", "kind": "keyboard", "nextBeatId": "dinner.decline_vote", "autoplayPriority": 4 }
       ]
     },
     {
       "id": "dinner.dm_pending",
       "act": "私聊补全",
-      "description": "单聊补全缺口",
+      "description": "私下补全缺口",
       "designIntent": "把公开群聊里的追问压力移到低打扰私聊，保护群氛围。",
       "painPoint": "组织者不想在群里反复点名，也怕催人显得尴尬。",
       "expectedEffect": "用户能理解虾局长不仅发投票，也能承担柔性的组织动作。",
       "messages": [
-        { "id": "dm_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我去单聊阿凯和老周补时间，不在群里公开点名。", "delayMs": 420 },
+        { "id": "dm_1", "actorId": "bot_xjz", "type": "hint", "side": "system", "text": "已向未回复成员发送低打扰私下提醒，群聊里不点名。", "delayMs": 420 },
         { "id": "dm_2", "actorId": "laozhou", "type": "text", "side": "left", "text": "我 19:00 后可以，别太辣就行", "delayMs": 900 }
       ],
       "availableActions": [
@@ -133,12 +154,44 @@
       ]
     },
     {
+      "id": "dinner.decline_vote",
+      "act": "不参加",
+      "description": "用户退出投票",
+      "designIntent": "让投票不是单向加入流程，保留熟人群里常见的退出空间。",
+      "painPoint": "群成员有时临时不方便参加，但不想让退出显得扫兴。",
+      "expectedEffect": "用户看到虾局长会温和记录退出，不破坏群聊氛围。",
+      "messages": [
+        { "id": "decline_v_1", "actorId": "user_self", "type": "text", "side": "right", "text": "我这次先不参加了" },
+        { "id": "decline_v_2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "收到，我把你记为本次不参加，不影响其他人继续投票。", "delayMs": 420 }
+      ],
+      "availableActions": [
+        { "actionId": "dinner.back_to_vote_after_decline", "label": "回到投票进展", "kind": "keyboard", "nextBeatId": "dinner.more_votes", "autoplayPriority": 1 },
+        { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }
+      ]
+    },
+    {
+      "id": "dinner.decline_confirm",
+      "act": "放弃安排",
+      "description": "成局后退出",
+      "designIntent": "成局后也允许有人退出，并让系统同步人数变化。",
+      "painPoint": "临时变动如果没人记录，会让订位和提醒都出错。",
+      "expectedEffect": "用户看到虾局长能处理反悔和变更，而不是只会确认。",
+      "messages": [
+        { "id": "decline_c_1", "actorId": "user_self", "type": "text", "side": "right", "text": "我临时有事，先退出这次安排" },
+        { "id": "decline_c_2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已更新为 7 人成局，我会同步订位人数和出发提醒。", "delayMs": 420 }
+      ],
+      "availableActions": [
+        { "actionId": "dinner.show_roster_after_decline", "label": "查看更新名单", "kind": "keyboard", "nextBeatId": "dinner.roster", "autoplayPriority": 1 },
+        { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }
+      ]
+    },
+    {
       "id": "dinner.more_votes",
       "act": "更多响应",
       "description": "投票继续滚动",
       "designIntent": "用逐条消息替代整页状态跳转，让演示更像真实群聊。",
-      "painPoint": "真实群聊不会一次性变成下一张 slide，而是成员陆续表态。",
-      "expectedEffect": "用户能看到其他群成员的响应一条条出现，降低 demo 感。",
+      "painPoint": "真实群聊里的表态是陆续发生的，组织者很难持续追踪。",
+      "expectedEffect": "用户能看到其他群成员的响应一条条出现，群聊推进更自然。",
       "messages": [
         { "id": "mv_1", "actorId": "ayuan", "type": "text", "side": "left", "text": "我刚看到，19:00 + 木屋 OK", "delayMs": 420 },
         { "id": "mv_2", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "现在 8/10 已回复，还差 2 位。我建议再轻提醒一次。", "delayMs": 880 }
@@ -177,7 +230,8 @@
       ],
       "availableActions": [
         { "actionId": "dinner.confirm_final", "label": "确认成局", "kind": "keyboard", "nextBeatId": "dinner.confirm", "autoplayPriority": 1 },
-        { "actionId": "dinner.remind_pending", "label": "再提醒一次", "kind": "keyboard", "nextBeatId": "dinner.remind_pending", "autoplayPriority": 2 }
+        { "actionId": "dinner.remind_pending", "label": "再提醒一次", "kind": "keyboard", "nextBeatId": "dinner.remind_pending", "autoplayPriority": 2 },
+        { "actionId": "dinner.decline_from_detail", "label": "放弃本次安排", "kind": "keyboard", "nextBeatId": "dinner.decline_confirm", "autoplayPriority": 3 }
       ]
     },
     {
@@ -196,7 +250,8 @@
       "availableActions": [
         { "actionId": "dinner.show_roster", "label": "查看名单", "kind": "keyboard", "nextBeatId": "dinner.roster", "autoplayPriority": 2 },
         { "actionId": "dinner.send_reminder", "label": "一键提醒", "kind": "keyboard", "nextBeatId": "dinner.outing_reminder", "autoplayPriority": 1 },
-        { "actionId": "dinner.add_note", "label": "补充说明", "kind": "keyboard", "nextBeatId": "dinner.extra_note", "autoplayPriority": 3 }
+        { "actionId": "dinner.add_note", "label": "补充说明", "kind": "keyboard", "nextBeatId": "dinner.extra_note", "autoplayPriority": 3 },
+        { "actionId": "dinner.decline_after_confirm", "label": "退出这次安排", "kind": "keyboard", "nextBeatId": "dinner.decline_confirm", "autoplayPriority": 4 }
       ]
     },
     {
@@ -259,10 +314,11 @@
         "required": true
       },
       "messages": [
-        { "id": "m11", "actorId": "ayuan", "type": "text", "side": "left", "text": "今天这家还不错👍", "delayMs": 420 },
-        { "id": "m12", "actorId": "naicha", "type": "text", "side": "left", "text": "下次还去吗", "delayMs": 820 },
-        { "id": "b7", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "memory_card_1", "delayMs": 1240 },
-        { "id": "b8", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我把这次聚餐整理成了回忆卡，下次想继续约也可以直接沿用这次偏好。", "delayMs": 1660 }
+        { "id": "m10_photo", "actorId": "xiaoyu", "type": "image", "side": "left", "imageUrl": "/prototypes/03_weekend_bbq_confirmation_in_group_chat.png", "alt": "烤肉局照片", "text": "刚拍的烤肉照片，肥牛真的不错", "delayMs": 360 },
+        { "id": "m11", "actorId": "ayuan", "type": "text", "side": "left", "text": "今天这家还不错👍 老周也终于没鸽", "delayMs": 720 },
+        { "id": "m12", "actorId": "naicha", "type": "text", "side": "left", "text": "下次还去吗？我想把这家记一下", "delayMs": 1080 },
+        { "id": "b7", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "memory_card_1", "delayMs": 1440 },
+        { "id": "b8", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我把照片、关键词和下次偏好整理成了回忆卡，下次想继续约可以直接沿用。", "delayMs": 1800 }
       ],
       "availableActions": [
         { "actionId": "dinner.reuse_preference", "label": "下次再约", "kind": "keyboard", "nextBeatId": "dinner.preference", "autoplayPriority": 1 },
@@ -321,7 +377,7 @@
       "painPoint": "有人想发起活动却不想暴露身份，普通群工具很难处理这种社交压力。",
       "expectedEffect": "匿名倡议是同一套社交推进能力的扩展。",
       "messages": [
-        { "id": "x1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "除了收口组局，我也可以替你匿名发起想法，不暴露真实发起人。", "delayMs": 420 },
+        { "id": "x1", "actorId": "bot_xjz", "type": "hint", "side": "system", "text": "匿名保护已启用，群里只看到虾局长发起的轻松饭局邀请。", "delayMs": 420 },
         { "id": "x2", "actorId": "bot_xjz", "type": "card", "side": "left", "cardId": "anonymous_card_1", "delayMs": 860 }
       ],
       "availableActions": [
@@ -355,7 +411,7 @@
       "painPoint": "匿名发起人不想继续出面，但活动仍需要时间线索。",
       "expectedEffect": "匿名倡议也能继续推进到可成局结构。",
       "messages": [
-        { "id": "ft_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先不公开发起人，只收大家本周五/周六哪个时间更舒服。", "delayMs": 420 },
+        { "id": "ft_1", "actorId": "bot_xjz", "type": "hint", "side": "system", "text": "虾局长只收集时间偏好，群里不显示委托来源。", "delayMs": 420 },
         { "id": "ft_2", "actorId": "laozhou", "type": "text", "side": "left", "text": "周六下午更稳", "delayMs": 820 }
       ],
       "availableActions": [
@@ -387,7 +443,7 @@
       "painPoint": "很多群成员不想第一时间表态，但仍希望保留可能性。",
       "expectedEffect": "轻量参与也能被系统接住。",
       "messages": [
-        { "id": "fw_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先保留这个匿名想法，不公开发起人。等有人表态，我再升级投票。", "delayMs": 420 },
+        { "id": "fw_1", "actorId": "bot_xjz", "type": "hint", "side": "system", "text": "匿名想法已暂存，等群里出现兴趣信号再升级投票。", "delayMs": 420 },
         { "id": "fw_2", "actorId": "xiaoma", "type": "text", "side": "left", "text": "先看时间吧，周末我可能去", "delayMs": 820 }
       ],
       "availableActions": [
@@ -403,7 +459,7 @@
       "painPoint": "匿名发起人不便催大家投票，容易失去推进动力。",
       "expectedEffect": "匿名想法进入可成局状态。",
       "messages": [
-        { "id": "fv_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我已生成匿名小投票：周六下午、宿舍附近、预算 50 内。发起人身份不会展示。", "delayMs": 420 },
+        { "id": "fv_1", "actorId": "bot_xjz", "type": "hint", "side": "system", "text": "匿名小投票已生成：周六下午、宿舍附近、预算 50 内。", "delayMs": 420 },
         { "id": "fv_2", "actorId": "naicha", "type": "text", "side": "left", "text": "这样可以，我先投周六下午。", "delayMs": 860 }
       ],
       "availableActions": [
@@ -419,7 +475,7 @@
       "painPoint": "不想暴露发起人，也需要有人继续收口。",
       "expectedEffect": "匿名倡议可以走到成局草稿。",
       "messages": [
-        { "id": "fc_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "成局草稿：周六下午，宿舍附近轻松饭局，预算 50 内。我继续收人数，不暴露发起人。", "delayMs": 420 }
+        { "id": "fc_1", "actorId": "bot_xjz", "type": "hint", "side": "system", "text": "成局草稿已生成：周六下午，宿舍附近轻松饭局，预算 50 内。", "delayMs": 420 }
       ],
       "availableActions": [
         { "actionId": "dinner.replay", "label": "Replay", "kind": "toolbar", "nextBeatId": "dinner.seed" }

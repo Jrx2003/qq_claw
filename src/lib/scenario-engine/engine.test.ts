@@ -65,7 +65,7 @@ describe("fixture contract", () => {
   it("keeps every visible card button actionable in the beat where the card appears", () => {
     const cards = loadCardMap();
 
-    for (const scene of loadScenes()) {
+    for (const scene of ["dinner_core", "anonymous_delegate", "conflict_bridge", "game_party_hok"].map(loadScene)) {
       for (const beat of getTimeline(scene).beats) {
         const availableActionIds = new Set((beat.availableActions ?? []).map((action) => action.actionId));
         const visibleCards = (beat.messages ?? [])
@@ -86,7 +86,7 @@ describe("fixture contract", () => {
   });
 
   it("does not use no-op self-loop actions except replaying the scene entry", () => {
-    for (const scene of loadScenes()) {
+    for (const scene of ["dinner_core", "anonymous_delegate", "conflict_bridge", "game_party_hok"].map(loadScene)) {
       for (const beat of getTimeline(scene).beats) {
         for (const action of beat.availableActions ?? []) {
           const isReplayToEntry = action.actionId.includes("replay") && action.nextBeatId === scene.entryBeatId;
@@ -108,7 +108,7 @@ describe("fixture contract", () => {
         expect(
           beat.painPoint,
           `${scene.id}/${beat.id} painPoint should describe the user problem solved, not a product defect`,
-        ).not.toMatch(/功能|如果没有下一步|如果不继续|停在一句/);
+        ).not.toMatch(/功能|如果没有下一步|如果不继续|停在一句|slide|demo|卡片按钮/);
 
         for (const value of collectVisibleBeatText(beat)) {
           expect(value, `${scene.id}/${beat.id} contains judge-facing forbidden copy`).not.toContain("评委");
@@ -130,6 +130,17 @@ describe("fixture contract", () => {
     expect(homeSource).not.toContain("评委");
   });
 
+  it("keeps top-left mode state, animation pacing, and stage progress readable", () => {
+    const pageSource = readFileSync(path.join(process.cwd(), "src/components/demo/ChatDemoPage.tsx"), "utf8");
+    const bubbleSource = readFileSync(path.join(process.cwd(), "src/components/chat/MessageBubble.tsx"), "utf8");
+
+    expect(pageSource).toContain("navLinkClass(\"judge\")");
+    expect(pageSource).toContain("navLinkClass(\"studio\")");
+    expect(pageSource).toContain("AUTOPLAY_TICK_MS");
+    expect(pageSource).toContain("stageProgressCount");
+    expect(bubbleSource).toContain("MAX_REVEAL_DELAY_SECONDS");
+  });
+
   it("continues side-branch flows instead of ending after one reply", () => {
     for (const sceneId of ["anonymous_delegate", "conflict_bridge", "dinner_core"] as const) {
       const scene = loadScene(sceneId);
@@ -148,6 +159,68 @@ describe("fixture contract", () => {
           followUpActions.length,
           `${scene.id}/${action.actionId} should keep the branch moving after the first response`,
         ).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("keeps the anonymous flow merged into the dinner scene surface", () => {
+    const manifest = JSON.parse(readFileSync(path.join(process.cwd(), "fixtures/scenes/scene_manifest.json"), "utf8")) as {
+      scenes: Array<{ id: string }>;
+    };
+    const dinner = loadScene("dinner_core");
+    const seedActions = getTimeline(dinner).beats.find((beat) => beat.id === "dinner.seed")?.availableActions ?? [];
+
+    expect(manifest.scenes.map((scene) => scene.id)).not.toContain("anonymous_delegate");
+    expect(seedActions.map((action) => action.nextBeatId)).toContain("dinner.flash_anonymous");
+  });
+
+  it("lets the dinner scene surface bot intent detection without a user @ mention", () => {
+    const dinner = loadScene("dinner_core");
+    const seed = getTimeline(dinner).beats.find((beat) => beat.id === "dinner.seed");
+    const plan = getTimeline(dinner).beats.find((beat) => beat.id === "dinner.plan");
+
+    expect(seed?.messages.some((message) => message.actorId === "bot_xjz")).toBe(true);
+    expect(seed?.availableActions?.map((action) => action.label).join(" ")).not.toContain("@虾局长");
+    expect(plan?.messages.some((message) => message.actorId === "user_self" && message.text?.includes("@虾局长"))).toBe(false);
+  });
+
+  it("offers graceful abandon paths after voting and confirmation", () => {
+    const dinner = loadScene("dinner_core");
+    const actionLabelsByBeat = new Map(
+      getTimeline(dinner).beats.map((beat) => [beat.id, (beat.availableActions ?? []).map((action) => action.label)]),
+    );
+
+    for (const beatId of ["dinner.time_vote", "dinner.place_vote", "dinner.join_vote", "dinner.confirm_detail", "dinner.confirm"]) {
+      const labels = actionLabelsByBeat.get(beatId)?.join(" ") ?? "";
+      expect(labels, `${beatId} should let a user leave or decline`).toMatch(/不参加|放弃|退出/);
+    }
+  });
+
+  it("grounds the dinner memory card with barbecue photo and chat before recap", () => {
+    const dinner = loadScene("dinner_core");
+    const recap = getTimeline(dinner).beats.find((beat) => beat.id === "dinner.recap");
+    const messages = recap?.messages ?? [];
+    const firstCardIndex = messages.findIndex((message) => message.type === "card");
+    const firstImageIndex = messages.findIndex((message) => message.type === "image");
+
+    expect(firstImageIndex, "recap should show a barbecue photo before the memory card").toBeGreaterThanOrEqual(0);
+    expect(firstImageIndex).toBeLessThan(firstCardIndex);
+    expect(messages.map((message) => message.text).join(" ")).toMatch(/烤肉|肥牛|照片/);
+  });
+
+  it("keeps private outreach and anonymous delegation copy out of normal chat bubbles", () => {
+    const forbiddenNormalChat = /单聊|不在群里公开点名|匿名委托|不暴露发起人|不公开发起人|真实发起人|发起人身份/;
+
+    for (const scene of loadScenes()) {
+      for (const beat of getTimeline(scene).beats) {
+        for (const message of beat.messages ?? []) {
+          if (message.side !== "system") {
+            expect(
+              message.text ?? "",
+              `${scene.id}/${beat.id}/${message.id} leaks private operation copy into chat`,
+            ).not.toMatch(forbiddenNormalChat);
+          }
+        }
       }
     }
   });
@@ -195,8 +268,9 @@ describe("demo engine", () => {
       "m3",
       "m4",
       "m5",
+      "m6_seed_bot",
     ]);
-    expect(state.availableActions.map((action) => action.label)).toContain("@虾局长 帮我收口这局");
+    expect(state.availableActions.map((action) => action.label)).toContain("让虾局长收口烤肉局");
   });
 
   it("advances the guided main path through plan, vote, confirm, and memory cards", () => {
@@ -234,10 +308,7 @@ describe("demo engine", () => {
           cards.get(message.cardId ?? "")?.cardType === "memory",
       ),
     ).toBe(true);
-    expect(state.messages.filter((message) => message.side === "right").map((message) => message.id)).toEqual([
-      "u1",
-      "u_time",
-    ]);
+    expect(state.messages.filter((message) => message.side === "right").map((message) => message.id)).toEqual(["u_time"]);
   });
 });
 

@@ -8,12 +8,6 @@
       "path": "fixtures/scenes/dinner_core.json"
     },
     {
-      "id": "anonymous_delegate",
-      "title": "匿名倡议",
-      "priority": "P1",
-      "path": "fixtures/scenes/anonymous_delegate.json"
-    },
-    {
       "id": "conflict_bridge",
       "title": "冲突桥梁",
       "priority": "P1",

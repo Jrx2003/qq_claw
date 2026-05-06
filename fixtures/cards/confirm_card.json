@@ -19,6 +19,10 @@
     {
       "label": "补充说明",
       "actionId": "dinner.add_note"
+    },
+    {
+      "label": "退出安排",
+      "actionId": "dinner.decline_after_confirm"
     }
   ]
 }

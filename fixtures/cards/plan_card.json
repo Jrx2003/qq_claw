@@ -33,8 +33,12 @@
       "actionId": "dinner.vote_place"
     },
     {
-      "label": "去单聊补全",
+      "label": "私下提醒",
       "actionId": "dinner.dm_pending"
+    },
+    {
+      "label": "这次不参加",
+      "actionId": "dinner.decline_from_plan"
     }
   ]
 }

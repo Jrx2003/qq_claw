@@ -215,6 +215,66 @@ describe("studio conversation runtime", () => {
     ).toBe("place_vote_card_1");
   });
 
+  it("keeps repeated time discussion in the time vote tool until the user explicitly asks for places", () => {
+    const prematurePlaceResponse = {
+      intent_type: "plan",
+      stage: "suggest",
+      bot_message: "时间差不多了，我来开地点投票。",
+      npc_messages: [{ actorId: "akai", text: "我也可以。" }],
+      function_suggestion: {
+        label: "进入地点投票",
+        task: "intent",
+        reason: "模型过早推进到了地点。",
+      },
+      chips: ["继续地点投票", "确认地点"],
+    } as const;
+
+    expect(
+      resolveStudioCardId(prematurePlaceResponse, {
+        userText: "周六晚上八点呢？",
+        recentMessages: [{ type: "card", cardId: "studio_card_2" }],
+        threadState: {
+          dinner: {
+            stage: "time",
+            eventTitle: "周六火锅局",
+            attendanceStatus: "joined",
+            timeOptions: ["周六晚上七点"],
+          },
+        },
+      }),
+    ).toBe("vote_card_1");
+
+    expect(
+      resolveStudioCardId(prematurePlaceResponse, {
+        userText: "再晚一点呢？",
+        recentMessages: [{ type: "card", cardId: "studio_card_3" }],
+        threadState: {
+          dinner: {
+            stage: "time",
+            eventTitle: "周六火锅局",
+            attendanceStatus: "joined",
+            timeOptions: ["周六晚上七点", "周六晚上八点"],
+          },
+        },
+      }),
+    ).toBe("vote_card_1");
+
+    expect(
+      resolveStudioCardId(prematurePlaceResponse, {
+        userText: "继续地点投票",
+        recentMessages: [{ type: "card", cardId: "studio_card_4" }],
+        threadState: {
+          dinner: {
+            stage: "time",
+            eventTitle: "周六火锅局",
+            attendanceStatus: "joined",
+            timeOptions: ["周六晚上七点", "周六晚上八点"],
+          },
+        },
+      }),
+    ).toBe("place_vote_card_1");
+  });
+
   it("records free-text attendance and lets it advance to time voting", () => {
     const confusedResponse = {
       intent_type: "plan",
@@ -344,11 +404,84 @@ describe("studio conversation runtime", () => {
     });
 
     expect(timeCard?.id).toBe("studio_card_9");
-    expect(timeCard?.title).toBe("周六火锅局");
+    expect(timeCard?.title).toBe("周六火锅局 · 时间投票");
     expect(timeCard?.status).toBe("时间投票进行中");
     expect(placeCard?.id).toBe("studio_card_10");
-    expect(placeCard?.title).toBe("周六火锅局");
+    expect(placeCard?.title).toBe("周六火锅局 · 地点投票");
     expect(placeCard?.status).toBe("地点投票进行中");
+  });
+
+  it("treats the user's time text as the authoritative time vote option", () => {
+    const cards = loadCardMap();
+    const timeCard = buildStudioDynamicCard({
+      baseCard: cards.get("vote_card_1"),
+      cardId: "vote_card_1",
+      turnIndex: 11,
+      userText: "周六晚上八点呢？",
+      cardDraft: {
+        cardType: "vote",
+        title: "周六火锅局 · 地点投票",
+        status: "地点投票中",
+        timeOptions: ["周六晚上6点", "周六晚上7点"],
+        placeOptions: ["海底捞"],
+      },
+      threadState: {
+        dinner: {
+          stage: "time",
+          eventTitle: "周六火锅局",
+          attendanceStatus: "joined",
+          timeOptions: ["周六晚上七点"],
+        },
+      },
+    });
+
+    expect(timeCard?.title).toBe("周六火锅局 · 时间投票");
+    expect(timeCard?.status).toBe("时间投票更新中");
+    expect(timeCard?.timeVotes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ label: "周六晚上八点" }),
+        expect.objectContaining({ label: "周六晚上七点" }),
+      ]),
+    );
+    expect(JSON.stringify(timeCard?.timeVotes)).not.toContain("周六晚上6点");
+    expect(JSON.stringify(timeCard?.timeVotes)).not.toContain("海底捞");
+  });
+
+  it("accumulates exact user supplied time options in studio dinner state", () => {
+    const stateAfterEight = resolveNextStudioThreadState({
+      currentState: {
+        dinner: {
+          stage: "time",
+          eventTitle: "周六火锅局",
+          attendanceStatus: "joined",
+          timeOptions: ["周六晚上七点"],
+        },
+      },
+      userText: "周六晚上八点呢？",
+      cardId: "vote_card_1",
+      card: {
+        id: "studio_card_11",
+        cardType: "vote",
+        title: "周六火锅局 · 时间投票",
+      },
+    });
+
+    expect(stateAfterEight.dinner?.stage).toBe("time");
+    expect(stateAfterEight.dinner?.timeOptions).toEqual(["周六晚上八点", "周六晚上七点"]);
+
+    const stateAfterLater = resolveNextStudioThreadState({
+      currentState: stateAfterEight,
+      userText: "再晚一点呢？",
+      cardId: "vote_card_1",
+      card: {
+        id: "studio_card_12",
+        cardType: "vote",
+        title: "周六火锅局 · 时间投票",
+      },
+    });
+
+    expect(stateAfterLater.dinner?.stage).toBe("time");
+    expect(stateAfterLater.dinner?.timeOptions).toEqual(["晚一点", "周六晚上八点", "周六晚上七点"]);
   });
 
   it("updates the studio dinner thread state from dynamic cards and free-text attendance", () => {

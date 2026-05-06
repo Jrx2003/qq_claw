@@ -10,6 +10,8 @@ export type StudioThreadState = {
     stage: StudioDinnerStage;
     eventTitle?: string;
     attendanceStatus?: StudioAttendanceStatus;
+    timeOptions?: string[];
+    placeOptions?: string[];
   };
 };
 export type StudioCardContext = {
@@ -193,91 +195,91 @@ export function buildStudioDynamicCard({
   }
 
   if (cardId === "vote_card_1") {
-    const timeOption = extractTimeOption(userText) ?? firstText(cardDraft?.timeOptions);
+    const userTimeOptions = extractTimeOptions(userText);
+    const stateTimeOptions = threadState?.dinner?.timeOptions ?? [];
+    const draftTimeOptions = userTimeOptions.length === 0 && stateTimeOptions.length === 0 ? (cardDraft?.timeOptions ?? []) : [];
+    const timeOptions = uniqueLabels([...userTimeOptions, ...stateTimeOptions, ...draftTimeOptions]);
+    const timeOption = firstText(timeOptions);
     const hasDinnerThread = Boolean(threadState?.dinner);
+    const title = buildVoteTitle(threadState, cardDraft, "时间投票");
 
     if (!timeOption) {
       return cardDraft?.cardType === "vote"
-        ? applyCardDraft(
-            applyThreadEventTitle(
-              {
-                ...baseCard,
-                id: `studio_card_${turnIndex}`,
-                status: "时间投票进行中",
-              },
-              threadState,
-            ),
+        ? applyVoteCardDraft(
+            {
+              ...baseCard,
+              id: `studio_card_${turnIndex}`,
+              title,
+              status: "时间投票进行中",
+            },
             cardDraft,
           )
         : hasDinnerThread
-          ? applyThreadEventTitle(
-              {
-                ...baseCard,
-                id: `studio_card_${turnIndex}`,
-                status: "时间投票进行中",
-              },
-              threadState,
-            )
+          ? {
+              ...baseCard,
+              id: `studio_card_${turnIndex}`,
+              title,
+              status: "时间投票进行中",
+            }
           : undefined;
     }
 
-    const timeVotes = prependVoteOption(baseCard.timeVotes, timeOption);
+    const timeVotes = buildVoteRows(timeOptions, hasDinnerThread ? [] : baseCard.timeVotes);
 
-    return applyCardDraft(
-      applyThreadEventTitle(
-        {
-          ...baseCard,
-          id: `studio_card_${turnIndex}`,
-          status: "时间投票更新中",
-          timeVotes,
-        },
-        threadState,
-      ),
+    return applyVoteCardDraft(
+      {
+        ...baseCard,
+        id: `studio_card_${turnIndex}`,
+        title,
+        status: userTimeOptions.length > 0 ? "时间投票更新中" : "时间投票进行中",
+        timeVotes,
+        placeVotes: undefined,
+      },
       cardDraft?.cardType === "vote" ? cardDraft : undefined,
     );
   }
 
   if (cardId === "place_vote_card_1") {
-    const placeOption = extractPlaceOption(userText) ?? firstText(cardDraft?.placeOptions);
+    const userPlaceOptions = extractPlaceOptions(userText);
+    const statePlaceOptions = threadState?.dinner?.placeOptions ?? [];
+    const draftPlaceOptions = userPlaceOptions.length === 0 && statePlaceOptions.length === 0 ? (cardDraft?.placeOptions ?? []) : [];
+    const placeOptions = uniqueLabels([...userPlaceOptions, ...statePlaceOptions, ...draftPlaceOptions]);
+    const placeOption = firstText(placeOptions);
     const hasDinnerThread = Boolean(threadState?.dinner);
+    const title = buildVoteTitle(threadState, cardDraft, "地点投票");
 
     if (!placeOption) {
       return cardDraft?.cardType === "vote"
-        ? applyCardDraft(
-            applyThreadEventTitle(
-              {
-                ...baseCard,
-                id: `studio_card_${turnIndex}`,
-                status: "地点投票进行中",
-              },
-              threadState,
-            ),
+        ? applyVoteCardDraft(
+            {
+              ...baseCard,
+              id: `studio_card_${turnIndex}`,
+              title,
+              status: "地点投票进行中",
+            },
             cardDraft,
           )
         : hasDinnerThread
-          ? applyThreadEventTitle(
-              {
-                ...baseCard,
-                id: `studio_card_${turnIndex}`,
-                status: "地点投票进行中",
-              },
-              threadState,
-            )
+          ? {
+              ...baseCard,
+              id: `studio_card_${turnIndex}`,
+              title,
+              status: "地点投票进行中",
+            }
           : undefined;
     }
 
-    const placeVotes = prependVoteOption(baseCard.placeVotes, placeOption);
+    const placeVotes = buildVoteRows(placeOptions, hasDinnerThread ? [] : baseCard.placeVotes);
 
-    return applyCardDraft(
-      applyThreadEventTitle(
-        {
-          ...baseCard,
-          id: `studio_card_${turnIndex}`,
-          status: "地点投票更新中",
-          placeVotes,
-        },
-        threadState,
-      ),
+    return applyVoteCardDraft(
+      {
+        ...baseCard,
+        id: `studio_card_${turnIndex}`,
+        title,
+        status: userPlaceOptions.length > 0 ? "地点投票更新中" : "地点投票进行中",
+        timeVotes: undefined,
+        placeVotes,
+      },
       cardDraft?.cardType === "vote" ? cardDraft : undefined,
     );
   }
@@ -320,12 +322,21 @@ export function resolveNextStudioThreadState({
   const cardStage = resolveDinnerStageFromCard(cardId, card);
   const attendanceStatus = resolveAttendanceStatus(userText);
   const eventTitle = normalizeDinnerEventTitle(card?.title) ?? next.dinner?.eventTitle;
+  const shouldCollectPlaceOptions = cardStage === "place" || next.dinner?.stage === "place" || wantsPlaceVote(userText);
+  const timeOptions = uniqueLabels([...extractTimeOptions(userText), ...(next.dinner?.timeOptions ?? [])]);
+  const placeOptions = shouldCollectPlaceOptions
+    ? uniqueLabels([...extractPlaceOptions(userText), ...(next.dinner?.placeOptions ?? [])])
+    : (next.dinner?.placeOptions ?? []);
 
-  if (actionUpdate || cardStage || attendanceStatus || eventTitle) {
+  if (actionUpdate || cardStage || attendanceStatus || eventTitle || timeOptions.length > 0 || placeOptions.length > 0) {
     next.dinner = {
       stage: actionUpdate?.stage ?? cardStage ?? next.dinner?.stage ?? "plan",
-      eventTitle,
-      attendanceStatus: actionUpdate?.attendanceStatus ?? attendanceStatus ?? next.dinner?.attendanceStatus,
+      ...(eventTitle ? { eventTitle } : {}),
+      ...(actionUpdate?.attendanceStatus ?? attendanceStatus ?? next.dinner?.attendanceStatus
+        ? { attendanceStatus: actionUpdate?.attendanceStatus ?? attendanceStatus ?? next.dinner?.attendanceStatus }
+        : {}),
+      ...(timeOptions.length > 0 ? { timeOptions } : {}),
+      ...(placeOptions.length > 0 ? { placeOptions } : {}),
     };
   }
 
@@ -399,6 +410,18 @@ function applyCardDraft(card: DemoCard, cardDraft?: StudioCardDraft): DemoCard {
   };
 }
 
+function applyVoteCardDraft(card: DemoCard, cardDraft?: StudioCardDraft): DemoCard {
+  if (!cardDraft) {
+    return card;
+  }
+
+  return {
+    ...card,
+    ...(cardDraft.summary ? { summary: cardDraft.summary } : {}),
+    ...(cardDraft.pendingMembers ? { pendingMembers: cardDraft.pendingMembers } : {}),
+  };
+}
+
 function applyThreadEventTitle(card: DemoCard, threadState?: StudioThreadState): DemoCard {
   const eventTitle = threadState?.dinner?.eventTitle;
 
@@ -408,6 +431,12 @@ function applyThreadEventTitle(card: DemoCard, threadState?: StudioThreadState):
         title: eventTitle,
       }
     : card;
+}
+
+function buildVoteTitle(threadState: StudioThreadState | undefined, cardDraft: StudioCardDraft | undefined, suffix: string): string {
+  const eventTitle = threadState?.dinner?.eventTitle ?? normalizeDinnerEventTitle(cardDraft?.title) ?? "这次活动";
+
+  return `${eventTitle} · ${suffix}`;
 }
 
 function resolveIntentStudioCardId(response: StudioConversation, context: StudioCardContext): string {
@@ -420,12 +449,17 @@ function resolveIntentStudioCardId(response: StudioConversation, context: Studio
   ].join(" ");
   const activeCardIds = getActiveCardIds(context);
   const hasActiveDinnerCard = hasActiveDinnerContext(context);
+  const dinnerStage = inferDinnerStage(context);
 
   if (hasActiveDinnerCard && isPlaceText(userText)) {
     return "place_vote_card_1";
   }
 
-  if (hasActiveDinnerCard && isTimeText(userText)) {
+  if (hasActiveDinnerCard && isTimeDiscussionText(userText)) {
+    return "vote_card_1";
+  }
+
+  if (dinnerStage === "time" && !wantsPlaceVote(userText) && !isPlaceText(userText)) {
     return "vote_card_1";
   }
 
@@ -446,6 +480,7 @@ function resolveIntentStudioCardId(response: StudioConversation, context: Studio
 
 function resolveContextualDinnerCardId(context: StudioCardContext): string | undefined {
   const userText = context.userText ?? "";
+  const dinnerStage = inferDinnerStage(context);
 
   if (!hasActiveDinnerContext(context)) {
     return undefined;
@@ -455,7 +490,11 @@ function resolveContextualDinnerCardId(context: StudioCardContext): string | und
     return "place_vote_card_1";
   }
 
-  if (wantsTimeVote(userText) || isTimeText(userText) || isJoinText(userText)) {
+  if (wantsTimeVote(userText) || isTimeDiscussionText(userText) || isJoinText(userText)) {
+    return "vote_card_1";
+  }
+
+  if (dinnerStage === "time") {
     return "vote_card_1";
   }
 
@@ -510,8 +549,8 @@ function getActiveCardIds(context: StudioCardContext): string[] {
     .filter((cardId): cardId is string => Boolean(cardId));
 }
 
-function isTimeText(text: string): boolean {
-  return Boolean(extractTimeOption(text));
+function isTimeDiscussionText(text: string): boolean {
+  return extractTimeOptions(text).length > 0 || /时间|几点|早一点|晚一点|更早|更晚|再晚|再早|上午|中午|下午|晚上|今晚|明晚/.test(text);
 }
 
 function isPlaceText(text: string): boolean {
@@ -649,26 +688,41 @@ function normalizeDinnerEventTitle(title?: string): string | undefined {
   return normalized && normalized.length > 0 ? normalized : undefined;
 }
 
-function extractTimeOption(text: string): string | undefined {
-  const normalized = text.trim();
-  const clockMatch = normalized.match(/(?:周[一二三四五六日天末]\s*)?(\d{1,2}[:：]\d{2})/);
+function extractTimeOptions(text: string): string[] {
+  const normalized = text
+    .replace(/[，,。！？!?]/g, " ")
+    .replace(/(可以|怎么样|如何|行不行|吗|呢|吧|呀|啊)/g, " ")
+    .trim();
+  const vagueMatch = normalized.match(/(再晚一点|再早一点|晚一点|早一点|更早|更晚|再晚|再早)/);
 
-  if (clockMatch) {
-    return clockMatch[1].replace("：", ":");
+  if (vagueMatch) {
+    return [vagueMatch[1].replace(/^再/, "")];
   }
 
-  const pointMatch = normalized.match(/((?:周[一二三四五六日天末]\s*)?(?:早上|上午|中午|下午|晚上|今晚)?\s*\d{1,2}\s*点半?)/);
+  const prefix = String.raw`(?:本周|这周|下周)?(?:周[一二三四五六日天末]\s*)?(?:早上|上午|中午|下午|晚上|今晚|明晚)?\s*`;
+  const digitTime = new RegExp(`(${prefix}(?:\\d{1,2}[:：]\\d{2}|\\d{1,2}\\s*点半?|\\d{1,2}\\s*点\\s*\\d{1,2}\\s*分?))`, "g");
+  const chineseTime = new RegExp(`(${prefix}(?:[一二两三四五六七八九十]{1,3}\\s*点半?|[一二两三四五六七八九十]{1,3}\\s*点\\s*[一二两三四五六七八九十]{1,3}\\s*分?))`, "g");
+  const labels = uniqueLabels([
+    ...Array.from(normalized.matchAll(digitTime), (match) => normalizeTimeLabel(match[1])),
+    ...Array.from(normalized.matchAll(chineseTime), (match) => normalizeTimeLabel(match[1])),
+  ]);
 
-  if (pointMatch) {
-    return pointMatch[1].replace(/\s+/g, "");
+  if (labels.length > 0) {
+    return labels;
   }
 
-  const dayPartMatch = normalized.match(/(周[一二三四五六日天末]\s*(?:早上|上午|中午|下午|晚上))/);
+  return [];
+}
 
-  return dayPartMatch?.[1].replace(/\s+/g, "");
+function normalizeTimeLabel(label: string): string {
+  return label.replace(/\s+/g, "").replace("：", ":").trim();
 }
 
 function extractPlaceOption(text: string): string | undefined {
+  return extractPlaceOptions(text)[0];
+}
+
+function extractPlaceOptions(text: string): string[] {
   const normalized = text
     .replace(/[，,。！？!?]/g, " ")
     .replace(/(可以|怎么样|如何|行不行|吗|呢|吧|呀|啊)/g, " ")
@@ -676,27 +730,46 @@ function extractPlaceOption(text: string): string | undefined {
   const knownMatch = normalized.match(/(海底捞|木屋烧烤|韩宫宴)/);
 
   if (knownMatch) {
-    return knownMatch[1];
+    return [knownMatch[1]];
   }
 
   const placeMatch = normalized.match(/([\u4e00-\u9fa5A-Za-z0-9·]{2,22}(?:烤肉店|烧烤店|火锅店|餐厅|饭店|小馆|店|烧烤|烤肉|火锅))/);
 
-  return placeMatch?.[1];
+  return placeMatch?.[1] ? [placeMatch[1]] : [];
 }
 
-function prependVoteOption(value: unknown, label: string) {
-  const rows = Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => Boolean(item && typeof item === "object")) : [];
+function buildVoteRows(labels: string[], fallback: unknown) {
+  const fallbackRows = Array.isArray(fallback)
+    ? fallback.filter((item): item is Record<string, unknown> => Boolean(item && typeof item === "object"))
+    : [];
 
-  if (rows.some((row) => row.label === label)) {
-    return rows;
+  if (labels.length === 0) {
+    return fallbackRows;
   }
 
-  return [
-    {
-      label,
-      votes: 1,
-      percent: 12,
-    },
-    ...rows,
-  ];
+  const fallbackByLabel = new Map(fallbackRows.map((row) => [String(row.label), row]));
+
+  return labels.map((label, index) => ({
+    label,
+    votes: Number(fallbackByLabel.get(label)?.votes ?? (index === 0 ? 1 : 0)),
+    percent: Number(fallbackByLabel.get(label)?.percent ?? (index === 0 ? 12 : 0)),
+  }));
+}
+
+function uniqueLabels(labels: Array<string | undefined>): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const label of labels) {
+    const normalized = label?.trim();
+
+    if (!normalized || seen.has(normalized)) {
+      continue;
+    }
+
+    seen.add(normalized);
+    result.push(normalized);
+  }
+
+  return result;
 }

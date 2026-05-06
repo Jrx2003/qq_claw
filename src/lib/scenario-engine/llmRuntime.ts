@@ -24,6 +24,7 @@ export async function runClientLlmTask<T>(
     conflict: "/api/llm/conflict",
     recap: "/api/llm/recap",
     "game-recap": "/api/llm/game-recap",
+    "studio-conversation": "/api/llm/studio-conversation",
   };
 
   const response = await fetch(endpointByTask[taskName], {

@@ -112,7 +112,7 @@
       "id": "anonymous.vote",
       "description": "匿名倡议升级投票",
       "designIntent": "把匿名代发继续推进为轻量投票，形成从想法到行动的闭环。",
-      "painPoint": "匿名想法只代发一句，仍然很难成局。",
+      "painPoint": "匿名发起人不便催大家表态，容易错过成局窗口。",
       "expectedEffect": "匿名能力也能承接成局主流程。",
       "messages": [
         { "id": "a_v1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我已把匿名倡议升级成轻量投票：周六下午、宿舍附近、预算 50 内。发起人身份不会展示。", "delayMs": 420 },

@@ -105,6 +105,10 @@ describe("fixture contract", () => {
       for (const beat of getTimeline(scene).beats) {
         expect(beat.painPoint, `${scene.id}/${beat.id} needs painPoint`).toBeTruthy();
         expect(beat.painPoint.length, `${scene.id}/${beat.id} painPoint should stay concise`).toBeLessThanOrEqual(48);
+        expect(
+          beat.painPoint,
+          `${scene.id}/${beat.id} painPoint should describe the user problem solved, not a product defect`,
+        ).not.toMatch(/功能|如果没有下一步|如果不继续|停在一句/);
 
         for (const value of collectVisibleBeatText(beat)) {
           expect(value, `${scene.id}/${beat.id} contains judge-facing forbidden copy`).not.toContain("评委");
@@ -144,6 +148,31 @@ describe("fixture contract", () => {
           followUpActions.length,
           `${scene.id}/${action.actionId} should keep the branch moving after the first response`,
         ).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("keeps authored scene branches conversational before they end", () => {
+    const sceneIds = ["dinner_core", "anonymous_delegate", "conflict_bridge", "game_party_hok"] as const;
+
+    for (const sceneId of sceneIds) {
+      const scene = loadScene(sceneId);
+
+      for (const beat of getTimeline(scene).beats) {
+        const isReplayOnly = (beat.availableActions ?? []).every((action) => action.actionId.includes("replay"));
+
+        expect(
+          beat.messages.length,
+          `${scene.id}/${beat.id} needs enough dialogue to avoid abrupt jumps`,
+        ).toBeGreaterThanOrEqual(isReplayOnly ? 1 : 2);
+
+        if (!isReplayOnly) {
+          const nonReplayActions = (beat.availableActions ?? []).filter((action) => !action.actionId.includes("replay"));
+          expect(
+            nonReplayActions.length,
+            `${scene.id}/${beat.id} should offer a next step before replay`,
+          ).toBeGreaterThan(0);
+        }
       }
     }
   });

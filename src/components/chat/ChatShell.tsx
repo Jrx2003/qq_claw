@@ -22,6 +22,10 @@ export function ChatShell({
   actions,
   cardActions,
   onAction,
+  onSubmitText,
+  inputDisabled,
+  inputMode,
+  inputPlaceholder,
 }: {
   scene: SceneDefinition;
   mode: AppMode;
@@ -31,6 +35,10 @@ export function ChatShell({
   actions: DemoAction[];
   cardActions?: DemoAction[];
   onAction: (actionId: string) => void;
+  onSubmitText?: (text: string) => void;
+  inputDisabled?: boolean;
+  inputMode?: "guided" | "free";
+  inputPlaceholder?: string;
 }) {
   return (
     <main className="flex h-[780px] max-h-[calc(100vh-32px)] w-full max-w-[430px] flex-col overflow-hidden rounded-[32px] border border-white/70 bg-qq-bg shadow-soft">
@@ -43,7 +51,14 @@ export function ChatShell({
         messages={messages}
         onAction={onAction}
       />
-      <SuggestionChipBar actions={actions} onAction={onAction} />
+      <SuggestionChipBar
+        actions={actions}
+        inputDisabled={inputDisabled}
+        inputMode={inputMode}
+        onAction={onAction}
+        onSubmitText={onSubmitText}
+        placeholder={inputPlaceholder}
+      />
     </main>
   );
 }

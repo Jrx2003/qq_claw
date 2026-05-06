@@ -3,6 +3,7 @@ import conflictSchema from "../../../schemas/conflict_bridge.schema.json";
 import gameRecapSchema from "../../../schemas/game_recap.schema.json";
 import intentSchema from "../../../schemas/intent_extraction.schema.json";
 import recapSchema from "../../../schemas/recap_card.schema.json";
+import studioConversationSchema from "../../../schemas/studio_conversation.schema.json";
 
 import type { LlmTaskName } from "@/lib/types/demo";
 
@@ -49,5 +50,12 @@ export const llmTaskConfigByName: Record<LlmTaskName, LlmTaskConfig> = {
     promptFile: "prompts/live_llm/game_party_recap.md",
     schema: gameRecapSchema,
     fallbackSnapshotKey: "game/hok_recap",
+  },
+  "studio-conversation": {
+    taskName: "studio-conversation",
+    route: "/api/llm/studio-conversation",
+    promptFile: "prompts/live_llm/studio_conversation.md",
+    schema: studioConversationSchema,
+    fallbackSnapshotKey: "studio/free_chat_seed",
   },
 };

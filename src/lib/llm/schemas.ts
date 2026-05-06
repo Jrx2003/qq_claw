@@ -71,12 +71,36 @@ export const gameRecapSchema = z.object({
   next_invite_copy: z.string(),
 });
 
+export const studioConversationSchema = z.object({
+  intent_type: z.enum(["plan", "anonymous", "conflict", "game_party", "recap", "none"]),
+  stage: z.enum(["listen", "suggest", "execute", "follow_up"]),
+  bot_message: z.string(),
+  npc_messages: z
+    .array(
+      z.object({
+        actorId: z.enum(["akai", "xiaoyu", "laozhou", "dazhuang", "naicha", "xiaoma", "aze", "ayuan"]),
+        text: z.string(),
+      }),
+    )
+    .min(1)
+    .max(4),
+  function_suggestion: z
+    .object({
+      label: z.string(),
+      task: z.enum(["intent", "anonymous", "conflict", "recap", "game-recap"]),
+      reason: z.string(),
+    })
+    .optional(),
+  chips: z.array(z.string()).min(2).max(4),
+});
+
 export const llmTaskSchemas = {
   intent: intentExtractionSchema,
   anonymous: anonymousProposalSchema,
   conflict: conflictBridgeSchema,
   recap: recapCardSchema,
   "game-recap": gameRecapSchema,
+  "studio-conversation": studioConversationSchema,
 } satisfies Record<LlmTaskName, z.ZodTypeAny>;
 
 export type IntentExtraction = z.infer<typeof intentExtractionSchema>;
@@ -84,5 +108,6 @@ export type AnonymousProposal = z.infer<typeof anonymousProposalSchema>;
 export type ConflictBridge = z.infer<typeof conflictBridgeSchema>;
 export type RecapCard = z.infer<typeof recapCardSchema>;
 export type GameRecap = z.infer<typeof gameRecapSchema>;
+export type StudioConversation = z.infer<typeof studioConversationSchema>;
 
 export type LlmTaskData<T extends LlmTaskName> = z.infer<(typeof llmTaskSchemas)[T]>;

@@ -55,7 +55,8 @@
       "painPoint": "开黑局约好了也可能因为有人没上线而散掉。",
       "expectedEffect": "用户看到虾局长能继续承担执行提醒。",
       "messages": [
-        { "id": "g_r1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已设置 21:20 上线提醒，并提示大家先更新游戏。", "delayMs": 420 }
+        { "id": "g_r1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已设置 21:20 上线提醒，并提示大家先更新游戏。", "delayMs": 420 },
+        { "id": "g_r2", "actorId": "akai", "type": "text", "side": "left", "text": "我先开房间，谁没更新赶紧更。", "delayMs": 860 }
       ],
       "availableActions": [
         { "actionId": "game_hok.import_recap", "label": "导入战绩回顾", "kind": "keyboard", "nextBeatId": "game_hok.recap", "autoplayPriority": 1 }

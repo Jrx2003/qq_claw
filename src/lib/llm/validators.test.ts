@@ -23,7 +23,7 @@ describe("LLM validators and fallback", () => {
   });
 
   it("has fixture fallback data for every required live task", () => {
-    for (const task of ["intent", "anonymous", "conflict", "recap", "game-recap"] as const) {
+    for (const task of ["intent", "anonymous", "conflict", "recap", "game-recap", "studio-conversation"] as const) {
       expect(validateLlmTaskData(task, getFallbackForTask(task))).toBeTruthy();
     }
   });

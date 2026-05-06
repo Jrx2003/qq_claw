@@ -19,7 +19,7 @@ export default async function StudioPage({
           <p className="text-sm font-bold uppercase text-blue-600">真实 LLM 工作台</p>
           <h1 className="mt-2 text-2xl font-black text-slate-950">需要访问密钥</h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            无 LLM 评审模式可直接访问。真实 LLM 工作台用于 live route 调试和快照保存，需要在 URL 中带上 key。
+            无 LLM 评审模式可直接访问。真实 LLM 工作台用于自由输入、NPC 接话和 live route 验证，需要在 URL 中带上 key。
           </p>
         </section>
       </main>

@@ -50,7 +50,7 @@ export function DemoToolbar({
         </p>
       </div>
       <div className="rounded-2xl border border-blue-100 bg-blue-50 px-3 py-3">
-        <p className="text-xs font-bold uppercase text-blue-600">当前痛点</p>
+        <p className="text-xs font-bold uppercase text-blue-600">功能解决的痛点</p>
         <p className="mt-1 text-sm leading-6 text-blue-950">{painPoint}</p>
       </div>
       <div className="grid grid-cols-2 gap-2">

@@ -207,7 +207,8 @@
       "painPoint": "组织者常要单独维护谁来、谁晚到、谁有口味限制。",
       "expectedEffect": "点击查看名单后会出现名单信息，而不是直接跳到回忆卡。",
       "messages": [
-        { "id": "roster_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "名单：阿凯、小雨、老周、大壮、奶茶、阿远、小马和你。老周会晚到 5 分钟。", "delayMs": 420 }
+        { "id": "roster_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "名单：阿凯、小雨、老周、大壮、奶茶、阿远、小马和你。老周会晚到 5 分钟。", "delayMs": 420 },
+        { "id": "roster_2", "actorId": "xiaoma", "type": "text", "side": "left", "text": "那我先按 8 个人看座位，别到店再改。", "delayMs": 860 }
       ],
       "availableActions": [
         { "actionId": "dinner.show_recap", "label": "继续到局后回忆", "kind": "toolbar", "nextBeatId": "dinner.recap", "autoplayPriority": 1 }
@@ -221,7 +222,8 @@
       "painPoint": "成局后还会有人忘记时间或地点，导致临出发再混乱。",
       "expectedEffect": "用户看到虾局长能把安排继续推到出发前，而不是停在确认页。",
       "messages": [
-        { "id": "reminder_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已设置 18:30 出发提醒：带学生证，木屋烧烤门口集合。", "delayMs": 420 }
+        { "id": "reminder_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "已设置 18:30 出发提醒：带学生证，木屋烧烤门口集合。", "delayMs": 420 },
+        { "id": "reminder_2", "actorId": "laozhou", "type": "text", "side": "left", "text": "收到，我下课直接过去，晚到我自己同步。", "delayMs": 860 }
       ],
       "availableActions": [
         { "actionId": "dinner.show_recap", "label": "继续到局后回忆", "kind": "toolbar", "nextBeatId": "dinner.recap", "autoplayPriority": 1 }
@@ -350,7 +352,7 @@
       "act": "匿名看时间",
       "description": "匿名倡议时间补全",
       "designIntent": "让看时间按钮进入轻量投票，而不是和兴趣按钮共用逻辑。",
-      "painPoint": "匿名发起后如果没有下一步，很容易停在一句试探。",
+      "painPoint": "匿名发起人不想继续出面，但活动仍需要时间线索。",
       "expectedEffect": "匿名倡议也能继续推进到可成局结构。",
       "messages": [
         { "id": "ft_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我先不公开发起人，只收大家本周五/周六哪个时间更舒服。", "delayMs": 420 },
@@ -398,10 +400,11 @@
       "act": "匿名投票",
       "description": "匿名倡议升级投票",
       "designIntent": "把匿名响应继续推进为轻量投票。",
-      "painPoint": "匿名代发如果不继续推进，只会停在一句试探。",
+      "painPoint": "匿名发起人不便催大家投票，容易失去推进动力。",
       "expectedEffect": "匿名想法进入可成局状态。",
       "messages": [
-        { "id": "fv_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我已生成匿名小投票：周六下午、宿舍附近、预算 50 内。发起人身份不会展示。", "delayMs": 420 }
+        { "id": "fv_1", "actorId": "bot_xjz", "type": "text", "side": "left", "text": "我已生成匿名小投票：周六下午、宿舍附近、预算 50 内。发起人身份不会展示。", "delayMs": 420 },
+        { "id": "fv_2", "actorId": "naicha", "type": "text", "side": "left", "text": "这样可以，我先投周六下午。", "delayMs": 860 }
       ],
       "availableActions": [
         { "actionId": "dinner.flash_vote_close", "label": "生成成局草稿", "kind": "keyboard", "nextBeatId": "dinner.flash_close" },

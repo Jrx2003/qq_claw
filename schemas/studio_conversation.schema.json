@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qqclaw.local/schemas/studio_conversation.schema.json",
+  "title": "StudioConversation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["intent_type", "stage", "bot_message", "npc_messages", "chips"],
+  "properties": {
+    "intent_type": {
+      "type": "string",
+      "enum": ["plan", "anonymous", "conflict", "game_party", "recap", "none"]
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["listen", "suggest", "execute", "follow_up"]
+    },
+    "bot_message": {
+      "type": "string",
+      "minLength": 1
+    },
+    "npc_messages": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["actorId", "text"],
+        "properties": {
+          "actorId": {
+            "type": "string",
+            "enum": ["akai", "xiaoyu", "laozhou", "dazhuang", "naicha", "xiaoma", "aze", "ayuan"]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "function_suggestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "task", "reason"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "task": {
+          "type": "string",
+          "enum": ["intent", "anonymous", "conflict", "recap", "game-recap"]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "chips": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

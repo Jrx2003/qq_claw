@@ -12,21 +12,21 @@ Vercel production:
 
 Latest verified production deployment on 2026-05-06:
 
-- Deployment id: `dpl_AeFLuusycRSUXexv4dBL2kXe6oXe`
+- Deployment id: `dpl_CBwgTPbMcno4y9Jqk8WnRpjaU6yq`
 - Alias: `https://qqclaw.vercel.app`
 - `/` returns HTTP 200 and includes the looping product showcase.
 - `/judge` returns HTTP 200.
 - `/recording` returns HTTP 404 because Recording Mode has been removed.
 - `/studio` returns HTTP 200 with access-key guard.
-- `/studio?key=local-studio` returns HTTP 200 with live LLM controls.
+- `/studio?key=local-studio` returns HTTP 200 with free-input live LLM chat controls.
 - `/api/health` returns `{ "ok": true, "defaultMode": "judge", "llmRuntimeMode": "snapshot" }`.
 - `/api/llm/anonymous` with `mode: "snapshot"` returns schema-validated snapshot JSON.
-- `/api/llm/intent`, `/api/llm/anonymous`, `/api/llm/conflict`, `/api/llm/recap`, and `/api/llm/game-recap` with `mode: "live"` return schema-validated DeepSeek JSON with `fallbackUsed: false`.
+- `/api/llm/intent`, `/api/llm/anonymous`, `/api/llm/conflict`, `/api/llm/recap`, `/api/llm/game-recap`, and `/api/llm/studio-conversation` with `mode: "live"` return schema-validated DeepSeek JSON with `fallbackUsed: false`.
 
 ## Runtime Policy
 
 - `/judge` defaults to `snapshot` runtime for stable judging without live model variance.
-- `/studio` defaults to `live` runtime for real model proof and snapshot capture.
+- `/studio` defaults to `live` runtime for free-input chat, model-driven NPC replies, and function suggestions.
 - Live LLM secrets are only configured in Vercel server-side environment variables.
 - The included `vercel.json` traces `prompts/live_llm/**/*` and `fixtures/snapshots/**/*` into API route bundles so serverless LLM routes can read prompt and fallback assets.
 

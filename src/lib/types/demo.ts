@@ -86,6 +86,7 @@ export const llmTaskNameSchema = z.enum([
   "conflict",
   "recap",
   "game-recap",
+  "studio-conversation",
 ]);
 export type LlmTaskName = z.infer<typeof llmTaskNameSchema>;
 

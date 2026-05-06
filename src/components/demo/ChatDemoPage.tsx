@@ -11,6 +11,7 @@ import type { StudioConversation } from "@/lib/llm/schemas";
 import { collectSceneActions, findBeat } from "@/lib/scenario-engine/engine";
 import { runClientLlmTask } from "@/lib/scenario-engine/llmRuntime";
 import {
+  buildStudioDynamicCard,
   buildStudioPendingMessages,
   buildStudioSceneActionMessages,
   buildStudioSuggestionActions,
@@ -26,6 +27,7 @@ import {
   type AppMode,
   type ChatMessage,
   type DemoAction,
+  type DemoCard,
   type RuntimeMode,
 } from "@/lib/types/demo";
 
@@ -64,6 +66,7 @@ export function ChatDemoPage({
   } = useDemoStore();
   const [studioMessages, setStudioMessages] = useState<ChatMessage[]>([]);
   const [studioActions, setStudioActions] = useState<DemoAction[]>([]);
+  const [studioCards, setStudioCards] = useState<Map<string, DemoCard>>(() => new Map());
   const [studioPending, setStudioPending] = useState(false);
   const [studioTurnIndex, setStudioTurnIndex] = useState(0);
 
@@ -71,6 +74,13 @@ export function ChatDemoPage({
   const effectiveMode = showStudioTools ? "studio" : defaultMode === "judge" ? "judge" : mode;
   const displayedMessages = showStudioTools ? [...messages, ...studioMessages] : messages;
   const displayedActions = showStudioTools ? studioActions : availableActions;
+  const displayedCards = useMemo(() => {
+    if (!showStudioTools || studioCards.size === 0) {
+      return cards;
+    }
+
+    return new Map([...cards, ...studioCards]);
+  }, [cards, showStudioTools, studioCards]);
   const stageLabels = sceneTextArray(currentScene, "stageLabels", ["收口", "投票", "成局", "回忆"]);
   const stageProgressCount = resolveStageProgressCount(currentBeatId, activeCards.length);
   const navLinkClass = (targetMode: AppMode) =>
@@ -115,6 +125,7 @@ export function ChatDemoPage({
   useEffect(() => {
     setStudioMessages([]);
     setStudioActions([]);
+    setStudioCards(new Map());
     setStudioTurnIndex(0);
   }, [sceneId]);
 
@@ -181,18 +192,35 @@ export function ChatDemoPage({
         },
         runtimeMode,
       );
-      const cardId = resolveStudioCardId(response.data);
+      const cardId = resolveStudioCardId(response.data, {
+        userText: text,
+        recentMessages: displayedMessages.slice(-14).map((message) => ({
+          type: message.type,
+          text: message.text,
+          cardId: message.cardId,
+        })),
+      });
+      const dynamicCard = buildStudioDynamicCard({
+        baseCard: cardId ? cards.get(cardId) : undefined,
+        cardId,
+        turnIndex: nextTurnIndex,
+        userText: text,
+      });
+      const renderedCardId = dynamicCard?.id ?? cardId;
       const nextMessages = buildStudioTurnMessages({
         turnIndex: nextTurnIndex,
         userText: text,
         response: response.data,
-        cardId,
+        cardId: renderedCardId,
         includeUser: false,
       });
       const chips = response.data.function_suggestion
         ? [response.data.function_suggestion.label, ...response.data.chips]
         : response.data.chips;
 
+      if (dynamicCard) {
+        setStudioCards((current) => new Map(current).set(dynamicCard.id, dynamicCard));
+      }
       setStudioMessages((current) => [...current, ...nextMessages]);
       setStudioActions(buildStudioSuggestionActions(chips));
     } catch (caught) {
@@ -241,6 +269,7 @@ export function ChatDemoPage({
         if (authoredAction.actionId.includes("replay")) {
           setStudioMessages([]);
           setStudioActions([]);
+          setStudioCards(new Map());
           triggerAction(actionId);
           return;
         }
@@ -297,7 +326,7 @@ export function ChatDemoPage({
           actions={displayedActions}
           actors={actors}
           cardActions={showStudioTools ? [...cardActions, ...studioActions] : cardActions}
-          cards={cards}
+          cards={displayedCards}
           inputDisabled={studioPending}
           inputMode={showStudioTools ? "free" : "guided"}
           inputPlaceholder={showStudioTools ? "自由输入一句群聊消息，例如：周五有人想吃烤肉吗？" : undefined}

@@ -5,6 +5,7 @@ import path from "path";
 import { studioConversationSchema } from "@/lib/llm/schemas";
 import { loadCardMap } from "@/lib/fixtures/loader";
 import {
+  buildStudioDynamicCard,
   buildStudioPendingMessages,
   buildStudioSceneActionMessages,
   buildStudioSuggestionActions,
@@ -99,6 +100,75 @@ describe("studio conversation runtime", () => {
       expect(cardId).toBe(testCase.expectedCardId);
       expect(cards.has(cardId ?? ""), `${testCase.intentType} should resolve to an existing card`).toBe(true);
     }
+  });
+
+  it("routes a new time option in an active dinner thread to the time vote card", () => {
+    const response = {
+      intent_type: "plan",
+      stage: "suggest",
+      bot_message: "我把这个新时间补进时间投票。",
+      npc_messages: [{ actorId: "laozhou", text: "20:30 我更稳" }],
+      function_suggestion: {
+        label: "补充时间选项",
+        task: "intent",
+        reason: "用户在已有饭局里提出新的时间。",
+      },
+      chips: ["20:30 也可以", "继续看地点"],
+    } as const;
+
+    const cardId = resolveStudioCardId(response, {
+      userText: "20:30 也可以吗？",
+      recentMessages: [{ type: "card", cardId: "plan_card_1" }],
+    });
+
+    expect(cardId).toBe("vote_card_1");
+  });
+
+  it("routes a new place option in an active dinner thread to the place vote card", () => {
+    const response = {
+      intent_type: "plan",
+      stage: "suggest",
+      bot_message: "我把这个地点补进地点投票。",
+      npc_messages: [{ actorId: "naicha", text: "南门新店也行" }],
+      function_suggestion: {
+        label: "补充地点选项",
+        task: "intent",
+        reason: "用户在已有饭局里提出新的地点。",
+      },
+      chips: ["南门新开的烤肉店", "继续确认时间"],
+    } as const;
+
+    const cardId = resolveStudioCardId(response, {
+      userText: "南门新开的烤肉店怎么样？",
+      recentMessages: [{ type: "card", cardId: "vote_card_1" }],
+    });
+
+    expect(cardId).toBe("place_vote_card_1");
+  });
+
+  it("injects user supplied time and place options into studio vote cards", () => {
+    const cards = loadCardMap();
+    const timeCard = buildStudioDynamicCard({
+      baseCard: cards.get("vote_card_1"),
+      cardId: "vote_card_1",
+      turnIndex: 4,
+      userText: "20:30 也可以吗？",
+    });
+    const placeCard = buildStudioDynamicCard({
+      baseCard: cards.get("place_vote_card_1"),
+      cardId: "place_vote_card_1",
+      turnIndex: 5,
+      userText: "南门新开的烤肉店怎么样？",
+    });
+
+    expect(timeCard?.id).toBe("studio_card_4");
+    expect(timeCard?.timeVotes).toEqual(
+      expect.arrayContaining([expect.objectContaining({ label: "20:30" })]),
+    );
+    expect(placeCard?.id).toBe("studio_card_5");
+    expect(placeCard?.placeVotes).toEqual(
+      expect.arrayContaining([expect.objectContaining({ label: "南门新开的烤肉店" })]),
+    );
   });
 
   it("turns LLM suggestions into dynamic free-input actions", () => {

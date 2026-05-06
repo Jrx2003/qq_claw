@@ -12,7 +12,7 @@ Vercel production:
 
 Latest verified production deployment on 2026-05-06:
 
-- Deployment id: `dpl_8vp3WtLUxMaoQSbRpZnp1re1ZcLR`
+- Deployment id: `dpl_5jij2tPY4HZCvMui53Z5QoV6CNrz`
 - Alias: `https://qqclaw.vercel.app`
 - `/` returns HTTP 200 and includes the looping product showcase.
 - `/judge` returns HTTP 200.
